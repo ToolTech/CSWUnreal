@@ -53,6 +53,9 @@ ACSWWorld::ACSWWorld()
 	Scene = CreateDefaultSubobject<UCSWScene>(TEXT("Scene"));
 
 	DefaultCamera = CreateDefaultSubobject<UCSWCamera>(TEXT("Camera"));
+
+	FName name = "MapUrls";
+	int32 id = name.GetNumber();
 }
 
 ACSWWorld::~ACSWWorld()
@@ -91,6 +94,8 @@ void ACSWWorld::PostInitProperties()
 void ACSWWorld::PostLoad()
 {
 	Super::PostLoad();
+
+	propertyUpdate();
 }
 
 void ACSWWorld::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -101,7 +106,9 @@ void ACSWWorld::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEve
 		return;
 
 	FName PropName = PropertyChangedEvent.Property->GetFName();
-	FString PropNameAsString = PropertyChangedEvent.Property->GetName();
+
+	if (!propertyUpdate(PropName))
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to do a ACSWWorld::PostEditChangeProperty on property (%s)", toString(PropName));
 }
 
 void ACSWWorld::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedChainEvent)
@@ -112,10 +119,14 @@ void ACSWWorld::PostEditChangeChainProperty(FPropertyChangedChainEvent& Property
 void ACSWWorld::PostEditUndo()
 {
 	Super::PostEditUndo();
+
+	propertyUpdate();
 }
 
 void ACSWWorld::PostEditImport()
 {
 	Super::PostEditImport();
+
+	propertyUpdate();
 }
 

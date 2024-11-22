@@ -36,7 +36,7 @@ public:
 
 template <> inline gzUInt32 cswHashInterface<FName>::hash() const
 {
-	return 0;
+	return (gzUInt32)GetNumber();
 }
 
 //******************************************************************************
@@ -61,9 +61,21 @@ public:
 
 	typedef bool(T::* ThisPtr)();
 
+	class cswUEPropertyChainData : public gzThreadSafeReference
+	{
+	public:
+		
+		ThisPtr				methodPointer;
+
+		gzReference* clone() const
+		{
+			return (gzReference*)new cswUEPropertyChainData(*this);
+		}
+	};
+
 	bool registerPropertyUpdate(const FName& name, ThisPtr method)
 	{
-		ThisPtr *ptr = m_propMethods.find(cswHashInterface<FName>(name));
+		cswUEPropertyChainData *ptr = m_propMethods.find(cswHashInterface<FName>(name));
 
 		if (ptr)
 		{
@@ -71,28 +83,46 @@ public:
 			return false;
 		}
 
-		m_propMethods.enter(cswHashInterface<FName>(name), &method);
+		ptr = new cswUEPropertyChainData;
+
+		ptr->methodPointer = method;
+
+		m_propMethods.enter(cswHashInterface<FName>(name), ptr);
 
 		return true;
 	}
 
 	bool propertyUpdate(const FName& name)
 	{
-		ThisPtr *ptr = m_propMethods.find(cswHashInterface<FName>(name));
+		cswUEPropertyChainData *ptr = m_propMethods.find(cswHashInterface<FName>(name));
 
-		if (!ptr)
+		if (!ptr)			// if not registered just fall through
+			return true;
+
+		return (((T*)this)->*ptr->methodPointer)();
+	}
+
+	bool propertyUpdate()
+	{
+		gzDictIterator<cswHashInterface<FName>, cswUEPropertyChainData> iterator(m_propMethods);
+		gzDictEntry<cswHashInterface<FName>, cswUEPropertyChainData>* entry;
+
+		while (entry = iterator())
 		{
-			GZMESSAGE(GZ_MESSAGE_WARNING, "Property %s is not registerd", toString(name));
-			return false;
+			bool result = (((T*)this)->*entry->getData()->methodPointer)();
+
+			if (!result)
+			{
+				GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to update property %s", toString(entry->getKey()));
+				return false;
+			}
 		}
 
-		//return true;
-
-		return (((T*)this)->*(*ptr)) ();
+		return true;
 	}
 
 private:
 
-	gzDict<cswHashInterface<FName>, ThisPtr>	m_propMethods;
+	gzRefDict<cswHashInterface<FName>, cswUEPropertyChainData>	m_propMethods;
 
 };
