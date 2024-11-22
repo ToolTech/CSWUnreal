@@ -41,11 +41,12 @@
 
 #include "cswScene.h"
 #include "cswCamera.h"
+#include "cswUETemplates.h"
 
 #include "cswWorld.generated.h"
 
 UCLASS()
-class CSWPLUGIN_API ACSWWorld : public AActor
+class CSWPLUGIN_API ACSWWorld : public AActor , public cswUEPropertyChain<ACSWWorld>
 {
 	GENERATED_BODY()
 	
@@ -58,6 +59,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	bool onMapUrlsPropertyUpdate();
 
 public:	
 	// Called every frame

@@ -49,10 +49,3 @@ CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image, gzUInt32 layer
 
 // Utility classes
 
-CSWPLUGIN_API class cswPropertyUpdateInterface
-{
-public:
-
-
-
-};

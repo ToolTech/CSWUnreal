@@ -46,6 +46,9 @@ ACSWWorld::ACSWWorld()
 
 	cswInitializeUnrealGlue();
 
+	registerPropertyUpdate("MapUrls", &ACSWWorld::onMapUrlsPropertyUpdate);
+
+	propertyUpdate("MapUrls");
 
 	Scene = CreateDefaultSubobject<UCSWScene>(TEXT("Scene"));
 
@@ -55,6 +58,11 @@ ACSWWorld::ACSWWorld()
 ACSWWorld::~ACSWWorld()
 {
 	cswUnInitializeUnrealGlue();
+}
+
+bool ACSWWorld::onMapUrlsPropertyUpdate()
+{
+	return true;
 }
 
 // Called when the game starts or when spawned
