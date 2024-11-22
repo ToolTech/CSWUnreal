@@ -7,18 +7,18 @@
 
 
 // Sets default values
-AStreamingMapTest::AStreamingMapTest()
+ACSWDevTest::ACSWDevTest()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-AStreamingMapTest::~AStreamingMapTest()
+ACSWDevTest::~ACSWDevTest()
 {
 }
 
 // Called when the game starts or when spawned
-void AStreamingMapTest::BeginPlay()
+void ACSWDevTest::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -27,7 +27,7 @@ void AStreamingMapTest::BeginPlay()
 }
 
 // Called every frame
-void AStreamingMapTest::Tick(float DeltaTime)
+void ACSWDevTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

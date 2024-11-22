@@ -5,15 +5,15 @@
 #include "CSWPluginTest.generated.h"
 
 UCLASS()
-class CSWDEV_API AStreamingMapTest : public AActor
+class CSWDEV_API ACSWDevTest : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AStreamingMapTest();
+	ACSWDevTest();
 
-	~AStreamingMapTest();
+	~ACSWDevTest();
 
 protected:
 	// Called when the game starts or when spawned
