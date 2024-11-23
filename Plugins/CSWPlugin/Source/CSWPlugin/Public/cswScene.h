@@ -39,10 +39,13 @@
 
 #include "Components/StaticMeshComponent.h"
 
+#include "cswCommandReceiver.h"
+
 #include "CSWScene.generated.h"
 
 UCLASS(meta = (BlueprintSpawnableComponent))
-class CSWPLUGIN_API UCSWScene : public USceneComponent
+class CSWPLUGIN_API UCSWScene : public USceneComponent,
+								public cswCommandReceiverInterface
 {
 	GENERATED_BODY()
 public:
