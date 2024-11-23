@@ -11,6 +11,8 @@ ACSWDevTest::ACSWDevTest()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+
 }
 
 ACSWDevTest::~ACSWDevTest()
@@ -21,6 +23,8 @@ ACSWDevTest::~ACSWDevTest()
 void ACSWDevTest::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ACSWDevTest *test=NewObject<ACSWDevTest>();
 
 	//FString t("kjh");
 
