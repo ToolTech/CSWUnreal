@@ -1,1 +1,1 @@
-"# CSW" 
+CSW - Common Synthetic World  
