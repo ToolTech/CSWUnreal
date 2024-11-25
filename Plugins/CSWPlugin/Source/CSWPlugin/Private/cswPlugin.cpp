@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: IStreamingMapPlugin.cpp
+// File			: cswPluginn.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Interface to StreamingMapPlugin
+// Description	: Interface to ICSWPlugin
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
