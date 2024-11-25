@@ -37,8 +37,9 @@
 #pragma once
 
 
-#include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
 
+#include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
 
 #include "CSWScene.generated.h"
@@ -51,6 +52,7 @@ class CSWPLUGIN_API UCSWScene : public USceneComponent,
 public:
 
 	UCSWScene(const FObjectInitializer& ObjectInitializer);
+	~UCSWScene();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -61,6 +63,9 @@ public:
 protected:
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
+
+	cswSceneManager m_manager;
+
 };
 
 

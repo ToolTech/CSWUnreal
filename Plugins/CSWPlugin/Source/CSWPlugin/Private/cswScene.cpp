@@ -40,6 +40,15 @@
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	// Register us as receiver of scene commands
+	m_manager.addCommandReceiver(this);
+}
+
+UCSWScene::~UCSWScene()
+{
+	// Cleanup scene command receiver
+	m_manager.removeCommandReceiver(this);
 }
 
 void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
