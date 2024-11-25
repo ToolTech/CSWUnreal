@@ -67,7 +67,7 @@ rem ------------------------- CSW SceneManager libs ----------------------------
 
 rmdir /S /Q SceneManager\include
 mkdir SceneManager\include
-xcopy "%CSW%\source\Presentation\Streaming\Map Streamer\cswSceneManager\include\*.h" SceneManager\include
+xcopy "%CSW%\source\Presentation\Streaming\cswSceneManager\include\*.h" SceneManager\include
 
 rmdir /S /Q SceneManager\libs\windows\x64
 

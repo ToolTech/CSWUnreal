@@ -25,7 +25,7 @@ mklink /D Coordinate\libs\windows\x64 "%CSW%\ws\vs17\CSW\x64"
 rem ------------------------- CSW SceneManager libs --------------------------------
 
 rmdir /S /Q SceneManager\include
-mklink /D SceneManager\include "%CSW%\source\Presentation\Streaming\Map Streamer\cswSceneManager\include"
+mklink /D SceneManager\include "%CSW%\source\Presentation\Streaming\cswSceneManager\include"
 
 rmdir /S /Q SceneManager\libs\windows\x64
 mklink /D SceneManager\libs\windows\x64 "%CSW%\ws\vs17\CSW\x64"

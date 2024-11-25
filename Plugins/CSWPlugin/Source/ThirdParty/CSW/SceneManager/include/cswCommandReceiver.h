@@ -36,7 +36,7 @@
 //******************************************************************************
 #pragma once
 
-#include "cswSceneManagerBase.h"
+#include "cswCommandBuffer.h"
 
 class cswSceneManager;
 

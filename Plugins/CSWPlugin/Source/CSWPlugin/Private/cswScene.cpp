@@ -46,3 +46,8 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
 }
+
+gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
+{
+
+}

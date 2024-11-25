@@ -57,6 +57,10 @@ public:
 
 	UPROPERTY(Transient)
 	UStaticMeshComponent* RootMesh;
+
+protected:
+
+	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 };
 
 
