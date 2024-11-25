@@ -145,5 +145,26 @@ typedef gzCompareInterface<gzUInt32> gzUInt32CompareInterface;
 typedef gzCompareInterface<gzDouble> gzValueCompareInterface;
 
 
+//******************************************************************************
+// Template	: gzHashInterface<T>
+//									
+// Purpose  : Template to enable hash function of <T> values 
+//									
+// Notes	: -	
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	241122	Created 
+//									
+//******************************************************************************
+template <class T> class gzHashInterface : public T
+{
+public:
+
+	gzUInt32	hash() const;
+};
+
 #endif // __GZ_HASH_UTILS_H__
 
