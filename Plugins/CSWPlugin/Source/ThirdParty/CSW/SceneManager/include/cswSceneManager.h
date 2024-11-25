@@ -71,9 +71,13 @@ public:
 	CSW_SM_EXPORT	cswSceneManager();
 	CSW_SM_EXPORT	virtual ~cswSceneManager();
 
+	CSW_SM_EXPORT	void shutdown();
+
 	// When buffer is added, it is owned by the manager
 	CSW_SM_EXPORT	gzVoid addCommandBuffer(cswCommandBuffer* buffer);
 	CSW_SM_EXPORT	gzBool hasPendingCommands();
+
+	CSW_SM_EXPORT	gzVoid addSingleCommand(cswSceneCommand* command);
 
 	CSW_SM_EXPORT	gzVoid addCommandReceiver(cswCommandReceiverInterface* receiver);
 	CSW_SM_EXPORT	gzVoid removeCommandReceiver(cswCommandReceiverInterface* receiver);
@@ -86,7 +90,9 @@ public:
 	CSW_SM_EXPORT	gzVoid refreshScene(const gzDouble& time, const gzUInt32 &size_x, const gzUInt32 &size_y, const gzUInt32 &screen_width, const gzUInt32 &refCommandID = 0);
 
 	CSW_SM_EXPORT	gzVoid addMap(const gzString & mapURL, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid setMapURLs(const gzString& mapURLs, const gzUInt32& refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid removeMap(const gzString& mapURL, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid removeAllMaps(const gzUInt32& refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid centerMap(const gzUInt32 &refCommandID = 0);
 
 	GZ_PROPERTY_GET_EXPORT(gzString,	CoordinateSystem,	CSW_SM_EXPORT);
@@ -149,3 +155,5 @@ private:
 
 	gzDict<gzInstanceCompareInterface, gzVoid>	m_pathIDLookup;
 };
+
+GZ_DECLARE_REFPTR(cswSceneManager);

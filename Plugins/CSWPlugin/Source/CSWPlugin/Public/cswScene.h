@@ -59,6 +59,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void PostInitProperties() override;
+	virtual void PostLoad() override;
+
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void PostEditUndo() override;
@@ -76,12 +79,14 @@ public:
 
 protected:
 
+	void initSceneManager();
+
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
-	cswSceneManager m_manager;
+	cswSceneManagerPtr m_manager;
 
 };
 

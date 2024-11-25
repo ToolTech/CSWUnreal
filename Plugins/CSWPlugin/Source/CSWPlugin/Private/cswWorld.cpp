@@ -76,6 +76,8 @@ void ACSWWorld::Tick(float DeltaTime)
 void ACSWWorld::PostInitProperties()
 {
 	Super::PostInitProperties();
+
+	propertyUpdate();
 }
 
 //Do any object-specific cleanup required immediately after loading an object. This is not called for newly-created objects, and by default will always execute on the game thread.

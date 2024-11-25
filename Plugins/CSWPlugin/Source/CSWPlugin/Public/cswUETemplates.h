@@ -126,3 +126,4 @@ private:
 	gzRefDict<cswHashInterface<FName>, cswUEPropertyChainData>	m_propMethods;
 
 };
+

@@ -43,15 +43,32 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
-
-	// Register us as receiver of scene commands
-	m_manager.addCommandReceiver(this);
+		
+	initSceneManager();
 }
 
 UCSWScene::~UCSWScene()
 {
-	// Cleanup scene command receiver
-	m_manager.removeCommandReceiver(this);
+	// Cleanup while we have virtual members
+	m_manager = nullptr;
+}
+
+void UCSWScene::initSceneManager()
+{
+	m_manager = new cswSceneManager();
+
+	// Register us as receiver of scene commands
+	m_manager->addCommandReceiver(this);
+
+	// Commands
+	cswCommandBufferPtr buffer = new cswCommandBuffer;
+
+	buffer->addCommand(new cswSceneCommandInitialize(FALSE));
+
+	buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
+	//buffer->addCommand(new cswSceneCommandSetLoaders(4));
+
+	m_manager->addCommandBuffer(buffer);
 }
 
 void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -66,7 +83,34 @@ gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
 
 bool UCSWScene::onMapUrlsPropertyUpdate()
 {
+	gzString mapURL = toString(MapUrls);
+
+	if (mapURL.length())
+	{
+		// We got a map. lets start manager
+		m_manager->run();
+		m_manager->addSingleCommand(new cswSceneCommandSetMapUrls(mapURL));
+	}
+		
 	return true;
+}
+
+// Called after the C++ constructor and after the properties have been initialized, including those loaded from config.This is called before any serialization or other setup has happened.
+
+void UCSWScene::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	propertyUpdate();
+}
+
+//Do any object-specific cleanup required immediately after loading an object. This is not called for newly-created objects, and by default will always execute on the game thread.
+
+void UCSWScene::PostLoad()
+{
+	Super::PostLoad();
+
+	propertyUpdate();
 }
 
 #if WITH_EDITOR	// ------------------------------ EDITOR Only --------------------------------------

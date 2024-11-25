@@ -51,7 +51,7 @@ class FStreamingMapPlugin : public ICSWPlugin
 };
 
 // Lets develop Our Streaming MapComponent as a game module first
-IMPLEMENT_MODULE( FStreamingMapPlugin, StreamingMapComponent )
+IMPLEMENT_MODULE( FStreamingMapPlugin, CSWPlugin )
 
 
 

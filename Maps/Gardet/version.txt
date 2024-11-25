@@ -1,0 +1,25 @@
+Date:2024-10-29 12:42:43
+MaxLOD:11539.982421875
+Size:(-1834,-16.423828125,-1696.5)-(1846,39.5848388671875,1663.5)
+NE Extent:N59°20'57.41",E18°09'29.06" (59.3492819605429°,18.158073429731°)
+SW Extent:N59°19'03.79",E18°05'27.33" (59.3177205827333°,18.090926966506°)
+Origo Extent:N59°20'00.07",E18°07'27.91" (59.3333545594803°,18.1244215201932°)
+Origin:34N,X6580704,Y336424,H31
+CoordSys:WGS84:UTM34N,ELLIPSOID
+Projection:UTM
+Meter Scale:1
+--- Map Type ---
+Map is based on DEM elevation data
+Map has surface height (m) info (0-255)
+Map has feature classification areas
+---------------
+Author:AMO
+Title:The MAP
+Comment:Only for Demo Purposes and Development
+Map Season:Generic
+Map DB Version:Generic 1.0
+Builder:2.22.1
+GizmoSDK:2.12.194
+GZD:16
+ID:{E8EFFE30-95EA-11EF-A180-AC198E0C1A84}
+Added Thumbnail:Yes

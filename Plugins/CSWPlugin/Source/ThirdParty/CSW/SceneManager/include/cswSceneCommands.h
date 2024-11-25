@@ -114,6 +114,18 @@ public:
 	GZ_PROPERTY_EXPORT(gzString, MapURL, CSW_SM_EXPORT);
 };
 
+// ------------------------ cswSceneCommandSetMapUrls -------------------------------
+
+class cswSceneCommandSetMapUrls : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandSetMapUrls(const gzString& mapURLs);
+
+	GZ_PROPERTY_EXPORT(gzString, MapURLs, CSW_SM_EXPORT);
+};
+
 // ------------------------ cswSceneCommandRemoveMap -------------------------------
 
 class cswSceneCommandRemoveMap : public cswSceneCommand
@@ -210,6 +222,19 @@ public:
 	GZ_PROPERTY_EXPORT(gzDouble, Altitude, CSW_SM_EXPORT);
 
 	GZ_PROPERTY_EXPORT(gzVec3, HPR, CSW_SM_EXPORT);
+
+};
+
+// ------------------------ cswSceneCommandGeoInfo -------------------------------
+
+class cswSceneCommandGeoInfo : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandGeoInfo(const gzString &coordinateSystem);
+
+	GZ_PROPERTY_EXPORT(gzString, CoordinateSystem, CSW_SM_EXPORT);
 
 };
 
