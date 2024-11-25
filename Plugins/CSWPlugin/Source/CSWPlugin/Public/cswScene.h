@@ -41,12 +41,14 @@
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
+#include "cswUETemplates.h"
 
 #include "CSWScene.generated.h"
 
 UCLASS(meta = (BlueprintSpawnableComponent))
 class CSWPLUGIN_API UCSWScene : public USceneComponent,
-								public cswCommandReceiverInterface
+								public cswCommandReceiverInterface,
+								public cswUEPropertyChain<UCSWScene>
 {
 	GENERATED_BODY()
 public:
@@ -57,10 +59,25 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(Transient)
-	UStaticMeshComponent* RootMesh;
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditUndo() override;
+	virtual void PostEditImport() override;
+#endif
+
+	// Properties ------------------------------------------------------------------
+	// 
+	//UPROPERTY(Transient)
+	//UStaticMeshComponent* RootMesh;
+
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	FString MapUrls;
+
 
 protected:
+
+	// Property Update callbacks
+	bool onMapUrlsPropertyUpdate();
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 

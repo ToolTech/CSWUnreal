@@ -60,7 +60,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	bool onMapUrlsPropertyUpdate();
 
 public:	
 	// Called every frame
@@ -71,13 +70,10 @@ public:
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedChainEvent) override;
 	virtual void PostEditUndo() override;
 	virtual void PostEditImport() override;
 #endif
 
-	UPROPERTY(EditAnywhere, Category = "CSW")
-	FString MapUrls;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	UCSWScene* Scene;

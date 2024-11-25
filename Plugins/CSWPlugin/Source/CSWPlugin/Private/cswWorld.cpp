@@ -46,16 +46,9 @@ ACSWWorld::ACSWWorld()
 
 	cswInitializeUnrealGlue();
 
-	registerPropertyUpdate("MapUrls", &ACSWWorld::onMapUrlsPropertyUpdate);
-
-	propertyUpdate("MapUrls");
-
 	Scene = CreateDefaultSubobject<UCSWScene>(TEXT("Scene"));
 
 	DefaultCamera = CreateDefaultSubobject<UCSWCamera>(TEXT("Camera"));
-
-	FName name = "MapUrls";
-	int32 id = name.GetNumber();
 }
 
 ACSWWorld::~ACSWWorld()
@@ -63,10 +56,6 @@ ACSWWorld::~ACSWWorld()
 	cswUnInitializeUnrealGlue();
 }
 
-bool ACSWWorld::onMapUrlsPropertyUpdate()
-{
-	return true;
-}
 
 // Called when the game starts or when spawned
 void ACSWWorld::BeginPlay()
@@ -98,22 +87,19 @@ void ACSWWorld::PostLoad()
 	propertyUpdate();
 }
 
+#if WITH_EDITOR	// ------------------------------ EDITOR Only --------------------------------------
+
 void ACSWWorld::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (!PropertyChangedEvent.Property) 
+	if (!PropertyChangedEvent.Property)
 		return;
 
 	FName PropName = PropertyChangedEvent.Property->GetFName();
 
 	if (!propertyUpdate(PropName))
 		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to do a ACSWWorld::PostEditChangeProperty on property (%s)", toString(PropName));
-}
-
-void ACSWWorld::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedChainEvent)
-{
-	Super::PostEditChangeChainProperty(PropertyChangedChainEvent);
 }
 
 void ACSWWorld::PostEditUndo()
@@ -130,3 +116,4 @@ void ACSWWorld::PostEditImport()
 	propertyUpdate();
 }
 
+#endif // ------------------------------ EDITOR Only --------------------------------------

@@ -41,6 +41,9 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	// Register callbacks
+	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
+
 	// Register us as receiver of scene commands
 	m_manager.addCommandReceiver(this);
 }
@@ -60,3 +63,39 @@ gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
 {
 
 }
+
+bool UCSWScene::onMapUrlsPropertyUpdate()
+{
+	return true;
+}
+
+#if WITH_EDITOR	// ------------------------------ EDITOR Only --------------------------------------
+
+void UCSWScene::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (!PropertyChangedEvent.Property)
+		return;
+
+	FName PropName = PropertyChangedEvent.Property->GetFName();
+
+	if (!propertyUpdate(PropName))
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to do a UCSWScene::PostEditChangeProperty on property (%s)", toString(PropName));
+}
+
+void UCSWScene::PostEditUndo()
+{
+	Super::PostEditUndo();
+
+	propertyUpdate();
+}
+
+void UCSWScene::PostEditImport()
+{
+	Super::PostEditImport();
+
+	propertyUpdate();
+}
+
+#endif // ------------------------------ EDITOR Only --------------------------------------
