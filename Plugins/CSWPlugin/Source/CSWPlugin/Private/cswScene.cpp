@@ -49,8 +49,13 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 UCSWScene::~UCSWScene()
 {
-	// Cleanup while we have virtual members
-	m_manager = nullptr;
+	if (m_manager)
+	{
+		m_manager->shutdown();
+
+		// Cleanup while we have virtual members
+		m_manager = nullptr;
+	}
 }
 
 void UCSWScene::initSceneManager()
@@ -68,12 +73,18 @@ void UCSWScene::initSceneManager()
 	buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
 	//buffer->addCommand(new cswSceneCommandSetLoaders(4));
 
+	// Demo position for camera right now... Just to get data into frame
+	buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
+
 	m_manager->addCommandBuffer(buffer);
 }
 
 void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
+
+	if (m_manager && m_manager->isRunning())
+		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 }
 
 gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
@@ -87,8 +98,12 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 
 	if (mapURL.length())
 	{
-		// We got a map. lets start manager
-		m_manager->run();
+		if (!m_manager->isRunning())
+		{
+			// We got a map. lets start manager
+			m_manager->run();
+		}
+
 		m_manager->addSingleCommand(new cswSceneCommandSetMapUrls(mapURL));
 	}
 		
