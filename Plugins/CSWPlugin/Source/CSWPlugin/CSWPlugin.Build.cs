@@ -36,6 +36,7 @@
 //******************************************************************************
 
 using UnrealBuildTool;
+using UnrealBuildTool.Rules;
 
 public class CSWPlugin : ModuleRules
 {
@@ -72,14 +73,15 @@ public class CSWPlugin : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
+				//"InputCore",
 				"MeshDescription",
-				"RenderCore",
-				"RHI",
+				//"RenderCore",
+				//"RHI",
 				"StaticMeshDescription",
-				"PhysicsCore",
+				//"PhysicsCore",
                 "CSW",
-				"Projects"
+				"Projects",				// Plugins
+				"MeshConversion"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

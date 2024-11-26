@@ -48,6 +48,8 @@ ACSWWorld::ACSWWorld()
 
 	Scene = CreateDefaultSubobject<UCSWScene>(TEXT("Scene"));
 
+	SetRootComponent(Scene);
+
 	DefaultCamera = CreateDefaultSubobject<UCSWCamera>(TEXT("Camera"));
 }
 

@@ -95,6 +95,11 @@ protected:
 
 	cswSceneManagerPtr m_manager;
 
+	UPROPERTY(Transient)
+	UStaticMeshComponent* _smComp;
+
+	void test();
+
 private:
 
 	gzMutex							m_bufferInLock;		// Lock for callback accessing bufferIn
