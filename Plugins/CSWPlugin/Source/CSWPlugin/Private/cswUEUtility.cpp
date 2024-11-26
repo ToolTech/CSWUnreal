@@ -91,3 +91,15 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 
 	return newTexture;
 }
+
+void cswScreenMessage(const gzString& message, const FColor& color)
+{
+	GZ_SYNCRONIZED;
+
+	static gzInt32 line = 0;
+
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(line, 10.f, color, message.getWideString());
+
+	line = (line + 1) % 40;
+}

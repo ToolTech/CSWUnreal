@@ -279,7 +279,9 @@ protected:
 
 	// statics
 	
-	GZ_SYSTEM_EXPORT static gzList<gzWindow>	s_windowList;
+	GZ_SYSTEM_EXPORT static gzList<gzWindow>	s_globalWindowList;
+
+	static gzMutex								s_globalLock;
 	
 	static  gzWindowCreator						s_defaultCreator;
 

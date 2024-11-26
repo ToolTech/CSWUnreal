@@ -39,6 +39,15 @@
 #include "cswSceneManagerBase.h"
 #include "cswSceneCommands.h"
 
+enum cswCommandBufferType
+{
+	CSW_BUFFER_TYPE_GENERIC,
+	CSW_BUFFER_TYPE_ERROR,
+	CSW_BUFFER_TYPE_FRAME,
+	CSW_BUFFER_TYPE_NEW,
+	CSW_BUFFER_TYPE_DELETE,
+};
+
 //******************************************************************************
 // Class	: cswCommandBuffer
 //
@@ -58,7 +67,7 @@ class cswCommandBuffer : public gzReference
 {
 public:
 
-	CSW_SM_EXPORT cswCommandBuffer();
+	CSW_SM_EXPORT cswCommandBuffer(const cswCommandBufferType &type = CSW_BUFFER_TYPE_GENERIC);
 
 	//! Command management
 	CSW_SM_EXPORT gzVoid addCommand(cswSceneCommand* command);
@@ -69,11 +78,13 @@ public:
 
 	CSW_SM_EXPORT gzVoid unLock();
 
-	//! Access to data
+	//! Access to data when locked depending on content
 	CSW_SM_EXPORT cswSceneCommandPtr getCommand();
 	CSW_SM_EXPORT gzBool hasCommands();
 	CSW_SM_EXPORT gzUInt32 entries();
 	CSW_SM_EXPORT gzVoid clear();
+
+	GZ_PROPERTY_GET_EXPORT(cswCommandBufferType, BufferType, CSW_SM_EXPORT);
 
 private:
 

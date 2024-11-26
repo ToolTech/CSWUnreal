@@ -79,7 +79,14 @@ public:
 
 protected:
 
+	// Init scenemanager and set up context
 	void initSceneManager();
+
+	// Transfer buffers from in to out
+	void fetchBuffers();
+
+	// Perform work on buffers Out
+	void processBuffersOut();
 
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
@@ -87,6 +94,12 @@ protected:
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
 	cswSceneManagerPtr m_manager;
+
+private:
+
+	gzMutex							m_bufferInLock;		// Lock for callback accessing bufferIn
+	gzRefList<cswCommandBuffer>		m_bufferIn;			// Buffer In
+	gzRefList<cswCommandBuffer>		m_bufferOut;		// Buffer Out
 
 };
 

@@ -36,6 +36,7 @@
 //******************************************************************************
 
 #include "cswScene.h"
+#include "cswUEUtility.h"
 
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
@@ -68,9 +69,13 @@ void UCSWScene::initSceneManager()
 	// Commands
 	cswCommandBufferPtr buffer = new cswCommandBuffer;
 
+	// Initalize scenegraph
 	buffer->addCommand(new cswSceneCommandInitialize(FALSE));
 
+	// Set a property on culling
 	buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
+
+	// Set number of loaders
 	//buffer->addCommand(new cswSceneCommandSetLoaders(4));
 
 	// Demo position for camera right now... Just to get data into frame
@@ -79,17 +84,61 @@ void UCSWScene::initSceneManager()
 	m_manager->addCommandBuffer(buffer);
 }
 
+// lock and iterate over incoming commands and transfer them to game thread
+void UCSWScene::fetchBuffers()
+{
+	GZ_BODYGUARD(m_bufferInLock);
+
+	gzListIterator<cswCommandBuffer> iterator(m_bufferIn);
+	cswCommandBuffer* buffer(nullptr);
+
+	while ((buffer = iterator()))
+	{
+		m_bufferOut.insert(buffer);
+	}
+
+	// All data taken. Empty buffer
+	m_bufferIn.clear();
+}
+
+void UCSWScene::processBuffersOut()
+{
+	gzListIterator<cswCommandBuffer> iterator(m_bufferOut);
+	cswCommandBuffer* buffer(nullptr);
+
+	while ((buffer = iterator()))
+	{
+		if (buffer->entries() > 2)
+		{
+			gzString message = gzString::formatString("%s:Processed buffer out of type (%d) with %d commands", gzTime::now().asString(), buffer->getBufferType(), buffer->entries());
+
+			cswScreenMessage(message);
+		}
+	}
+
+	// All data processed. Empty buffer
+	m_bufferOut.clear();
+}
+
 void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
+
+	// Transfer incoming to gamethread
+	fetchBuffers();
+
+	// Work on buffers
+	processBuffersOut();
 
 	if (m_manager && m_manager->isRunning())
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 }
 
+// Called by scene manager from custom threads
 gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
 {
-
+	GZ_BODYGUARD(m_bufferInLock);
+	m_bufferIn.insert(buffer);			// add refs in locked mode by m_bufferInLock
 }
 
 bool UCSWScene::onMapUrlsPropertyUpdate()

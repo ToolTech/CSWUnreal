@@ -47,5 +47,7 @@
 
 CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image, gzUInt32 layer=0);
 
+CSWPLUGIN_API void cswScreenMessage(const gzString& message,const FColor &color=FColor::Yellow);
+
 // Utility classes
 
