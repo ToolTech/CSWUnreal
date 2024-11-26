@@ -58,17 +58,22 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 		
 	initSceneManager();
 
-	SetMobility(EComponentMobility::Static);
+	//SetMobility(EComponentMobility::Static);
 
 	_smComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("smComp"), true);
 
-	//test();
+	_smComp->SetupAttachment(this);
 
-	FTransform m;
+	test();
 
-	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+}
 
-	SetWorldTransform(m);
+void UCSWScene::BeginPlay()
+{
+	Super::BeginPlay();
+
+
+
 }
 
 void UCSWScene::test()

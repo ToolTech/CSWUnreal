@@ -79,6 +79,8 @@ public:
 
 protected:
 
+	virtual void BeginPlay() override;
+
 	// Init scenemanager and set up context
 	void initSceneManager();
 

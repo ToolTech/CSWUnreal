@@ -37,6 +37,7 @@
 #include "CSWWorld.h"
 
 #include "cswUEGlue.h"
+#include "cswUEMatrix.h"
 
 
 ACSWWorld::ACSWWorld()
@@ -50,6 +51,12 @@ ACSWWorld::ACSWWorld()
 
 	SetRootComponent(Scene);
 
+	FTransform m;
+
+	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+
+	Scene->SetWorldTransform(m);
+	
 	DefaultCamera = CreateDefaultSubobject<UCSWCamera>(TEXT("Camera"));
 }
 
