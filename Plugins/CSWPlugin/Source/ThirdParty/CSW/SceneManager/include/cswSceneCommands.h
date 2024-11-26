@@ -232,9 +232,10 @@ class cswSceneCommandGeoInfo : public cswSceneCommand
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandGeoInfo(const gzString &coordinateSystem);
+	CSW_SM_EXPORT cswSceneCommandGeoInfo(const gzString &coordinateSystem,const gzVec3D &origin);
 
 	GZ_PROPERTY_EXPORT(gzString, CoordinateSystem, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D, Origin, CSW_SM_EXPORT);
 
 };
 

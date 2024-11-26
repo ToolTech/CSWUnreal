@@ -46,6 +46,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
 		
 	initSceneManager();
+
+	//SetWorldTransform(cswMatrix4)
 }
 
 UCSWScene::~UCSWScene()
