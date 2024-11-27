@@ -37,7 +37,7 @@
 
 
 #include "cswUEGlue.h"
-#include "gzImageLibrary.h"
+#include "cswSceneManager.h"
 
 //-------------------- cswToUnrealMessageReceiver --------------------------------------------
 
@@ -163,7 +163,7 @@ gzVoid cswInitializeUnrealGlue()
 		_GZ_Receiver = new cswToUnrealMessageReceiver;
 		_UE_Receiver = new cswFromUnrealMessageReceiver;
 
-		gzInitializeImageManagers();
+		cswSceneManager::initializeSceneSystem();
 	}
 
 	_counter++;
@@ -179,7 +179,7 @@ gzVoid cswUnInitializeUnrealGlue()
 
 		if (!_counter)
 		{
-			gzUninitializeImageManagers();
+			cswSceneManager::unInitializeSceneSystem();
 
 			_GZ_Receiver = nullptr;
 			_UE_Receiver = nullptr;

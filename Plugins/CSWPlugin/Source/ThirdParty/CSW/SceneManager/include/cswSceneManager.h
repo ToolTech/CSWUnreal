@@ -102,6 +102,9 @@ public:
 
 	GZ_PROPERTY_GET_EXPORT(gzUInt32,	TopBits,			CSW_SM_EXPORT);
 
+	CSW_SM_EXPORT	static gzBool initializeSceneSystem();
+	CSW_SM_EXPORT	static gzBool unInitializeSceneSystem();
+
 protected:
 
 	CSW_SM_EXPORT virtual gzVoid initializeSceneManager(const gzBool &createDefaultViewer=FALSE,gzReference* window = nullptr, gzReference* application = nullptr);

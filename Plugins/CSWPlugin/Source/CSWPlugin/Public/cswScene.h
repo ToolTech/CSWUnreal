@@ -80,10 +80,10 @@ public:
 
 protected:
 
-	virtual void BeginPlay() override;
-
 	// Init scenemanager and set up context
 	void initSceneManager();
+	
+	virtual void BeginPlay() override;
 
 	// Transfer buffers from in to out
 	void fetchBuffers();

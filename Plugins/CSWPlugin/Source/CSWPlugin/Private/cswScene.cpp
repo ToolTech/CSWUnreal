@@ -52,100 +52,19 @@
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	bTickInEditor = true;
+	bAutoActivate = true;
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
 		
-	initSceneManager();
-
 	//SetMobility(EComponentMobility::Static);
 
 	_smComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("smComp"), true);
 
 	_smComp->SetupAttachment(this);
 
-}
-
-void UCSWScene::BeginPlay()
-{
-	Super::BeginPlay();
-
-	
-
-
-}
-
-void UCSWScene::test(bool inPlay)
-{
-	// Build a simple pyramid after play has begun
-	// Mesh description will hold all the geometry, uv, normals going into the static mesh
-	FMeshDescription meshDesc;
-	FStaticMeshAttributes Attributes(meshDesc);
-	Attributes.Register();
-
-	FMeshDescriptionBuilder meshDescBuilder;
-	meshDescBuilder.SetMeshDescription(&meshDesc);
-	meshDescBuilder.EnablePolyGroups();
-	meshDescBuilder.SetNumUVLayers(1);
-
-	// Create the 5 vertices needed for the shape
-	TArray< FVertexID > vertexIDs; vertexIDs.SetNum(3);
-
-	vertexIDs[0] = meshDescBuilder.AppendVertex(FVector(0.0, 0.0, 0.0)); // Apex
-	vertexIDs[1] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, 0.0)); // Corner 1
-	vertexIDs[2] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, -100.0)); // Corner 2
-	
-
-	// Array to store all the vertex instances (3 per face)
-	TArray< FVertexInstanceID > vertexInsts;
-
-	// Face 1 (Faces towards -X) vertex instances
-	FVertexInstanceID instance = meshDescBuilder.AppendInstance(vertexIDs[0]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 1), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-
-	instance = meshDescBuilder.AppendInstance(vertexIDs[1]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 0), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-
-	instance = meshDescBuilder.AppendInstance(vertexIDs[2]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(1, 0), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-		
-
-	// Allocate a polygon group
-	FPolygonGroupID polygonGroup = meshDescBuilder.AppendPolygonGroup();
-
-	// Add triangles to mesh description
-	meshDescBuilder.AppendTriangle(vertexInsts[2], vertexInsts[1], vertexInsts[0], polygonGroup);
-	
-	// At least one material must be added
-	TObjectPtr<UStaticMesh> staticMesh;
-	
-	if(inPlay)
-		staticMesh = NewObject<UStaticMesh>(this);
-	else
-		staticMesh = CreateDefaultSubobject<UStaticMesh>(TEXT("Oahh"),true);
-
-	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
-
-	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
-	mdParams.bBuildSimpleCollision = true;
-	mdParams.bFastBuild = true;
-
-	// Build static mesh
-	TArray<const FMeshDescription*> meshDescPtrs;
-	meshDescPtrs.Emplace(&meshDesc);
-	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
-
-	// Assign new static mesh to the static mesh component
-	_smComp->SetStaticMesh(staticMesh);
+	initSceneManager();
 }
 
 UCSWScene::~UCSWScene()
@@ -159,29 +78,39 @@ UCSWScene::~UCSWScene()
 	}
 }
 
+void UCSWScene::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+
 void UCSWScene::initSceneManager()
 {
-	m_manager = new cswSceneManager();
+	if (!m_manager)
+	{
+		m_manager = new cswSceneManager();
 
-	// Register us as receiver of scene commands
-	m_manager->addCommandReceiver(this);
+		// Register us as receiver of scene commands
+		m_manager->addCommandReceiver(this);
 
-	// Commands
-	cswCommandBufferPtr buffer = new cswCommandBuffer;
+		// Commands
+		cswCommandBufferPtr buffer = new cswCommandBuffer;
 
-	// Initalize scenegraph
-	buffer->addCommand(new cswSceneCommandInitialize(FALSE));
+		// Initalize scenegraph
+		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
 
-	// Set a property on culling
-	buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
+		// Set a property on culling
+		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
 
-	// Set number of loaders
-	//buffer->addCommand(new cswSceneCommandSetLoaders(4));
+		// Set number of loaders
+		//buffer->addCommand(new cswSceneCommandSetLoaders(4));
 
-	// Demo position for camera right now... Just to get data into frame
-	buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
+		// Demo position for camera right now... Just to get data into frame
+		buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
 
-	m_manager->addCommandBuffer(buffer);
+		m_manager->addCommandBuffer(buffer);
+	}
 }
 
 // lock and iterate over incoming commands and transfer them to game thread
@@ -307,3 +236,78 @@ void UCSWScene::PostEditImport()
 }
 
 #endif // ------------------------------ EDITOR Only --------------------------------------
+
+
+
+void UCSWScene::test(bool inPlay)
+{
+	// Build a simple pyramid after play has begun
+	// Mesh description will hold all the geometry, uv, normals going into the static mesh
+	FMeshDescription meshDesc;
+	FStaticMeshAttributes Attributes(meshDesc);
+	Attributes.Register();
+
+	FMeshDescriptionBuilder meshDescBuilder;
+	meshDescBuilder.SetMeshDescription(&meshDesc);
+	meshDescBuilder.EnablePolyGroups();
+	meshDescBuilder.SetNumUVLayers(1);
+
+	// Create the 5 vertices needed for the shape
+	TArray< FVertexID > vertexIDs; vertexIDs.SetNum(3);
+
+	vertexIDs[0] = meshDescBuilder.AppendVertex(FVector(0.0, 0.0, 0.0)); // Apex
+	vertexIDs[1] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, 0.0)); // Corner 1
+	vertexIDs[2] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, -100.0)); // Corner 2
+
+
+	// Array to store all the vertex instances (3 per face)
+	TArray< FVertexInstanceID > vertexInsts;
+
+	// Face 1 (Faces towards -X) vertex instances
+	FVertexInstanceID instance = meshDescBuilder.AppendInstance(vertexIDs[0]);
+	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
+	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 1), 0);
+	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	vertexInsts.Add(instance);
+
+	instance = meshDescBuilder.AppendInstance(vertexIDs[1]);
+	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
+	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 0), 0);
+	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	vertexInsts.Add(instance);
+
+	instance = meshDescBuilder.AppendInstance(vertexIDs[2]);
+	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
+	meshDescBuilder.SetInstanceUV(instance, FVector2D(1, 0), 0);
+	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	vertexInsts.Add(instance);
+
+
+	// Allocate a polygon group
+	FPolygonGroupID polygonGroup = meshDescBuilder.AppendPolygonGroup();
+
+	// Add triangles to mesh description
+	meshDescBuilder.AppendTriangle(vertexInsts[2], vertexInsts[1], vertexInsts[0], polygonGroup);
+
+	// At least one material must be added
+	TObjectPtr<UStaticMesh> staticMesh;
+
+	if (inPlay)
+		staticMesh = NewObject<UStaticMesh>(this);
+	else
+		staticMesh = CreateDefaultSubobject<UStaticMesh>(TEXT("Oahh"), true);
+
+	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
+
+	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
+	mdParams.bBuildSimpleCollision = true;
+	mdParams.bFastBuild = true;
+
+	// Build static mesh
+	TArray<const FMeshDescription*> meshDescPtrs;
+	meshDescPtrs.Emplace(&meshDesc);
+	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
+
+	// Assign new static mesh to the static mesh component
+	_smComp->SetStaticMesh(staticMesh);
+}

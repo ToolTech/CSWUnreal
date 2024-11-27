@@ -51,10 +51,7 @@ ACSWWorld::ACSWWorld()
 
 	SetRootComponent(Scene);
 
-
-	//Scene->test(true);
-
-
+	
 	FTransform m;
 
 	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
@@ -74,8 +71,7 @@ ACSWWorld::~ACSWWorld()
 void ACSWWorld::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Scene->test(true);
+
 }
 
 // Called every frame
@@ -92,6 +88,8 @@ void ACSWWorld::PostInitProperties()
 	Super::PostInitProperties();
 
 	propertyUpdate();
+
+	Scene->test(true);
 }
 
 //Do any object-specific cleanup required immediately after loading an object. This is not called for newly-created objects, and by default will always execute on the game thread.

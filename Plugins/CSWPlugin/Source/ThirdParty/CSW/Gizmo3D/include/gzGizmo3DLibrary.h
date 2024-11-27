@@ -50,9 +50,9 @@
 #include "gzSystemLibrary.h"
 
 //! graceful termination in cases where auto terminate does not work properly
-GZ_SYSTEM_EXPORT gzVoid gzShutDownGizmo(gzBool force=FALSE,gzBool shutDownGizmoBase=FALSE);
+GZ_SYSTEM_EXPORT gzBool gzShutDownGizmo(gzBool force=FALSE,gzBool shutDownGizmoBase=FALSE);
 
-GZ_SYSTEM_EXPORT gzVoid gzStartUpGizmo();
+GZ_SYSTEM_EXPORT gzBool gzStartUpGizmo();
 
 // -------------------------------------- Library version ---------------------------------------------------------------
 
