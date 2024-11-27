@@ -51,6 +51,10 @@ ACSWWorld::ACSWWorld()
 
 	SetRootComponent(Scene);
 
+
+	//Scene->test(true);
+
+
 	FTransform m;
 
 	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
@@ -71,6 +75,7 @@ void ACSWWorld::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Scene->test(true);
 }
 
 // Called every frame

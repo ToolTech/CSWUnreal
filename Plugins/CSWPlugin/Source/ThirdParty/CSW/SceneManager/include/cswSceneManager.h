@@ -82,6 +82,9 @@ public:
 	CSW_SM_EXPORT	gzVoid addCommandReceiver(cswCommandReceiverInterface* receiver);
 	CSW_SM_EXPORT	gzVoid removeCommandReceiver(cswCommandReceiverInterface* receiver);
 
+	CSW_SM_EXPORT	gzVoid clearCommandBufferIn();
+	CSW_SM_EXPORT	gzVoid clearCommandBufferOut();
+
 	//! Non bufferd commands
 	CSW_SM_EXPORT	gzVoid setRenderTime(const gzDouble& time, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid setOmniTraverse(const gzBool &omniTraverse, const gzUInt32 &refCommandID = 0);

@@ -76,6 +76,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;
 
+	void test(bool inPlay);
 
 protected:
 
@@ -100,7 +101,7 @@ protected:
 	UPROPERTY(Transient)
 	UStaticMeshComponent* _smComp;
 
-	void test();
+	
 
 private:
 

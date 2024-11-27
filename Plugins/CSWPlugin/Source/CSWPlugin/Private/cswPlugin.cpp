@@ -34,7 +34,7 @@
 // AMO	241107	Created file 							(1.1.1)
 //
 //******************************************************************************
-#include "CSWPluginInterface.h"
+#include "Interfaces/CSWPluginInterface.h"
 
 #include "Misc/MessageDialog.h"
 #include "Modules/ModuleManager.h"
