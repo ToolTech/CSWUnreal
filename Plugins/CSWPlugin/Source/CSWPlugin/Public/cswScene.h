@@ -86,7 +86,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Transfer buffers from in to out
-	void fetchBuffers();
+	void fetchBuffers(bool waitForFrame=false, gzUInt32 timeOut = 200);
 
 	// Perform work on buffers Out
 	void processBuffersOut();
@@ -105,7 +105,7 @@ protected:
 
 private:
 
-	gzMutex							m_bufferInLock;		// Lock for callback accessing bufferIn
+	gzEvent							m_bufferInLock;		// Lock for callback accessing bufferIn
 	gzRefList<cswCommandBuffer>		m_bufferIn;			// Buffer In
 	gzRefList<cswCommandBuffer>		m_bufferOut;		// Buffer Out
 

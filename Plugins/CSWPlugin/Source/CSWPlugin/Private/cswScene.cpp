@@ -109,25 +109,54 @@ void UCSWScene::initSceneManager()
 		// Demo position for camera right now... Just to get data into frame
 		buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
 
+		// First initial refresh
+
+		buffer->addCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
+
 		m_manager->addCommandBuffer(buffer);
 	}
 }
 
 // lock and iterate over incoming commands and transfer them to game thread
-void UCSWScene::fetchBuffers()
+void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 {
 	GZ_BODYGUARD(m_bufferInLock);
 
-	gzListIterator<cswCommandBuffer> iterator(m_bufferIn);
-	cswCommandBuffer* buffer(nullptr);
-
-	while ((buffer = iterator()))
+	while (true)
 	{
-		m_bufferOut.insert(buffer);
-	}
+		gzListIterator<cswCommandBuffer> iterator(m_bufferIn);
+		cswCommandBuffer* buffer(nullptr);
 
-	// All data taken. Empty buffer
-	m_bufferIn.clear();
+		while ((buffer = iterator()))
+		{
+			m_bufferOut.insert(buffer);
+
+			// We own the buffer soon. Lets set it to be deleted in node lock to protect ref data
+			buffer->setBufferDeleteMode(CSW_BUFFER_DELETE_MODE_EDIT_LOCK);
+
+
+			if (buffer->getBufferType() == CSW_BUFFER_TYPE_FRAME)
+				waitForFrame = false;
+		}
+
+		// All data taken. Empty buffer
+		m_bufferIn.clear();
+
+		if (waitForFrame)
+		{
+			GZ_BODYGUARD_PAUSE(m_bufferInLock);
+
+			// Wait for more
+
+			GZ_SIGNALGUARD(m_bufferInLock, timeOut);
+
+			waitForFrame = false;
+		}
+		else
+			break;
+
+		m_bufferInLock.reset();
+	}
 }
 
 void UCSWScene::processBuffersOut()
@@ -153,8 +182,8 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
 
-	// Transfer incoming to gamethread
-	fetchBuffers();
+	// Transfer incoming to gamethread and wait for a frame
+	fetchBuffers(true);
 
 	// Work on buffers
 	processBuffersOut();
@@ -168,6 +197,7 @@ gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
 {
 	GZ_BODYGUARD(m_bufferInLock);
 	m_bufferIn.insert(buffer);			// add refs in locked mode by m_bufferInLock
+	m_bufferInLock.fire();
 }
 
 bool UCSWScene::onMapUrlsPropertyUpdate()

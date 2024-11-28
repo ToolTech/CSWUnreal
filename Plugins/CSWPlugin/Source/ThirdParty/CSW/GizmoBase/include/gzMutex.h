@@ -561,6 +561,8 @@ public:
 	gzVoid set();
 	gzVoid reset();
 
+	gzBool isSignalSet() const;
+
 private:
 
 	gzConditionType		m_condition;

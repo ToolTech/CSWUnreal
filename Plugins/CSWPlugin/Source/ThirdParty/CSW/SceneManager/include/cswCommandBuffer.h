@@ -48,6 +48,13 @@ enum cswCommandBufferType
 	CSW_BUFFER_TYPE_DELETE,
 };
 
+enum cswCommandBufferDeleteMode
+{
+	CSW_BUFFER_DELETE_MODE_UNLOCKED,
+	CSW_BUFFER_DELETE_MODE_EDIT_LOCK,
+	CSW_BUFFER_DELETE_MODE_RENDER_LOCK,
+};
+
 //******************************************************************************
 // Class	: cswCommandBuffer
 //
@@ -68,6 +75,7 @@ class cswCommandBuffer : public gzReference
 public:
 
 	CSW_SM_EXPORT cswCommandBuffer(const cswCommandBufferType &type = CSW_BUFFER_TYPE_GENERIC);
+	CSW_SM_EXPORT ~cswCommandBuffer();
 
 	//! Command management
 	CSW_SM_EXPORT gzVoid addCommand(cswSceneCommand* command);
@@ -85,6 +93,7 @@ public:
 	CSW_SM_EXPORT gzVoid clear();
 
 	GZ_PROPERTY_GET_EXPORT(cswCommandBufferType, BufferType, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(cswCommandBufferDeleteMode, BufferDeleteMode, CSW_SM_EXPORT);
 
 private:
 

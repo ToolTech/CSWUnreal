@@ -105,12 +105,17 @@ public:
 	CSW_SM_EXPORT	static gzBool initializeSceneSystem();
 	CSW_SM_EXPORT	static gzBool unInitializeSceneSystem();
 
+	GZ_THREADSAFE_REF(m_threadSafeLocker);
+
+
 protected:
 
 	CSW_SM_EXPORT virtual gzVoid initializeSceneManager(const gzBool &createDefaultViewer=FALSE,gzReference* window = nullptr, gzReference* application = nullptr);
 	CSW_SM_EXPORT virtual gzVoid unInitializeSceneManager();
 
 	CSW_SM_EXPORT gzBool traverse(const cswTraverseReason &reason, gzNode* node, gzGroup *parent, gzState *state, cswCommandBuffer* buffer,const gzUInt64 &pathID=0);
+
+	mutable gzMutex	m_threadSafeLocker;
 
 private:
 
