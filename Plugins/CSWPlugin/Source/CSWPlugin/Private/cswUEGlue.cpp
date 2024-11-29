@@ -181,6 +181,8 @@ gzVoid cswUnInitializeUnrealGlue()
 		{
 			cswSceneManager::unInitializeSceneSystem();
 
+			gzCleanupReference::cleanUpReferences();
+
 			_GZ_Receiver = nullptr;
 			_UE_Receiver = nullptr;
 		}

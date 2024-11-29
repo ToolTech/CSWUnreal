@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswFactoryInterface.h
+// File			: cswBuildInterface.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Interface to Factory builders
+// Description	: Interface to Factory 
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -36,36 +36,3 @@
 //******************************************************************************
 #pragma once
 
-#include "gzNode.h"
-class USceneComponent;
-
-class cswFactory : public gzObject
-{
-public:
-
-	// Type info
-	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
-
-	CSWPLUGIN_API static USceneComponent* newObject(gzNode* node , USceneComponent *parent);
-
-	CSWPLUGIN_API static gzBool registerFactoryLookup(const gzUInt32& in, const gzUInt32& out);
-
-	CSWPLUGIN_API static gzBool unregisterFactoryLookup(const gzUInt32& in);
-
-	CSWPLUGIN_API static gzUInt32 getFactoryLookup(const gzUInt32& in);
-	
-protected:
-
-	CSWPLUGIN_API virtual USceneComponent* newObjectInstance(gzNode *node,USceneComponent* parent) = 0;
-
-private:
-
-	// factory uses clone to create instance and must bve derived 
-	virtual gzReference* clone() const = 0;
-
-	static gzMutex s_factoryLock;
-
-	static gzDict< gzUInt32CompareInterface, gzVoid>	s_factoryLookup;
-};
-
-GZ_DECLARE_REFPTR(cswFactory);

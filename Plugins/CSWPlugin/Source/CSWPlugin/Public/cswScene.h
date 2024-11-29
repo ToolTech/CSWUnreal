@@ -43,6 +43,8 @@
 #include "cswCommandReceiver.h"
 #include "cswUETemplates.h"
 
+class UCSWTransform;
+
 #include "CSWScene.generated.h"
 
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -70,15 +72,18 @@ public:
 
 	// Properties ------------------------------------------------------------------
 	// 
-	//UPROPERTY(Transient)
-	//UStaticMeshComponent* RootMesh;
+
+	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
+	USceneComponent* trans;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;
 
-	void test(bool inPlay);
+	//void test(bool inPlay);
 
 protected:
+
+	int32 counter;
 
 	// Init scenemanager and set up context
 	void initSceneManager();
@@ -97,9 +102,6 @@ protected:
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
 	cswSceneManagerPtr m_manager;
-
-	UPROPERTY(Transient)
-	UStaticMeshComponent* _smComp;
 
 	
 

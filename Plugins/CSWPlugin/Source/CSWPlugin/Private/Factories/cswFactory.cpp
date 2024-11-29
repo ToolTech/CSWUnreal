@@ -37,3 +37,66 @@
 #include "cswFactory.h"
 
 GZ_DECLARE_TYPE_CHILD(gzObject, cswFactory, "cswFactory");
+
+gzMutex cswFactory::s_factoryLock;
+
+gzDict< gzUInt32CompareInterface, gzVoid> cswFactory::s_factoryLookup;
+
+
+USceneComponent* cswFactory::newObject(gzNode* node, USceneComponent* parent)
+{
+	gzUInt32 factoryID = getFactoryLookup(gzString(node->getTypeName()).hash());
+
+	if (!factoryID)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory ID for type (%s)", node->getTypeName());
+		return nullptr;
+	}
+
+	cswFactoryPtr factory = gzDynamic_Cast<cswFactory>(gzObject::createFactoryObject(factoryID));
+
+	if (!factory)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
+		return nullptr;
+	}
+
+	return factory->newObjectInstance(node,parent);
+}
+
+gzBool cswFactory::registerFactoryLookup(const gzUInt32& in, const gzUInt32& out)
+{
+	GZ_BODYGUARD(s_factoryLock);
+
+	if (s_factoryLookup.find(in))
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Multiple factory registrations for id (%d)", in);
+		return FALSE;
+	}
+
+	s_factoryLookup.enter(in, gzVal2Ptr(out));
+
+	return TRUE;
+}
+
+gzBool cswFactory::unregisterFactoryLookup(const gzUInt32& in)
+{
+	GZ_BODYGUARD(s_factoryLock);
+
+	if (!s_factoryLookup.find(in))
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Factory not regisstered for id (%d)", in);
+		return FALSE;
+	}
+
+	s_factoryLookup.remove(in);
+
+	return TRUE;
+}
+
+gzUInt32 cswFactory::getFactoryLookup(const gzUInt32& in)
+{
+	GZ_BODYGUARD(s_factoryLock);
+
+	return (gzUInt32)gzPtr2Val(s_factoryLookup.find(in));
+}
