@@ -37,13 +37,12 @@
 #pragma once
 
 
-#include "Components/SceneComponent.h"
+#include "cswSceneComponent.h"
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
 #include "cswUETemplates.h"
 
-class UCSWTransform;
 
 #include "CSWScene.generated.h"
 
@@ -74,7 +73,7 @@ public:
 	// 
 
 	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	USceneComponent* trans;
+	UCSWSceneComponent* trans;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;

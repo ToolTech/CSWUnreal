@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswUEGlue.cpp
+// File			: cswSceneComponent.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Glue Between Unreal CSW and GizmoSDK callbacks
+// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,51 +35,16 @@
 //
 //******************************************************************************
 
-#include "cswTransform.h"
-#include "cswGeometry.h"
+#include "cswSceneComponent.h"
+
 
 // Sets default values for this component's properties
-UCSWTransform::UCSWTransform()
+UCSWSceneComponent::UCSWSceneComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	bTickInEditor = true;
-	bAutoActivate = true;
 
 }
 
-gzBool UCSWTransform::build(gzNode* buildItem)
+gzBool UCSWSceneComponent::build(gzNode* buildItem)
 {
-	geom = NewObject<UCSWGeometry>(this, NAME_None);
-
-	geom->RegisterComponent();
-
-	geom->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
-	geom->build(nullptr);
-
 	return TRUE;
 }
-
-
-// Called when the game starts
-void UCSWTransform::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UCSWTransform::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-
-	// ...
-}
-

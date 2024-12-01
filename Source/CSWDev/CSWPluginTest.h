@@ -1,11 +1,13 @@
 #pragma once
 
+#include "cswWorld.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CSWPluginTest.generated.h"
 
 UCLASS()
-class CSWDEV_API ACSWDevTest : public AActor
+class CSWDEV_API ACSWDevTest : public ACSWWorld
 {
 	GENERATED_BODY()
 

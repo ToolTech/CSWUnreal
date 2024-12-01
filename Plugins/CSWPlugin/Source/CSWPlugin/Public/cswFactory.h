@@ -37,7 +37,7 @@
 #pragma once
 
 #include "gzNode.h"
-class USceneComponent;
+class UCSWSceneComponent;
 
 class cswFactory : public gzObject
 {
@@ -46,26 +46,28 @@ public:
 	// Type info
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
 
-	CSWPLUGIN_API static USceneComponent* newObject(gzNode* node , USceneComponent *parent);
+	CSWPLUGIN_API static UCSWSceneComponent* newObject(USceneComponent* parent,gzNode* node);
 
-	CSWPLUGIN_API static gzBool registerFactoryLookup(const gzUInt32& in, const gzUInt32& out);
+	CSWPLUGIN_API static gzBool registerFactory(const gzString &className, cswFactory *factory);
 
-	CSWPLUGIN_API static gzBool unregisterFactoryLookup(const gzUInt32& in);
+	CSWPLUGIN_API static gzBool unregisterFactory(const gzString& className);
 
-	CSWPLUGIN_API static gzUInt32 getFactoryLookup(const gzUInt32& in);
+	CSWPLUGIN_API static cswFactory* getFactory(const gzString& className);
 	
+	// factory uses clone to create instance and must bve derived 
+	CSWPLUGIN_API virtual gzReference* clone() const = 0;
+
 protected:
 
-	CSWPLUGIN_API virtual USceneComponent* newObjectInstance(gzNode *node,USceneComponent* parent) = 0;
+	CSWPLUGIN_API virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode *node) = 0;
 
 private:
 
-	// factory uses clone to create instance and must bve derived 
-	virtual gzReference* clone() const = 0;
+	
 
 	static gzMutex s_factoryLock;
 
-	static gzDict< gzUInt32CompareInterface, gzVoid>	s_factoryLookup;
+	static gzRefDict< gzString, cswFactory>	s_factoryLookup;
 };
 
 GZ_DECLARE_REFPTR(cswFactory);

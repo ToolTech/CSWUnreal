@@ -50,13 +50,13 @@ public:
 		return new cswTransformFactory(*this);
 	}
 
-	virtual USceneComponent* newObjectInstance(gzNode* node, USceneComponent* parent) override
+	virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode* node) override
 	{
 		UCSWTransform *trans = NewObject<UCSWTransform>(parent, node->getName().getWideString());
 
-		trans->RegisterComponent();
+		/*trans->RegisterComponent();
 
-		trans->AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
+		trans->AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);*/
 
 		return trans;
 	}
@@ -72,17 +72,20 @@ public:
 
 	cswTransformFactoryRegistrar()
 	{
-		// register factory 
-		m_id=gzObject::registerFactoryObject(new cswTransformFactory);
+		cswFactoryPtr factory = new cswTransformFactory;
 
-		cswFactory::registerFactoryLookup(gzString("gzTransform").hash(), m_id);
+		// register factory for object serialize
+		m_id=gzObject::registerFactoryObject(factory);
+
+		// register factory for component creation
+		cswFactory::registerFactory("gzTransform", factory);
 	}
 
 	gzBool	releaseRefs() 
 	{ 
 		if (m_id)
 		{
-			cswFactory::unregisterFactoryLookup(gzString("gzTransform").hash());
+			cswFactory::unregisterFactory("gzTransform");
 
 			// release factory early
 			gzObject::unregisterFactory(m_id);

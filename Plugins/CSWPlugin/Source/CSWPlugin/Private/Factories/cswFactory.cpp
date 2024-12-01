@@ -40,20 +40,12 @@ GZ_DECLARE_TYPE_CHILD(gzObject, cswFactory, "cswFactory");
 
 gzMutex cswFactory::s_factoryLock;
 
-gzDict< gzUInt32CompareInterface, gzVoid> cswFactory::s_factoryLookup;
+gzRefDict< gzString, cswFactory > cswFactory::s_factoryLookup;
 
 
-USceneComponent* cswFactory::newObject(gzNode* node, USceneComponent* parent)
+UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node)
 {
-	gzUInt32 factoryID = getFactoryLookup(gzString(node->getTypeName()).hash());
-
-	if (!factoryID)
-	{
-		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory ID for type (%s)", node->getTypeName());
-		return nullptr;
-	}
-
-	cswFactoryPtr factory = gzDynamic_Cast<cswFactory>(gzObject::createFactoryObject(factoryID));
+	cswFactory *factory = getFactory(node->getTypeName());
 
 	if (!factory)
 	{
@@ -61,42 +53,42 @@ USceneComponent* cswFactory::newObject(gzNode* node, USceneComponent* parent)
 		return nullptr;
 	}
 
-	return factory->newObjectInstance(node,parent);
+	return factory->newObjectInstance(parent,node);
 }
 
-gzBool cswFactory::registerFactoryLookup(const gzUInt32& in, const gzUInt32& out)
+gzBool cswFactory::registerFactory(const gzString& className, cswFactory* factory)
 {
 	GZ_BODYGUARD(s_factoryLock);
 
-	if (s_factoryLookup.find(in))
+	if (s_factoryLookup.find(className))
 	{
-		GZMESSAGE(GZ_MESSAGE_WARNING, "Multiple factory registrations for id (%d)", in);
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Multiple factory registrations for class (%s)", className);
 		return FALSE;
 	}
 
-	s_factoryLookup.enter(in, gzVal2Ptr(out));
+	s_factoryLookup.enter(className, factory);
 
 	return TRUE;
 }
 
-gzBool cswFactory::unregisterFactoryLookup(const gzUInt32& in)
+gzBool cswFactory::unregisterFactory(const gzString& className)
 {
 	GZ_BODYGUARD(s_factoryLock);
 
-	if (!s_factoryLookup.find(in))
+	if (!s_factoryLookup.find(className))
 	{
-		GZMESSAGE(GZ_MESSAGE_WARNING, "Factory not regisstered for id (%d)", in);
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Factory not regisstered for class (%s)", className);
 		return FALSE;
 	}
 
-	s_factoryLookup.remove(in);
+	s_factoryLookup.remove(className);
 
 	return TRUE;
 }
 
-gzUInt32 cswFactory::getFactoryLookup(const gzUInt32& in)
+cswFactory * cswFactory::getFactory(const gzString& className)
 {
 	GZ_BODYGUARD(s_factoryLock);
 
-	return (gzUInt32)gzPtr2Val(s_factoryLookup.find(in));
+	return s_factoryLookup.find(className);
 }

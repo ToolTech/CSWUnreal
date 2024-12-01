@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "cswSceneComponent.h"
 #include "cswGeometry.generated.h"
 
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CSWPLUGIN_API UCSWGeometry : public USceneComponent
+class CSWPLUGIN_API UCSWGeometry : public UCSWSceneComponent
 {
 	GENERATED_BODY()
 
@@ -17,7 +17,7 @@ public:
 	// Sets default values for this component's properties
 	UCSWGeometry();
 
-	void build();
+	virtual gzBool build(gzNode* buildItem) override;
 
 protected:
 	// Called when the game starts

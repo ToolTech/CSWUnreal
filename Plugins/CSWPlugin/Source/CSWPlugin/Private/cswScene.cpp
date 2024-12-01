@@ -88,20 +88,29 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
 
+	bool isActive = m_manager && m_manager->isRunning();
+
 	// Transfer incoming to gamethread and wait for a frame
-	fetchBuffers(true);
+	fetchBuffers(isActive);
 
 	// Work on buffers
 	processBuffersOut();
 
-	if (m_manager && m_manager->isRunning())
+	// Trigger next frame
+	if(isActive)
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 
 	counter++;
 
 	if (counter == 10)
 	{
-		trans = cswFactory::newObject(new gzTransform, this);
+		trans = cswFactory::newObject(this,new gzTransform);
+
+		trans->RegisterComponent();
+
+		trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+		trans->build(nullptr);
 	}
 }
 

@@ -17,7 +17,8 @@ UCSWGeometry::UCSWGeometry()
 	// ...
 }
 
-void UCSWGeometry::build()
+
+gzBool UCSWGeometry::build(gzNode* buildItem)
 {
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, NAME_None);
 
@@ -91,6 +92,8 @@ void UCSWGeometry::build()
 
 	// Assign new static mesh to the static mesh component
 	m_meshComponent->SetStaticMesh(staticMesh);
+
+	return TRUE;
 }
 
 
