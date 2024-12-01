@@ -51,6 +51,9 @@ public:
 	static gzMatrix4_<T> GZ_2_UE();
 	static gzMatrix4_<T> UE_2_GZ();
 
+	static gzMatrix4_<T> GZ_2_UE_GEO_Flat();
+	static gzMatrix4_<T> GZ_2_UE_GEO_Cartesian();
+
 };
 
 template <class T> inline UE::Math::TMatrix<T> cswMatrix4<T>::UEMatrix4(const gzMatrix4_<T>& from)
@@ -117,4 +120,16 @@ template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::UE_2_GZ()
 {
 	// -Z X Y
 	return gzMatrix4D(gzVec4D(0, 0, -1, 0), gzVec4D(1, 0, 0, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
+}
+
+template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::GZ_2_UE_GEO_Flat()
+{
+	// X Z Y
+	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
+}
+
+template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::GZ_2_UE_GEO_Cartesian()
+{
+	// X -Y Z
+	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, -1, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 0, 0, 1));
 }

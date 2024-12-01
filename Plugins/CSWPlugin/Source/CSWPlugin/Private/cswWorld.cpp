@@ -54,7 +54,7 @@ ACSWWorld::ACSWWorld()
 	
 	FTransform m;
 
-	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+	m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE_GEO_Flat()));
 
 	Scene->SetWorldTransform(m);
 	
