@@ -72,9 +72,6 @@ public:
 	// Properties ------------------------------------------------------------------
 	// 
 
-	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	TObjectPtr<UCSWSceneComponent> trans;
-
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;
 
@@ -120,15 +117,14 @@ protected:
 
 private:
 
-	gzEvent							m_bufferInLock;		// Lock for callback accessing bufferIn
-	gzRefList<cswCommandBuffer>		m_bufferIn;			// Buffer In
-	gzRefList<cswCommandBuffer>		m_bufferOut;		// Buffer Out
+	gzEvent									m_bufferInLock;		// Lock for callback accessing bufferIn
+	gzRefList<cswCommandBuffer>				m_bufferIn;			// Buffer In
+	gzRefList<cswCommandBuffer>				m_bufferOut;		// Buffer Out
 
-	gzDict<CSWPathIdentyIndex, gzVoid>	m_indexLUT;
+	gzDict<CSWPathIdentyIndex, gzVoid>		m_indexLUT;
 
-	UPROPERTY()
-	TArray<UCSWSceneComponent *>	m_components;
-	gzQueue<gzUInt32>				m_slots;
+	gzDynamicArray<UCSWSceneComponent *>	m_components;
+	gzQueue<gzUInt32>						m_slots;
 };
 
 

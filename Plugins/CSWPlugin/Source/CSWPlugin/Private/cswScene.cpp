@@ -45,7 +45,7 @@
 
 
 
-UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000)
+UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	bTickInEditor = true;
@@ -106,28 +106,26 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	if (counter == 10)
 	{
-		trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
+		UCSWSceneComponent *trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
 
 		trans->RegisterComponent();
 
 		trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
-		//trans->build(nullptr);
+		trans->build(nullptr);
 
-		//m_components.Add(trans);
-				
+		registerComponent(trans, nullptr, 1);
+					
 		
 		
 	}
 	else if (counter == 1000)
 	{
+		UCSWSceneComponent* trans = getComponent(nullptr, 1);
+
 		//trans->SetVisibility(false, true);	// Hides recursively
 
 		trans->DestroyComponent();		// Unregisters component. removes it from root but not hierachically
-
-		trans = nullptr;
-
-		//m_components.Last() = nullptr;
 	}
 }
 
@@ -254,7 +252,10 @@ gzVoid UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node,
 		m_components[id] = component;
 	}
 	else
-		id = m_components.Add(component);
+	{
+		id = m_components.getSize();
+		m_components += component;
+	}
 
 	component->ComponentID = id;
 	component->setInstance(node);
