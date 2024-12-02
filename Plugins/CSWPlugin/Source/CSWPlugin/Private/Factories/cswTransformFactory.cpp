@@ -50,13 +50,9 @@ public:
 		return new cswTransformFactory(*this);
 	}
 
-	virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode* node) override
+	virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode* node, EObjectFlags Flags, UObject* Template, bool bCopyTransientsFromClassDefaults, FObjectInstancingGraph* InInstanceGraph) override
 	{
-		UCSWTransform *trans = NewObject<UCSWTransform>(parent, node->getName().getWideString());
-
-		/*trans->RegisterComponent();
-
-		trans->AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);*/
+		UCSWTransform *trans = NewObject<UCSWTransform>(parent, node->getName().getWideString(),Flags,Template,bCopyTransientsFromClassDefaults,InInstanceGraph);
 
 		return trans;
 	}

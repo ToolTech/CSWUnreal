@@ -41,19 +41,30 @@
 
 // Interfaces
 #include "Interfaces/cswBuildInterface.h"
-
+#include "cswUETypes.h"
 
 #include "cswSceneComponent.generated.h"
 
 
 UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
-class CSWPLUGIN_API UCSWSceneComponent : public USceneComponent,public IBuildInterface
+class CSWPLUGIN_API UCSWSceneComponent :	public USceneComponent,
+											public IBuildInterface
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UCSWSceneComponent();
+	UCSWSceneComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UPROPERTY(VisibleAnywhere)
+	uint32 ComponentID;
+
+	UPROPERTY(VisibleAnywhere)
+	uint64 PathID;
+
+	GZ_PROPERTY(InstanceAddress, Instance);
+	
 	virtual gzBool build(gzNode* buildItem);
 };
+
+

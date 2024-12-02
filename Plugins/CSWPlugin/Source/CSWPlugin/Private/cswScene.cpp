@@ -45,7 +45,7 @@
 
 
 
-UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	bTickInEditor = true;
@@ -53,6 +53,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
+
+	registerComponent(this, nullptr, 0);	// Register root
 		
 	//SetMobility(EComponentMobility::Static);
 
@@ -104,13 +106,28 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	if (counter == 10)
 	{
-		trans = cswFactory::newObject(this,new gzTransform);
+		trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
 
 		trans->RegisterComponent();
 
 		trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
-		trans->build(nullptr);
+		//trans->build(nullptr);
+
+		//m_components.Add(trans);
+				
+		
+		
+	}
+	else if (counter == 1000)
+	{
+		//trans->SetVisibility(false, true);	// Hides recursively
+
+		trans->DestroyComponent();		// Unregisters component. removes it from root but not hierachically
+
+		trans = nullptr;
+
+		//m_components.Last() = nullptr;
 	}
 }
 
@@ -195,6 +212,7 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 	}
 }
 
+// We will do all processing in GameThread so we will not start with threaded access to component lookup
 void UCSWScene::processBuffersOut()
 {
 	gzListIterator<cswCommandBuffer> iterator(m_bufferOut);
@@ -214,6 +232,53 @@ void UCSWScene::processBuffersOut()
 	m_bufferOut.clear();
 }
 
+gzVoid UCSWScene::registerIndex(gzUInt32 index, gzNode* node, gzUInt64 pathID)
+{
+	m_indexLUT.enter(CSWPathIdentyIndex(node, pathID), gzVal2Ptr(index+1));
+}
+
+// UnRegister index for a node/path combination
+gzVoid UCSWScene::unregisterIndex(gzNode* node, gzUInt64 pathID)
+{
+	m_indexLUT.remove(CSWPathIdentyIndex(node, pathID));
+}
+
+// Register component
+gzVoid UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID)
+{
+	gzUInt32 id;
+
+	if (m_slots.entries())
+	{
+		id = m_slots.pop();
+		m_components[id] = component;
+	}
+	else
+		id = m_components.Add(component);
+
+	component->ComponentID = id;
+	component->setInstance(node);
+
+	registerIndex(id, node, pathID);
+}
+
+// Unregister component
+gzVoid UCSWScene::unregisterComponent(UCSWSceneComponent* component)
+{
+	unregisterIndex(component->getInstance(), component->PathID);
+	m_slots.push(component->ComponentID);
+	m_components[component->ComponentID] = nullptr;
+}
+
+UCSWSceneComponent* UCSWScene::getComponent(gzNode* node, gzUInt64 pathID)
+{
+	gzVoid* res = m_indexLUT.find(CSWPathIdentyIndex(node, pathID));
+
+	if (!res)
+		return nullptr;
+
+	return m_components[gzPtr2Val(res) - 1];
+}
 
 // Called by scene manager from custom threads
 gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)

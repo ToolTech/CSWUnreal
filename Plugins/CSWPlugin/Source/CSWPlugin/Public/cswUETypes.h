@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswSceneComponent.cpp
+// File			: cswUETypes.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
+// Description	: Utilities for UE from GizmoSDK
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,17 +35,30 @@
 //
 //******************************************************************************
 
-#include "cswSceneComponent.h"
+#pragma once
+
+#include "gzBaseLibrary.h"
 
 
-// Sets default values for this component's properties
-UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+class CSWPathIdentyIndex
 {
+public:
 
-}
+	CSWPathIdentyIndex(gzNode* _item, const gzUInt64& _pathID) :item(_item), pathID(_pathID) {};
 
-gzBool UCSWSceneComponent::build(gzNode* buildItem)
-{
-	return TRUE;
-}
+	gzUInt32	hash() const
+	{
+		return (gzUInt32)(gzPtr2Val(item) + pathID);
+	}
 
+	bool operator==(const CSWPathIdentyIndex& right)
+	{
+		return item == right.item && pathID == right.pathID;
+	}
+
+	gzNode* item;
+
+	gzUInt64 pathID;
+};
+
+typedef gzNode* InstanceAddress;

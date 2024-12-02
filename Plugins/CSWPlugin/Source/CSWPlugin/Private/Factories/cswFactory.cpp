@@ -43,7 +43,7 @@ gzMutex cswFactory::s_factoryLock;
 gzRefDict< gzString, cswFactory > cswFactory::s_factoryLookup;
 
 
-UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node)
+UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node, EObjectFlags Flags , UObject* Template , bool bCopyTransientsFromClassDefaults , FObjectInstancingGraph* InInstanceGraph )
 {
 	cswFactory *factory = getFactory(node->getTypeName());
 
@@ -53,7 +53,7 @@ UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node)
 		return nullptr;
 	}
 
-	return factory->newObjectInstance(parent,node);
+	return factory->newObjectInstance(parent,node, Flags,  Template, bCopyTransientsFromClassDefaults, InInstanceGraph);
 }
 
 gzBool cswFactory::registerFactory(const gzString& className, cswFactory* factory)

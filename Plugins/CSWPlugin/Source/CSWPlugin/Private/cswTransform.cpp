@@ -50,6 +50,11 @@ UCSWTransform::UCSWTransform()
 
 }
 
+UCSWTransform::~UCSWTransform()
+{
+
+}
+
 gzBool UCSWTransform::build(gzNode* buildItem)
 {
 	geom = NewObject<UCSWGeometry>(this, NAME_None);

@@ -42,12 +42,12 @@
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
 #include "cswUETemplates.h"
-
+#include "cswUETypes.h"
 
 #include "CSWScene.generated.h"
 
 UCLASS(meta = (BlueprintSpawnableComponent))
-class CSWPLUGIN_API UCSWScene : public USceneComponent,
+class CSWPLUGIN_API UCSWScene : public UCSWSceneComponent,
 								public cswCommandReceiverInterface,
 								public cswUEPropertyChain<UCSWScene>
 {
@@ -73,7 +73,7 @@ public:
 	// 
 
 	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	UCSWSceneComponent* trans;
+	TObjectPtr<UCSWSceneComponent> trans;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;
@@ -100,6 +100,20 @@ protected:
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
+	// Register index for a node/path combination
+	gzVoid registerIndex(gzUInt32 index, gzNode* node, gzUInt64 pathID);
+
+	// UnRegister index for a node/path combination
+	gzVoid unregisterIndex(gzNode* node, gzUInt64 pathID);
+
+	// Register component
+	gzVoid registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID);
+
+	// Unregister component
+	gzVoid unregisterComponent(UCSWSceneComponent* component);
+
+	UCSWSceneComponent* getComponent(gzNode* node, gzUInt64 pathID);
+
 	cswSceneManagerPtr m_manager;
 
 	
@@ -110,6 +124,11 @@ private:
 	gzRefList<cswCommandBuffer>		m_bufferIn;			// Buffer In
 	gzRefList<cswCommandBuffer>		m_bufferOut;		// Buffer Out
 
+	gzDict<CSWPathIdentyIndex, gzVoid>	m_indexLUT;
+
+	UPROPERTY()
+	TArray<UCSWSceneComponent *>	m_components;
+	gzQueue<gzUInt32>				m_slots;
 };
 
 

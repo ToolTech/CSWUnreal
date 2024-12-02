@@ -51,6 +51,8 @@ public:
 	// Sets default values for this component's properties
 	UCSWTransform();
 
+	virtual ~UCSWTransform();
+
 	virtual gzBool build(gzNode* buildItem) override;
 
 protected:
