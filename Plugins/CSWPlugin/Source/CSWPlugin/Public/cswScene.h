@@ -75,7 +75,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	FString MapUrls;
 
-	//void test(bool inPlay);
+	UPROPERTY(VisibleAnywhere, Category = "CSW")
+	FString CoordSystem;
 
 protected:
 

@@ -340,6 +340,14 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 	while (buffer->hasCommands())
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
+
+		cswSceneCommandGeoInfo* geoInfo = gzDynamic_Cast<cswSceneCommandGeoInfo>(command);
+
+		if (geoInfo)
+		{
+			CoordSystem = geoInfo->getCoordinateSystem().getWideString();
+			continue;
+		}
 	}
 
 	buffer->unLock();				// finished
