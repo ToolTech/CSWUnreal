@@ -113,7 +113,7 @@ protected:
 	CSW_SM_EXPORT virtual gzVoid initializeSceneManager(const gzBool &createDefaultViewer=FALSE,gzReference* window = nullptr, gzReference* application = nullptr);
 	CSW_SM_EXPORT virtual gzVoid unInitializeSceneManager();
 
-	CSW_SM_EXPORT gzBool traverse(const cswTraverseReason &reason, gzNode* node, gzGroup *parent, gzState *state, cswCommandBuffer* buffer,const gzUInt64 &pathID=0);
+	CSW_SM_EXPORT gzBool traverse(const cswTraverseReason &reason, gzNode* node, gzGroup *parent, gzState *state, cswCommandBuffer* buffer,const gzUInt64 &pathID=0, const gzUInt64& parentPathID = 0);
 
 	mutable gzMutex	m_threadSafeLocker;
 

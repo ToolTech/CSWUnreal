@@ -151,7 +151,7 @@ public:
 
 	GZ_GRAPH_EXPORT static  inline	gzEngineVendor	getEngineVendor()					{ return s_engineVendor; }
 	GZ_GRAPH_EXPORT static gzBool					hasValidEngine();
-	GZ_GRAPH_EXPORT static gzVoid					useEngine(gzEngineType type);
+	GZ_GRAPH_EXPORT static gzBool					useEngine(gzEngineType type,gzBool throwExceptions=TRUE);
 	GZ_GRAPH_EXPORT static gzEngineType				getEngineType();
 	GZ_GRAPH_EXPORT static gzGraphicsEngine *		getEngine();
 	GZ_GRAPH_EXPORT static gzFloat					getVersion();

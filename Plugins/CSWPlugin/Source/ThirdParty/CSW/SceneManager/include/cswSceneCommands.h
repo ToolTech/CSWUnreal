@@ -246,24 +246,38 @@ class cswSceneCommandInstance : public cswSceneCommand
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandInstance(gzNode* node, gzGroup* parent, const gzUInt64 &pathID);
+	CSW_SM_EXPORT cswSceneCommandInstance(gzNode* node, const gzUInt64& pathID);
 
 	GZ_PROPERTY_EXPORT(gzNodePtr, Node, CSW_SM_EXPORT);
 
-	GZ_PROPERTY_EXPORT(gzGroupPtr, Parent, CSW_SM_EXPORT);
-
 	GZ_PROPERTY_EXPORT(gzUInt64, PathID, CSW_SM_EXPORT);
-
 };
 
-// ------------------------ cswSceneCommandNewNode -------------------------------
+// ------------------------ cswSceneCommandHierarchyInstance -------------------------------
 
-class cswSceneCommandNewNode : public cswSceneCommandInstance
+class cswSceneCommandHierarchyInstance : public cswSceneCommandInstance
 {
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandNewNode(gzNode *node,gzGroup *parent, const gzUInt64 &pathID , gzState *state);
+	CSW_SM_EXPORT cswSceneCommandHierarchyInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID);
+
+	// -------------------- Parent -----------------------------------------------
+
+	GZ_PROPERTY_EXPORT(gzGroupPtr, Parent, CSW_SM_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzUInt64, ParentPathID, CSW_SM_EXPORT);
+};
+
+
+// ------------------------ cswSceneCommandNewNode -------------------------------
+
+class cswSceneCommandNewNode : public cswSceneCommandHierarchyInstance
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandNewNode(gzNode *node, const gzUInt64& pathID, gzGroup *parent, const gzUInt64& parentPathID, gzState *state);
 
 	GZ_PROPERTY_EXPORT(gzStatePtr, State, CSW_SM_EXPORT);
 };
@@ -275,7 +289,7 @@ class cswSceneCommandDeleteNode : public cswSceneCommandInstance
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandDeleteNode(gzNode* node, gzGroup* parent, const gzUInt64 &pathID);
+	CSW_SM_EXPORT cswSceneCommandDeleteNode(gzNode* node, const gzUInt64& pathID);
 };
 
 // ------------------------ cswSceneCommandActivation -------------------------------
@@ -285,7 +299,7 @@ class cswSceneCommandActivation : public cswSceneCommandInstance
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandActivation(gzNode* node, gzGroup* parent, const gzUInt64& pathID, const Activation& activation);
+	CSW_SM_EXPORT cswSceneCommandActivation(gzNode* node, const gzUInt64& pathID, const Activation& activation);
 
 	GZ_PROPERTY_EXPORT(Activation, Activation, CSW_SM_EXPORT);
 };
