@@ -42,9 +42,6 @@
 
 
 
-
-
-
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -216,6 +213,8 @@ void UCSWScene::processPendingBuffers()
 	gzListIterator<cswCommandBuffer> iterator(m_pendingBuffers);
 	cswCommandBuffer* buffer(nullptr);
 
+	bool result;
+
 	while ((buffer = iterator()))
 	{
 		/*if (buffer->entries() > 2)
@@ -225,20 +224,98 @@ void UCSWScene::processPendingBuffers()
 			cswScreenMessage(message);
 		}*/
 
-		// If we handled the buffer ok we continue
-		if (processBuffer(buffer))
+		switch (buffer->getBufferType())
+		{
+			case  CSW_BUFFER_TYPE_GENERIC:
+				result = processGenericBuffer(buffer);
+				break;
+
+			case CSW_BUFFER_TYPE_ERROR:
+				result = processErrorBuffer(buffer);
+				break;
+
+			case CSW_BUFFER_TYPE_FRAME:
+				result = processFrameBuffer(buffer);
+				break;
+
+			case CSW_BUFFER_TYPE_NEW:
+				result = processNewBuffer(buffer);
+				break;
+
+			case CSW_BUFFER_TYPE_DELETE:
+				result = processDeleteBuffer(buffer);
+				break;
+		}
+
+		if (result)					// If we handled the buffer ok we continue
 			iterator.remove();
 		else
-			break;	// Else we exit and let the system carry on smooth
-
+			break;					// else we exit and let the system carry on smooth
 	}
 }
 
-bool UCSWScene::processBuffer(cswCommandBuffer* buffer)
+bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
 {
-	if (!buffer)		// Faulty process
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+	}
+
+	buffer->unLock();				// finished
+
+	return true;
+}
+
+bool UCSWScene::processErrorBuffer(cswCommandBuffer* buffer)
+{
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
+		return false;
+
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+	}
+
+	buffer->unLock();				// finished
+
+	return true;
+}
+
+bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer)
+{
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
+		return false;
+
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+	}
+
+	buffer->unLock();				// finished
+
+	return true;
+}
+
+bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
+{
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
+		return false;
+
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+	}
+
+	buffer->unLock();				// finished
+
+	return true;
+}
+
+bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
+{
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 

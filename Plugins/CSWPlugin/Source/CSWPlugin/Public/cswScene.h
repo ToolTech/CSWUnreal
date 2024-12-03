@@ -92,8 +92,24 @@ protected:
 	// Perform work on buffers Out
 	void processPendingBuffers();
 
+
+
 	// Perform work on specific buffer
-	bool processBuffer(cswCommandBuffer *buffer);
+	bool processGenericBuffer(cswCommandBuffer *buffer);
+
+	// Perform work on specific buffer
+	bool processErrorBuffer(cswCommandBuffer* buffer);
+
+	// Perform work on specific buffer
+	bool processFrameBuffer(cswCommandBuffer* buffer);
+
+	// Perform work on specific buffer
+	bool processNewBuffer(cswCommandBuffer* buffer);
+
+	// Perform work on specific buffer
+	bool processDeleteBuffer(cswCommandBuffer* buffer);
+
+
 
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
@@ -125,9 +141,8 @@ private:
 	gzRefList<cswCommandBuffer>				m_pendingBuffers;		// Buffer Out
 
 	gzDict<CSWPathIdentyIndex, gzVoid>		m_indexLUT;
-
-	gzDynamicArray<UCSWSceneComponent *>	m_components;
 	gzQueue<gzUInt32>						m_slots;
+	gzDynamicArray<UCSWSceneComponent*>		m_components;
 };
 
 
