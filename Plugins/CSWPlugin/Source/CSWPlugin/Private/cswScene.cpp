@@ -96,37 +96,37 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 	fetchBuffers(isActive);
 
 	// Work on buffers
-	processBuffersOut();
+	processPendingBuffers();
 
 	// Trigger next frame
 	if(isActive)
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 
-	counter++;
+	//counter++;
 
-	if (counter == 10)
-	{
-		UCSWSceneComponent *trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
+	//if (counter == 10)
+	//{
+	//	UCSWSceneComponent *trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
 
-		trans->RegisterComponent();
+	//	trans->RegisterComponent();
 
-		trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	//	trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
-		trans->build(nullptr);
+	//	trans->build(nullptr);
 
-		registerComponent(trans, nullptr, 1);
-					
-		
-		
-	}
-	else if (counter == 1000)
-	{
-		UCSWSceneComponent* trans = getComponent(nullptr, 1);
+	//	registerComponent(trans, nullptr, 1);
+	//				
+	//	
+	//	
+	//}
+	//else if (counter == 1000)
+	//{
+	//	UCSWSceneComponent* trans = getComponent(nullptr, 1);
 
-		//trans->SetVisibility(false, true);	// Hides recursively
+	//	//trans->SetVisibility(false, true);	// Hides recursively
 
-		trans->DestroyComponent();		// Unregisters component. removes it from root but not hierachically
-	}
+	//	trans->DestroyComponent();		// Unregisters component. removes it from root but not hierachically
+	//}
 }
 
 void UCSWScene::initSceneManager()
@@ -173,7 +173,7 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 
 		while ((buffer = iterator()))
 		{
-			m_bufferOut.insert(buffer);
+			m_pendingBuffers.insert(buffer);
 
 			// We own the buffer soon. Lets set it to be deleted in node lock to protect ref data
 			buffer->setBufferDeleteMode(CSW_BUFFER_DELETE_MODE_EDIT_LOCK);
@@ -211,23 +211,45 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 }
 
 // We will do all processing in GameThread so we will not start with threaded access to component lookup
-void UCSWScene::processBuffersOut()
+void UCSWScene::processPendingBuffers()
 {
-	gzListIterator<cswCommandBuffer> iterator(m_bufferOut);
+	gzListIterator<cswCommandBuffer> iterator(m_pendingBuffers);
 	cswCommandBuffer* buffer(nullptr);
 
 	while ((buffer = iterator()))
 	{
-		if (buffer->entries() > 2)
+		/*if (buffer->entries() > 2)
 		{
 			gzString message = gzString::formatString("%s:Processed buffer out of type (%d) with %d commands", gzTime::now().asString(), buffer->getBufferType(), buffer->entries());
 
 			cswScreenMessage(message);
-		}
+		}*/
+
+		// If we handled the buffer ok we continue
+		if (processBuffer(buffer))
+			iterator.remove();
+		else
+			break;	// Else we exit and let the system carry on smooth
+
+	}
+}
+
+bool UCSWScene::processBuffer(cswCommandBuffer* buffer)
+{
+	if (!buffer)		// Faulty process
+		return false;
+
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
+		return false;
+
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
 	}
 
-	// All data processed. Empty buffer
-	m_bufferOut.clear();
+	buffer->unLock();				// finished
+
+	return true;
 }
 
 gzVoid UCSWScene::registerIndex(gzUInt32 index, gzNode* node, gzUInt64 pathID)

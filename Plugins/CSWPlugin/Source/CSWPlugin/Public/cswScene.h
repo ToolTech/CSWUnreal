@@ -90,7 +90,10 @@ protected:
 	void fetchBuffers(bool waitForFrame=false, gzUInt32 timeOut = 200);
 
 	// Perform work on buffers Out
-	void processBuffersOut();
+	void processPendingBuffers();
+
+	// Perform work on specific buffer
+	bool processBuffer(cswCommandBuffer *buffer);
 
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
@@ -119,7 +122,7 @@ private:
 
 	gzEvent									m_bufferInLock;		// Lock for callback accessing bufferIn
 	gzRefList<cswCommandBuffer>				m_bufferIn;			// Buffer In
-	gzRefList<cswCommandBuffer>				m_bufferOut;		// Buffer Out
+	gzRefList<cswCommandBuffer>				m_pendingBuffers;		// Buffer Out
 
 	gzDict<CSWPathIdentyIndex, gzVoid>		m_indexLUT;
 
