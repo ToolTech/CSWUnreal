@@ -37,7 +37,7 @@
 #pragma once
 
 
-#include "cswSceneComponent.h"
+#include "components/cswSceneComponent.h"
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
@@ -77,6 +77,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "CSW")
 	FString CoordSystem;
+
+	UPROPERTY(VisibleAnywhere, Category = "CSW")
+	double RenderTime;
 
 protected:
 

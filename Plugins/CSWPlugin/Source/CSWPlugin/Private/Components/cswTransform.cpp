@@ -35,8 +35,8 @@
 //
 //******************************************************************************
 
-#include "cswTransform.h"
-#include "cswGeometry.h"
+#include "components/cswTransform.h"
+#include "components/cswGeometry.h"
 
 // Sets default values for this component's properties
 UCSWTransform::UCSWTransform()
@@ -55,8 +55,11 @@ UCSWTransform::~UCSWTransform()
 
 }
 
-gzBool UCSWTransform::build(gzNode* buildItem)
+bool UCSWTransform::build(gzNode* buildItem)
 {
+	if (!Super::build(buildItem))
+		return false;
+
 	geom = NewObject<UCSWGeometry>(this, NAME_None);
 
 	geom->RegisterComponent();
@@ -65,7 +68,7 @@ gzBool UCSWTransform::build(gzNode* buildItem)
 
 	geom->build(nullptr);
 
-	return TRUE;
+	return true;
 }
 
 

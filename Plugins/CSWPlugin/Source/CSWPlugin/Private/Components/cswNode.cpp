@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswSceneComponent.cpp
+// File			: cswUEGlue.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
+// Description	: Glue Between Unreal CSW and GizmoSDK callbacks
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,17 +35,40 @@
 //
 //******************************************************************************
 
-#include "cswSceneComponent.h"
-
+#include "components/cswNode.h"
+#include "components/cswGeometry.h"
 
 // Sets default values for this component's properties
-UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UCSWNode::UCSWNode()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = false;
+
+	//bTickInEditor = true;
+	//bAutoActivate = true;
+
+}
+
+UCSWNode::~UCSWNode()
 {
 
 }
 
-gzBool UCSWSceneComponent::build(gzNode* buildItem)
+bool UCSWNode::build(gzNode* buildItem)
 {
-	return TRUE;
+	if (!Super::build(buildItem))
+		return false;
+
+	/*geom = NewObject<UCSWGeometry>(this, NAME_None);
+
+	geom->RegisterComponent();
+
+	geom->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+	geom->build(nullptr);*/
+
+	return true;
 }
+
 

@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswBuildInterface.h
+// File			: cswTransform.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Interface to build functions 
+// Description	: class def of gzTransform equiv cswTransform
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -31,16 +31,41 @@
 //									
 // Who	Date	Description						
 //									
-// AMO	241107	Created file 							(1.1.1)
+// AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
 #pragma once
 
-#include "gzNode.h"
+#include "CoreMinimal.h"
+#include "cswNode.h"
+#include "cswTransform.generated.h"
 
-class IBuildInterface
+class UCSWGeometry;
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class CSWPLUGIN_API UCSWTransform : public UCSWNode
 {
-public:
+	GENERATED_BODY()
 
-	virtual bool build(gzNode* buildItem)=0;
+public:	
+	// Sets default values for this component's properties
+	UCSWTransform();
+
+	virtual ~UCSWTransform();
+
+	virtual bool build(gzNode* buildItem) override;
+
+protected:
+
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
+	UCSWGeometry* geom;
+
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+		
 };

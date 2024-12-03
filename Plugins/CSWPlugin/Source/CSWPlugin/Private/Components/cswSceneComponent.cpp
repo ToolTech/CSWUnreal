@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswTransform.h
+// File			: cswSceneComponent.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: class def of gzTransform equiv cswTransform
+// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -34,38 +34,18 @@
 // AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
-#pragma once
 
-#include "CoreMinimal.h"
-#include "cswSceneComponent.h"
-#include "cswTransform.generated.h"
+#include "components/cswSceneComponent.h"
 
-class UCSWGeometry;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CSWPLUGIN_API UCSWTransform : public UCSWSceneComponent
+// Sets default values for this component's properties
+UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
-	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UCSWTransform();
+}
 
-	virtual ~UCSWTransform();
+bool UCSWSceneComponent::build(gzNode* buildItem)
+{
+	return true;
+}
 
-	virtual gzBool build(gzNode* buildItem) override;
-
-protected:
-
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	UCSWGeometry* geom;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
-};

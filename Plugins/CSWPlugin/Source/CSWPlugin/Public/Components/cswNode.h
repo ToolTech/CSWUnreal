@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswSceneComponent.h
+// File			: cswNode.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
+// Description	: class def of gzTransform equiv cswNode
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -37,34 +37,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "cswSceneComponent.h"
+#include "cswNode.generated.h"
 
-// Interfaces
-#include "Interfaces/cswBuildInterface.h"
-#include "cswUETypes.h"
+class UCSWGeometry;
 
-#include "cswSceneComponent.generated.h"
-
-
-UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
-class CSWPLUGIN_API UCSWSceneComponent :	public USceneComponent,
-											public IBuildInterface
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class CSWPLUGIN_API UCSWNode : public UCSWSceneComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UCSWSceneComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UCSWNode();
 
-	UPROPERTY(VisibleAnywhere)
-	uint32 ComponentID;
+	virtual ~UCSWNode();
 
-	UPROPERTY(VisibleAnywhere)
-	uint64 PathID;
+	virtual bool build(gzNode* buildItem) override;
 
-	GZ_PROPERTY(InstanceAddress, Instance);
-	
-	virtual gzBool build(gzNode* buildItem);
+protected:
+
+	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
+	FString Name;
+
+		
 };
-
-

@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswBuildInterface.h
+// File			: cswSceneComponent.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Interface to build functions 
+// Description	: Base class for CSW/GZ SceneComponent classes in Unreal
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -31,16 +31,40 @@
 //									
 // Who	Date	Description						
 //									
-// AMO	241107	Created file 							(1.1.1)
+// AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
 #pragma once
 
-#include "gzNode.h"
+#include "CoreMinimal.h"
+#include "Components/SceneComponent.h"
 
-class IBuildInterface
+// Interfaces
+#include "Interfaces/cswBuildInterface.h"
+#include "cswUETypes.h"
+
+#include "cswSceneComponent.generated.h"
+
+
+UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
+class CSWPLUGIN_API UCSWSceneComponent :	public USceneComponent,
+											public IBuildInterface
 {
-public:
+	GENERATED_BODY()
 
-	virtual bool build(gzNode* buildItem)=0;
+public:	
+	// Sets default values for this component's properties
+	UCSWSceneComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UPROPERTY(VisibleAnywhere)
+	uint32 ComponentID;
+
+	UPROPERTY(VisibleAnywhere)
+	uint64 PathID;
+
+	GZ_PROPERTY(InstanceAddress, Instance);
+	
+	virtual bool build(gzNode* buildItem);
 };
+
+

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "cswGeometry.h"
+#include "components/cswGeometry.h"
 
 #include "MeshDescription.h"
 #include "MeshDescriptionBuilder.h"
@@ -18,8 +18,11 @@ UCSWGeometry::UCSWGeometry()
 }
 
 
-gzBool UCSWGeometry::build(gzNode* buildItem)
+bool UCSWGeometry::build(gzNode* buildItem)
 {
+	if (!Super::build(buildItem))
+		return false;
+
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, NAME_None);
 
 	m_meshComponent->RegisterComponent();
@@ -93,7 +96,7 @@ gzBool UCSWGeometry::build(gzNode* buildItem)
 	// Assign new static mesh to the static mesh component
 	m_meshComponent->SetStaticMesh(staticMesh);
 
-	return TRUE;
+	return true;
 }
 
 

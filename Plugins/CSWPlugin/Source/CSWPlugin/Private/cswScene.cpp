@@ -150,10 +150,6 @@ void UCSWScene::initSceneManager()
 		// Demo position for camera right now... Just to get data into frame
 		buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
 
-		// First initial refresh
-
-		buffer->addCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
-
 		m_manager->addCommandBuffer(buffer);
 	}
 }
@@ -299,7 +295,7 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 
 		if (startFrame)
 		{
-
+			RenderTime = startFrame->getRenderTime();
 			continue;
 		}
 
