@@ -208,14 +208,15 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 }
 
 // We will do all processing in GameThread so we will not start with threaded access to component lookup
-void UCSWScene::processPendingBuffers()
+gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 {
 	gzListIterator<cswCommandBuffer> iterator(m_pendingBuffers);
 	cswCommandBuffer* buffer(nullptr);
 
 	bool result;
+	gzUInt32 frames(maxFrames);
 
-	while ((buffer = iterator()))
+	while ( (buffer = iterator()) && frames)
 	{
 		/*if (buffer->entries() > 2)
 		{
@@ -235,7 +236,7 @@ void UCSWScene::processPendingBuffers()
 				break;
 
 			case CSW_BUFFER_TYPE_FRAME:
-				result = processFrameBuffer(buffer);
+				result = processFrameBuffer(buffer,frames);
 				break;
 
 			case CSW_BUFFER_TYPE_NEW:
@@ -252,6 +253,8 @@ void UCSWScene::processPendingBuffers()
 		else
 			break;					// else we exit and let the system carry on smooth
 	}
+
+	return maxFrames - frames;
 }
 
 bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
@@ -271,32 +274,47 @@ bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
 
 bool UCSWScene::processErrorBuffer(cswCommandBuffer* buffer)
 {
-	if (!buffer->tryLockEdit())		// We failed to lock buffer
-		return false;
+	// !!! No ref 3D data in errors so we dont lock and we delete in unlocked mode for performance
 
 	while (buffer->hasCommands())
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
 	}
 
-	buffer->unLock();				// finished
+	buffer->setBufferDeleteMode(CSW_BUFFER_DELETE_MODE_UNLOCKED);
 
 	return true;
 }
 
-bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer)
+bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames)
 {
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
-	while (buffer->hasCommands())
+	while (buffer->hasCommands() && maxFrames)
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
+
+		cswSceneCommandStartFrame* startFrame = gzDynamic_Cast<cswSceneCommandStartFrame>(command);
+
+		if (startFrame)
+		{
+
+			continue;
+		}
+
+		cswSceneCommandEndFrame* endFrame = gzDynamic_Cast<cswSceneCommandEndFrame>(command);
+
+		if (endFrame)
+		{
+			--maxFrames;
+			continue;
+		}
 	}
 
 	buffer->unLock();				// finished
 
-	return true;
+	return !buffer->entries();		// return false if we have items left
 }
 
 bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
