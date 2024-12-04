@@ -40,6 +40,8 @@
 #include "cswUEMatrix.h"
 #include "cswFactory.h"
 
+#include "gzCoordinate.h"
+
 
 
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
@@ -50,6 +52,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
+
+	registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
 
 	registerComponent(this, nullptr, 0);	// Register root
 		
@@ -209,7 +213,7 @@ gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 	gzListIterator<cswCommandBuffer> iterator(m_pendingBuffers);
 	cswCommandBuffer* buffer(nullptr);
 
-	bool result;
+	bool result(true);
 	gzUInt32 frames(maxFrames);
 
 	while ( (buffer = iterator()) && frames)
@@ -318,20 +322,7 @@ bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
-	while (buffer->hasCommands())
-	{
-		cswSceneCommandPtr command = buffer->getCommand();
-	}
-
-	buffer->unLock();				// finished
-
-	return true;
-}
-
-bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
-{
-	if (!buffer->tryLockEdit())		// We failed to lock buffer
-		return false;
+	bool result(true);
 
 	while (buffer->hasCommands())
 	{
@@ -341,12 +332,100 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 
 		if (geoInfo)
 		{
-			CoordSystem = geoInfo->getCoordinateSystem().getWideString();
+			if (!(result = processGeoInfo(geoInfo)))
+				break;
+
 			continue;
 		}
 	}
 
 	buffer->unLock();				// finished
+
+	return result;
+}
+
+bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
+{
+	if (!buffer->tryLockEdit())		// We failed to lock buffer
+		return false;
+
+	bool result(true);
+
+	while (buffer->hasCommands())
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+
+		cswSceneCommandGeoInfo* geoInfo = gzDynamic_Cast<cswSceneCommandGeoInfo>(command);
+
+		if (geoInfo)
+		{
+			if(!(result = processGeoInfo(geoInfo)))
+				break;
+
+			continue;
+		}
+	}
+
+	buffer->unLock();				// finished
+
+	return result;
+}
+
+bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
+{
+	CoordSystem = command->getCoordinateSystem().getWideString();
+
+	if (!command->getCoordinateSystem())
+	{
+		// Empty. Plain Geometry
+		CoordType = CoordType::Geometry;
+	}
+	else
+	{
+
+		gzCoordSystem system;
+
+		gzCoordSystemMetaData meta;
+
+		if (!gzCoordinate::getCoordinateSystem(command->getCoordinateSystem(), system, meta))
+		{
+			CoordType = CoordType::Geometry;
+			GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to set interpret coordinate system %s", command->getCoordinateSystem());
+			
+		}
+		else
+		{
+
+			switch (system.type)
+			{
+				case gzCoordType::GZ_COORDTYPE_GEOCENTRIC:
+					CoordType = CoordType::Geocentric;
+					break;
+
+				case gzCoordType::GZ_COORDTYPE_GEODETIC:
+					CoordType = CoordType::Geodetic;
+					break;
+
+				case gzCoordType::GZ_COORDTYPE_PROJECTED:
+					CoordType = CoordType::Projected;
+					break;
+
+				case gzCoordType::GZ_COORDTYPE_UTM:
+					CoordType = CoordType::UTM;
+					break;
+
+				case gzCoordType::GZ_COORDTYPE_FLATEARTH:
+					CoordType = CoordType::FlatEarth;
+					break;
+
+				default:
+					CoordType = CoordType::Geometry;
+					break;
+			}
+		}
+	}
+
+	propertyUpdate("CoordType");
 
 	return true;
 }
@@ -424,7 +503,14 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 
 		m_manager->addSingleCommand(new cswSceneCommandSetMapUrls(mapURL));
 	}
+	else
+		m_manager->addSingleCommand(new cswSceneCommandClearMaps());
 		
+	return true;
+}
+
+bool UCSWScene::onCoordTypePropertyUpdate()
+{
 	return true;
 }
 

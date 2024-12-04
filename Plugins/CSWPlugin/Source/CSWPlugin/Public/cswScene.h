@@ -44,6 +44,17 @@
 #include "cswUETemplates.h"
 #include "cswUETypes.h"
 
+UENUM()
+enum CoordType
+{
+	Geometry	UMETA(DisplayName = "Geometry"),
+	Geocentric  UMETA(DisplayName = "Geocentric"),
+	Geodetic    UMETA(DisplayName = "Geodetic"),
+	Projected   UMETA(DisplayName = "Projected"),
+	UTM			UMETA(DisplayName = "UTM"),
+	FlatEarth   UMETA(DisplayName = "FlatEarth"),
+};
+
 #include "CSWScene.generated.h"
 
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -72,13 +83,16 @@ public:
 	// Properties ------------------------------------------------------------------
 	// 
 
-	UPROPERTY(EditAnywhere, Category = "CSW")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
 	FString MapUrls;
 
-	UPROPERTY(VisibleAnywhere, Category = "CSW")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	FString CoordSystem;
 
-	UPROPERTY(VisibleAnywhere, Category = "CSW")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	TEnumAsByte<CoordType> CoordType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	double RenderTime;
 
 protected:
@@ -114,9 +128,13 @@ protected:
 	bool processDeleteBuffer(cswCommandBuffer* buffer);
 
 
+	// Perform work on specific commands
+	bool processGeoInfo(cswSceneCommandGeoInfo* command);
+
 
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
+	bool onCoordTypePropertyUpdate();
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 

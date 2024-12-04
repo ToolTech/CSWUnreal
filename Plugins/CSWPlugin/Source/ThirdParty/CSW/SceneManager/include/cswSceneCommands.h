@@ -138,6 +138,14 @@ public:
 	GZ_PROPERTY_EXPORT(gzString, MapURL, CSW_SM_EXPORT);
 };
 
+// ------------------------ cswSceneCommandClearMaps -------------------------------
+
+class cswSceneCommandClearMaps : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+};
+
 // ------------------------ cswSceneCommandSetCamera -------------------------------
 
 class cswSceneCommandSetCamera : public cswSceneCommand
