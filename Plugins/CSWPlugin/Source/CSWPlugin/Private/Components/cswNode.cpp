@@ -55,20 +55,26 @@ UCSWNode::~UCSWNode()
 
 }
 
-bool UCSWNode::build(gzNode* buildItem)
+bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
-	if (!Super::build(buildItem))
+	if (!Super::build(parent,buildItem))
 		return false;
 
-	/*geom = NewObject<UCSWGeometry>(this, NAME_None);
+	// gzGroup -----------------------------
 
-	geom->RegisterComponent();
-
-	geom->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
-	geom->build(nullptr);*/
-
+	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
+	
 	return true;
 }
+
+bool  UCSWNode::destroy(gzNode* destroyItem)
+{
+	// Do cleanup
+
+	DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+
+	return Super::destroy(destroyItem);
+}
+
 
 

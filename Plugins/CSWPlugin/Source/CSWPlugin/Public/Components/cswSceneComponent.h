@@ -56,15 +56,15 @@ public:
 	// Sets default values for this component's properties
 	UCSWSceneComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UPROPERTY(VisibleAnywhere)
+	/*UPROPERTY(VisibleAnywhere)
 	uint32 ComponentID;
 
 	UPROPERTY(VisibleAnywhere)
-	uint64 PathID;
-
-	GZ_PROPERTY(InstanceAddress, Instance);
+	uint64 PathID;*/
 	
-	virtual bool build(gzNode* buildItem);
+	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem);
+
+	virtual bool destroy(gzNode* destroyItem) override;
 };
 
 

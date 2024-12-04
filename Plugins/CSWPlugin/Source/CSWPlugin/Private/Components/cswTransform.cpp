@@ -38,6 +38,9 @@
 #include "components/cswTransform.h"
 #include "components/cswGeometry.h"
 
+#include "gzTransform.h"
+#include "cswUEMatrix.h"
+
 // Sets default values for this component's properties
 UCSWTransform::UCSWTransform()
 {
@@ -55,39 +58,46 @@ UCSWTransform::~UCSWTransform()
 
 }
 
-bool UCSWTransform::build(gzNode* buildItem)
+
+bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
-	if (!Super::build(buildItem))
+	if (!Super::build(parent,buildItem))
 		return false;
+
+	gzTransform* transform = gzDynamic_Cast<gzTransform>(buildItem);
+
+	if (!transform)
+		return false;
+
+	if (transform->isActive())
+	{
+		FTransform m;
+
+		m.SetFromMatrix(cswMatrix4<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
+
+		SetRelativeTransform(m);
+	}
 
 	geom = NewObject<UCSWGeometry>(this, NAME_None);
 
+	geom->build(this,nullptr);
+
 	geom->RegisterComponent();
-
-	geom->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
-	geom->build(nullptr);
 
 	return true;
 }
 
-
-// Called when the game starts
-void UCSWTransform::BeginPlay()
+bool  UCSWTransform::destroy(gzNode* destroyItem)
 {
-	Super::BeginPlay();
+	// Do cleanup
 
-	// ...
-	
-}
+	if (!geom->destroy(nullptr))
+		return false;
 
+	geom->DestroyComponent();
 
-// Called every frame
-void UCSWTransform::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	geom = nullptr;
 
-
-	// ...
+	return Super::destroy(destroyItem);
 }
 

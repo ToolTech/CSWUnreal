@@ -53,12 +53,14 @@ public:
 
 	virtual ~UCSWNode();
 
-	virtual bool build(gzNode* buildItem) override;
+	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
+
+	virtual bool destroy(gzNode* destroyItem) override;
 
 protected:
 
-	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	FString Name;
+	//UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
+	//FString Name;
 
 		
 };

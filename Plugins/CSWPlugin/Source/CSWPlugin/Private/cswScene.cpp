@@ -50,21 +50,16 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 	bTickInEditor = true;
 	bAutoActivate = true;
 
+	SetMobility(EComponentMobility::Movable);
+
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
 
 	registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
 
 	registerComponent(this, nullptr, 0);	// Register root
-		
-	//SetMobility(EComponentMobility::Static);
 
-	/*_smComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("smComp"), true);
-
-	_smComp->SetupAttachment(this);*/
-
-	//_smComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("smComp"), true);
-
+	// Perform init of scenemanager 
 	initSceneManager();
 
 	counter = 0;
@@ -328,6 +323,16 @@ bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
 
+		cswSceneCommandDeleteNode* deleteNode = gzDynamic_Cast<cswSceneCommandDeleteNode>(command);
+
+		if (deleteNode)
+		{
+			if (!(result = processDeleteNode(deleteNode)))
+				break;
+
+			continue;
+		}
+
 		cswSceneCommandGeoInfo* geoInfo = gzDynamic_Cast<cswSceneCommandGeoInfo>(command);
 
 		if (geoInfo)
@@ -355,6 +360,16 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
 
+		cswSceneCommandNewNode* newNode = gzDynamic_Cast<cswSceneCommandNewNode>(command);
+
+		if (newNode)
+		{
+			if (!(result = processNewNode(newNode)))
+				break;
+
+			continue;
+		}
+
 		cswSceneCommandGeoInfo* geoInfo = gzDynamic_Cast<cswSceneCommandGeoInfo>(command);
 
 		if (geoInfo)
@@ -364,11 +379,99 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 
 			continue;
 		}
+				
 	}
 
 	buffer->unLock();				// finished
 
 	return result;
+}
+
+bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
+{
+	gzGroup* parentGroup = command->getParent();
+	gzUInt64 parentPathID = command->getParentPathID();
+
+	/*gzUInt64 debugParentPathID(0xffffffffff);
+
+	if (parentGroup)
+		gzDynamic_Cast(parentGroup->getAttribute("debug", "pathID"), debugParentPathID);*/
+
+
+	UCSWSceneComponent* parent = getComponent(parentGroup, parentPathID);
+
+	if (!parent)
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get registered parent");
+		return false;
+	}
+
+	gzNode* node = command->getNode();
+	gzUInt64 pathID = command->getPathID();
+
+	UCSWSceneComponent* component = cswFactory::newObject(parent, node);
+
+	if(!component)
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get new component");
+		return false;
+	}
+
+	if(!component->build(parent,node))
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
+		return false;
+	}
+
+	component->RegisterComponent();
+
+	if(!registerComponent(component, node, pathID))
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to register component");
+		return false;
+	}
+
+	/*if (node->hasAttribute("debug", "pathID"))
+	{
+		gzUInt64 exPathID;
+
+		gzDynamic_Cast(node->getAttribute("debug", "pathID"), exPathID);
+	}
+
+	node->setAttribute("debug", "pathID", pathID);*/
+	
+	return true;
+}
+
+bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
+{
+	gzNode* node = command->getNode();
+	gzUInt64 pathID = command->getPathID();
+
+
+	UCSWSceneComponent* component = getComponent(node, pathID);
+
+	if (!component)
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get component for deletion");
+		return false;
+	}
+
+	if(!component->destroy(node))
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to destoy component");
+		return false;
+	}
+
+	component->DestroyComponent();
+
+	if(!unregisterComponent(node,pathID))
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to unregister component");
+		return false;
+	}
+
+	return true;
 }
 
 bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
@@ -430,21 +533,14 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 	return true;
 }
 
-gzVoid UCSWScene::registerIndex(gzUInt32 index, gzNode* node, gzUInt64 pathID)
-{
-	m_indexLUT.enter(CSWPathIdentyIndex(node, pathID), gzVal2Ptr(index+1));
-}
-
-// UnRegister index for a node/path combination
-gzVoid UCSWScene::unregisterIndex(gzNode* node, gzUInt64 pathID)
-{
-	m_indexLUT.remove(CSWPathIdentyIndex(node, pathID));
-}
 
 // Register component
-gzVoid UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID)
+bool UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID)
 {
-	gzUInt32 id;
+	if (m_indexLUT.find(CSWPathIdentyIndex(node, pathID)))
+		return false;
+
+	gzUInt32 id;	// start from 0
 
 	if (m_slots.entries())
 	{
@@ -457,18 +553,27 @@ gzVoid UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node,
 		m_components += component;
 	}
 
-	component->ComponentID = id;
-	component->setInstance(node);
+	m_indexLUT.enter(CSWPathIdentyIndex(node, pathID), gzVal2Ptr(id + 1));
 
-	registerIndex(id, node, pathID);
+	return true;
 }
 
 // Unregister component
-gzVoid UCSWScene::unregisterComponent(UCSWSceneComponent* component)
+bool UCSWScene::unregisterComponent(gzNode* node, gzUInt64 pathID)
 {
-	unregisterIndex(component->getInstance(), component->PathID);
-	m_slots.push(component->ComponentID);
-	m_components[component->ComponentID] = nullptr;
+	gzVoid* res = m_indexLUT.find(CSWPathIdentyIndex(node, pathID));
+
+	if (!res)
+		return false;
+
+	gzUInt32 id = gzPtr2Val(res) - 1;
+
+	m_slots.push(id);
+	m_components[id] = nullptr;
+
+	m_indexLUT.remove(CSWPathIdentyIndex(node, pathID));
+
+	return true;
 }
 
 UCSWSceneComponent* UCSWScene::getComponent(gzNode* node, gzUInt64 pathID)
@@ -504,13 +609,42 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 		m_manager->addSingleCommand(new cswSceneCommandSetMapUrls(mapURL));
 	}
 	else
+	{
 		m_manager->addSingleCommand(new cswSceneCommandClearMaps());
+	}
 		
 	return true;
 }
 
 bool UCSWScene::onCoordTypePropertyUpdate()
 {
+
+	FTransform m;
+
+	// map SCENE content in Gizmo World to UE world
+	
+	switch (CoordType)
+	{
+		case CoordType::Geometry:
+		case CoordType::Projected:
+		case CoordType::UTM:
+			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			break;
+
+		case CoordType::Geodetic:
+			break;
+
+		case CoordType::Geocentric:
+			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			break;
+
+		case CoordType::FlatEarth:
+			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			break;
+	}
+
+	SetRelativeTransform(m);
+
 	return true;
 }
 

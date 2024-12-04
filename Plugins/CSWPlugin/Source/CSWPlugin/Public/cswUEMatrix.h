@@ -112,24 +112,18 @@ template <class T> inline gzMatrix4_<T> cswMatrix4<T>::GZMatrix4(const UE::Math:
 
 template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::GZ_2_UE()
 {
-	// Y Z -X
-	return gzMatrix4D(gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(-1, 0, 0, 0), gzVec4D(0, 0, 0, 1));
+	// Map GZ(X,Y,Z) to UE(X,Z,Y)
+	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
 }
 
 template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::UE_2_GZ()
 {
-	// -Z X Y
-	return gzMatrix4D(gzVec4D(0, 0, -1, 0), gzVec4D(1, 0, 0, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
-}
-
-template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::GZ_2_UE_GEO_Flat()
-{
-	// X Z Y
+	// Map UE(X,Y,Z) to GZ(X,Z,Y)
 	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
 }
 
 template <class T> inline gzMatrix4_<T>  cswMatrix4<T>::GZ_2_UE_GEO_Cartesian()
 {
-	// X -Y Z
+	// Map GZ(X,Y,Z) to UE(X,-Y,Z)
 	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, -1, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 0, 0, 1));
 }

@@ -130,6 +130,8 @@ protected:
 
 	// Perform work on specific commands
 	bool processGeoInfo(cswSceneCommandGeoInfo* command);
+	bool processNewNode(cswSceneCommandNewNode* command);
+	bool processDeleteNode(cswSceneCommandDeleteNode* command);
 
 
 	// Property Update callbacks
@@ -138,17 +140,12 @@ protected:
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
-	// Register index for a node/path combination
-	gzVoid registerIndex(gzUInt32 index, gzNode* node, gzUInt64 pathID);
-
-	// UnRegister index for a node/path combination
-	gzVoid unregisterIndex(gzNode* node, gzUInt64 pathID);
 
 	// Register component
-	gzVoid registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID);
+	bool registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID);
 
 	// Unregister component
-	gzVoid unregisterComponent(UCSWSceneComponent* component);
+	bool unregisterComponent(gzNode* node, gzUInt64 pathID);
 
 	UCSWSceneComponent* getComponent(gzNode* node, gzUInt64 pathID);
 

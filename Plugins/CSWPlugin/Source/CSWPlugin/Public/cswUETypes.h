@@ -44,7 +44,7 @@ class CSWPathIdentyIndex
 {
 public:
 
-	CSWPathIdentyIndex(gzNode* _item, const gzUInt64& _pathID) :item(_item), pathID(_pathID) {};
+	CSWPathIdentyIndex(gzNode* _item, const gzUInt64& _pathID) :item(_item), pathID(_pathID){};
 
 	gzUInt32	hash() const
 	{

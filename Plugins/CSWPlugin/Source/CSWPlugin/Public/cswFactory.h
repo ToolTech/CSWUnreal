@@ -46,6 +46,8 @@ public:
 	// Type info
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
 
+	CSWPLUGIN_API cswFactory();									// make sure its initialized
+
 	CSWPLUGIN_API static UCSWSceneComponent* newObject(USceneComponent* parent,gzNode* node, EObjectFlags Flags = RF_NoFlags, UObject* Template = nullptr, bool bCopyTransientsFromClassDefaults = false, FObjectInstancingGraph* InInstanceGraph = nullptr);
 
 	CSWPLUGIN_API static gzBool registerFactory(const gzString &className, cswFactory *factory);

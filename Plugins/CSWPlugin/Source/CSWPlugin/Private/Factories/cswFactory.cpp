@@ -42,18 +42,33 @@ gzMutex cswFactory::s_factoryLock;
 
 gzRefDict< gzString, cswFactory > cswFactory::s_factoryLookup;
 
+cswFactory::cswFactory()									// make sure its initialized
+{
+	GZ_BODYGUARD(s_factoryLock);
+}
 
 UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node, EObjectFlags Flags , UObject* Template , bool bCopyTransientsFromClassDefaults , FObjectInstancingGraph* InInstanceGraph )
 {
-	cswFactory *factory = getFactory(node->getTypeName());
+	gzType* type = node->getType();
 
-	if (!factory)
+	cswFactory* factory;
+
+	while (type)
 	{
-		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
-		return nullptr;
-	}
+		factory = getFactory(type->getName());
 
-	return factory->newObjectInstance(parent,node, Flags,  Template, bCopyTransientsFromClassDefaults, InInstanceGraph);
+		if (!factory)
+		{
+			type = type->getParent();
+			continue;
+		}
+
+		return factory->newObjectInstance(parent, node, Flags, Template, bCopyTransientsFromClassDefaults, InInstanceGraph);
+	}
+	
+	GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
+
+	return nullptr;
 }
 
 gzBool cswFactory::registerFactory(const gzString& className, cswFactory* factory)

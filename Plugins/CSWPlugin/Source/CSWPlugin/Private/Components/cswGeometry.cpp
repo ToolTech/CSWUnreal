@@ -10,17 +10,12 @@
 // Sets default values for this component's properties
 UCSWGeometry::UCSWGeometry()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-bool UCSWGeometry::build(gzNode* buildItem)
+bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
-	if (!Super::build(buildItem))
+	if (!Super::build(parent,buildItem))
 		return false;
 
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, NAME_None);
@@ -99,23 +94,11 @@ bool UCSWGeometry::build(gzNode* buildItem)
 	return true;
 }
 
-
-
-// Called when the game starts
-void UCSWGeometry::BeginPlay()
+bool  UCSWGeometry::destroy(gzNode* destroyItem)
 {
-	Super::BeginPlay();
+	// Do cleanup
 
-	// ...
-	
+	m_meshComponent->DestroyComponent();
+
+	return Super::destroy(destroyItem);
 }
-
-
-// Called every frame
-void UCSWGeometry::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-

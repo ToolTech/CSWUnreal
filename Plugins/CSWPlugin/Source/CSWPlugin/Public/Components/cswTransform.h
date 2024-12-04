@@ -53,19 +53,12 @@ public:
 
 	virtual ~UCSWTransform();
 
-	virtual bool build(gzNode* buildItem) override;
+	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
+
+	virtual bool destroy(gzNode* destroyItem) override;
 
 protected:
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	UPROPERTY(Transient, VisibleAnywhere, Category = "CSW");
-	UCSWGeometry* geom;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	TObjectPtr<UCSWGeometry> geom;
 		
 };

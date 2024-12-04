@@ -41,11 +41,22 @@
 // Sets default values for this component's properties
 UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
+	// Default to static mesh fixed grid
+	SetMobility(EComponentMobility::Stationary);
 
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-bool UCSWSceneComponent::build(gzNode* buildItem)
+bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
 	return true;
 }
+
+bool  UCSWSceneComponent::destroy(gzNode* destroyItem)
+{
+	// Do cleanup
+
+	return true;
+}
+
 

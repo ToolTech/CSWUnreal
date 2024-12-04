@@ -38,9 +38,12 @@
 
 #include "gzNode.h"
 
+class UCSWSceneComponent;
+
 class IBuildInterface
 {
 public:
 
-	virtual bool build(gzNode* buildItem)=0;
+	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem)=0;
+	virtual bool destroy(gzNode* destroyItem) = 0;
 };
