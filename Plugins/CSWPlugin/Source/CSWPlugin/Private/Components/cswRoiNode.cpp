@@ -35,35 +35,35 @@
 //
 //******************************************************************************
 
-#include "components/cswTransform.h"
+#include "components/cswRoiNode.h"
 #include "components/cswGeometry.h"
 
-#include "gzTransform.h"
+#include "gzRoi.h"
 #include "cswUEMatrix.h"
 
 // Sets default values for this component's properties
-UCSWTransform::UCSWTransform()
+UCSWRoiNode::UCSWRoiNode()
+{
+	
+}
+
+UCSWRoiNode::~UCSWRoiNode()
 {
 
 }
 
-UCSWTransform::~UCSWTransform()
+
+bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
-
-}
-
-
-bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
-{
-	if (!Super::build(parent,buildItem))
+	if (!UCSWNode::build(parent,buildItem))
 		return false;
 
-	gzTransform* transform = gzDynamic_Cast<gzTransform>(buildItem);
+	gzRoiNode* roi = gzDynamic_Cast<gzRoiNode>(buildItem);
 
-	if (!transform)
+	if (!roi)
 		return false;
 
-	if (transform->isActive())
+	/*if (transform->isActive())
 	{
 		FTransform m;
 
@@ -71,30 +71,14 @@ bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 		SetRelativeTransform(m);
 	}
-
-	geom = NewObject<UCSWGeometry>(this, NAME_None);
-
-	geom->build(this,nullptr);
-
-	geom->RegisterComponent();
+	*/	
 
 	return true;
 }
 
-bool  UCSWTransform::destroy(gzNode* destroyItem)
+bool  UCSWRoiNode::destroy(gzNode* destroyItem)
 {
 	// Do cleanup
-
-	if (geom)
-	{
-
-		if (!geom->destroy(nullptr))
-			return false;
-
-		geom->DestroyComponent();
-
-		geom = nullptr;
-	}
 
 	return Super::destroy(destroyItem);
 }

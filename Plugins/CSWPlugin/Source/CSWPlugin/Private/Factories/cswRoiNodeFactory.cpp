@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswTransformFactory.cpp
+// File			: cswRoiNodeFactory.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Implementation if factory for cswTransform
+// Description	: Implementation if factory for cswRoiNode
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,11 +35,11 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
-#include "components/cswTransform.h"
+#include "components/cswRoiNode.h"
 
-//---------------------- cswTransformFactory -------------------------------------
+//---------------------- cswRoiNodeFactory -------------------------------------
 
-class cswTransformFactory : public cswFactory
+class cswRoiNodeFactory : public cswFactory
 {
 public:
 
@@ -47,41 +47,41 @@ public:
 
 	virtual gzReference* clone() const
 	{
-		return new cswTransformFactory(*this);
+		return new cswRoiNodeFactory(*this);
 	}
 
 	virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode* node, EObjectFlags Flags, UObject* Template, bool bCopyTransientsFromClassDefaults, FObjectInstancingGraph* InInstanceGraph) override
 	{
-		UCSWTransform *trans = NewObject<UCSWTransform>(parent, node->getName().getWideString(),Flags,Template,bCopyTransientsFromClassDefaults,InInstanceGraph);
+		UCSWRoiNode *roi = NewObject<UCSWRoiNode>(parent, node->getName().getWideString(),Flags,Template,bCopyTransientsFromClassDefaults,InInstanceGraph);
 
-		return trans;
+		return roi;
 	}
 };
 
-GZ_DECLARE_TYPE_CHILD(cswFactory, cswTransformFactory, "cswTransformFactory");
+GZ_DECLARE_TYPE_CHILD(cswFactory, cswRoiNodeFactory, "cswRoiNodeFactory");
 
-//---------------------- cswTransformFactoryRegistrar -------------------------------------
+//---------------------- cswRoiNodeFactoryRegistrar -------------------------------------
 
-class cswTransformFactoryRegistrar : public gzReference
+class cswRoiNodeFactoryRegistrar : public gzReference
 {
 public:
 
-	cswTransformFactoryRegistrar()
+	cswRoiNodeFactoryRegistrar()
 	{
-		cswFactoryPtr factory = new cswTransformFactory;
+		cswFactoryPtr factory = new cswRoiNodeFactory;
 
 		// register factory for object serialize
 		m_id=gzObject::registerFactoryObject(factory);
 
 		// register factory for component creation
-		cswFactory::registerFactory("gzTransform", factory);
+		cswFactory::registerFactory("gzRoiNode", factory);
 	}
 
 	gzBool	releaseRefs() 
 	{ 
 		if (m_id)
 		{
-			cswFactory::unregisterFactory("gzTransform");
+			cswFactory::unregisterFactory("gzRoiNode");
 
 			// release factory early
 			gzObject::unregisterFactory(m_id);
@@ -91,7 +91,7 @@ public:
 		return TRUE; 
 	}
 
-	~cswTransformFactoryRegistrar()
+	~cswRoiNodeFactoryRegistrar()
 	{
 		// If not handled by releaseRefs earlier
 		releaseRefs();
@@ -102,4 +102,4 @@ private:
 	gzUInt32 m_id;
 };
 
-gzCleanupReference cleanUpTransformFactory(new cswTransformFactoryRegistrar, GZ_CLEANUP_MODULES);
+gzCleanupReference cleanUpRoiNodeFactory(new cswRoiNodeFactoryRegistrar, GZ_CLEANUP_MODULES);
