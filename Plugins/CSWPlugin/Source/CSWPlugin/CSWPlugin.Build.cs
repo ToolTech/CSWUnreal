@@ -50,8 +50,11 @@ public class CSWPlugin : ModuleRules
             Target.Configuration == UnrealTargetConfiguration.DebugGame ||
             Target.Configuration == UnrealTargetConfiguration.Development)
         {
-            PrivateDefinitions.Add("GZ_DEBUG=1");
+            PrivateDefinitions.Add("GZ_DEBUG");
         }
+
+		// Performance instrumentation ?
+        PrivateDefinitions.Add("GZ_INSTRUMENT_CODE");
 
         PublicIncludePaths.AddRange(
 			new string[] {

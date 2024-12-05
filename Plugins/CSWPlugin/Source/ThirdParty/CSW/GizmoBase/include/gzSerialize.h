@@ -1040,7 +1040,7 @@ public:
 
 	gzVoid		setSize(gzUInt32 size)									{ m_data.setSize(size); }
 
-	gzUInt32		getSize()		const									{ return m_data.getSize(); }
+	gzUInt32		getSize()		const								{ return m_data.getSize(); }
 
 private:
 

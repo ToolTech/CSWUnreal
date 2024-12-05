@@ -206,7 +206,7 @@ public:
 	static	gzBool	(GZ_CALLBACK *	imp_gzIsEnabled)(gzEnum);
 
 
-	static	gzVoid	(GZ_CALLBACK *	imp_gzEdgeFlagPointer)(gzInt32,const gzUByte *);
+	static	gzVoid	(GZ_CALLBACK *	imp_gzEdgeFlagPointer)(gzInt32,const gzBool *);
 	static	gzVoid	(GZ_CALLBACK *	imp_gzColorPointer)(gzInt32,gzEnum,gzInt32,const gzVoid *);
 	static	gzVoid	(GZ_CALLBACK *	imp_gzVertexPointer)(gzInt32,gzEnum,gzInt32,const  gzVoid *);
 	static	gzVoid	(GZ_CALLBACK *	imp_gzNormalPointer)(gzEnum,gzInt32,const gzVoid *);

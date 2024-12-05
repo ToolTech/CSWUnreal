@@ -18,22 +18,43 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	if (!Super::build(parent,buildItem))
 		return false;
 
+	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:NewObject");
+
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, NAME_None);
 
-	m_meshComponent->RegisterComponent();
+	GZ_LEAVE_PERFORMANCE_SECTION;
+	
 
-	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
 
+	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterAttributes");
+	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
 	FMeshDescription meshDesc;
 	FStaticMeshAttributes Attributes(meshDesc);
 	Attributes.Register();
 
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:SetMeshDescription");
+
 	FMeshDescriptionBuilder meshDescBuilder;
 	meshDescBuilder.SetMeshDescription(&meshDesc);
 	meshDescBuilder.EnablePolyGroups();
 	meshDescBuilder.SetNumUVLayers(1);
+
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AppendVertex");
 
 	// Create the 5 vertices needed for the shape
 	TArray< FVertexID > vertexIDs; vertexIDs.SetNum(3);
@@ -65,12 +86,38 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	vertexInsts.Add(instance);
 
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AppendPolygonGroup");
 
 	// Allocate a polygon group
 	FPolygonGroupID polygonGroup = meshDescBuilder.AppendPolygonGroup();
 
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AppendTriangle");
+
 	// Add triangles to mesh description
 	meshDescBuilder.AppendTriangle(vertexInsts[2], vertexInsts[1], vertexInsts[0], polygonGroup);
+
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:StaticMesh:NewObject");
 
 	// At least one material must be added
 	TObjectPtr<UStaticMesh> staticMesh;
@@ -83,13 +130,44 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	mdParams.bBuildSimpleCollision = true;
 	mdParams.bFastBuild = true;
 
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:BuildFromMeshDescriptions");
+
 	// Build static mesh
 	TArray<const FMeshDescription*> meshDescPtrs;
 	meshDescPtrs.Emplace(&meshDesc);
 	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
 
+	GZ_LEAVE_PERFORMANCE_SECTION;
+	
+	
+	
+	
+	GZ_ENTER_PERFORMANCE_SECTION("UE:SetStaticMesh");
+
 	// Assign new static mesh to the static mesh component
 	m_meshComponent->SetStaticMesh(staticMesh);
+
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterAndAttach");
+
+	m_meshComponent->RegisterComponent();
+
+	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
 
 	return true;
 }

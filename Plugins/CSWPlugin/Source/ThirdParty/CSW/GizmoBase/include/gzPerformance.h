@@ -137,7 +137,7 @@ GZ_BASE_EXPORT gzVoid gzEnablePerformanceSections(gzBool on=TRUE);
 
 GZ_BASE_EXPORT gzBool gzEnabledPerformanceSections();
 
-GZ_BASE_EXPORT gzVoid gzDumpPerformanceInfo(gzPerformanceDumpFlags dumpFlags=GZ_PERF_DUMP_ALL);
+GZ_BASE_EXPORT gzVoid gzDumpPerformanceInfo(gzPerformanceDumpFlags dumpFlags=GZ_PERF_DUMP_ALL,gzMessageLevel level=GZ_MESSAGE_PERF_DEBUG);
 
 GZ_BASE_EXPORT gzString gzCreatePerfLineInfo(const char *file,gzUInt32 line);
 
@@ -302,13 +302,13 @@ private:	// Do not allow copy or assignments
 
 #if defined GZ_INSTRUMENT_CODE
 
-	#define GZ_INSTRUMENT_AUTO				gzPerformanceBody	_instrument_(gzCreatePerfLineInfo(__FILE__,__LINE__))
-	#define GZ_INSTRUMENT_NAME(x)			gzPerformanceBody	_instrument_(x)
+	#define GZ_INSTRUMENT_AUTO				gzPerformanceBody	CONCAT(_instrument_,__LINE__)(x)(gzCreatePerfLineInfo(__FILE__,__LINE__))
+	#define GZ_INSTRUMENT_NAME(x)			gzPerformanceBody	CONCAT(_instrument_,__LINE__)(x)
 	#define GZ_ENTER_PERFORMANCE_SECTION(x)	gzEnterPerformanceSection(x)
 	#define GZ_LEAVE_PERFORMANCE_SECTION	gzLeavePerformanceSection()
 
-	#define GZ_MONITOR_AUTO					gzMonitorBody	_instrument_(gzCreatePerfLineInfo(__FILE__,__LINE__))
-	#define GZ_MONITOR_NAME(x)				gzMonitorBody	_instrument_(x)
+	#define GZ_MONITOR_AUTO					gzMonitorBody	CONCAT(_instrument_,__LINE__)(x)(gzCreatePerfLineInfo(__FILE__,__LINE__))
+	#define GZ_MONITOR_NAME(x)				gzMonitorBody	CONCAT(_instrument_,__LINE__)(x)
 	#define GZ_ENTER_MONITOR(x)				gzEnterMonitor(x)
 	#define GZ_LEAVE_MONITOR(x)				gzLeaveMonitor(x)
 	#define GZ_ADD_MONITOR_VALUE(x,y)		gzAddMonitorValue(x,y)

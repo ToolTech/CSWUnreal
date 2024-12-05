@@ -103,6 +103,7 @@ protected:
 	void initSceneManager();
 	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	// Transfer buffers from in to out
 	void fetchBuffers(bool waitForFrame=false, gzUInt32 timeOut = 200);

@@ -462,7 +462,7 @@ protected:
 	gzUInt32						m_baseID;
 
 	gzUByte							m_accum;
-	gzUByte							m_isActive;
+	gzBool							m_isActive;
 
 };
 

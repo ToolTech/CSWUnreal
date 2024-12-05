@@ -43,7 +43,6 @@
 #include "gzCoordinate.h"
 
 
-
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -80,6 +79,32 @@ void UCSWScene::BeginPlay()
 {
 	Super::BeginPlay();
 
+#if defined GZ_INSTRUMENT_CODE
+
+	gzClearPerformanceSection("", 0);
+
+	gzEnablePerformanceSections(true);
+
+	gzStartPerformanceThread();
+
+	gzSetPerformanceThreadName("main");
+
+#endif // GZ_INSTRUMENT_CODE
+}
+
+void UCSWScene::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+#if defined GZ_INSTRUMENT_CODE
+
+	gzStopPerformanceThread();
+
+	gzDumpPerformanceInfo(/*GZ_PERF_DUMP_RUNNING |*/ GZ_PERF_DUMP_STOPPED | GZ_PERF_DUMP_ACCUMULATED_SECTIONS | GZ_PERF_DUMP_HIERARCHICAL_SECTIONS, GZ_MESSAGE_NOTICE);
+
+	gzEnablePerformanceSections(false);
+
+#endif // GZ_INSTRUMENT_CODE
 }
 
 void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -156,6 +181,8 @@ void UCSWScene::initSceneManager()
 // lock and iterate over incoming commands and transfer them to game thread
 void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 {
+	gzPerformanceBody A("fetchBuffers");
+
 	GZ_BODYGUARD(m_bufferInLock);
 
 	while (true)
@@ -205,6 +232,8 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 // We will do all processing in GameThread so we will not start with threaded access to component lookup
 gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processPendingBuffers");
+
 	gzListIterator<cswCommandBuffer> iterator(m_pendingBuffers);
 	cswCommandBuffer* buffer(nullptr);
 
@@ -254,6 +283,8 @@ gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 
 bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processGenericBuffer");
+
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
@@ -269,6 +300,8 @@ bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
 
 bool UCSWScene::processErrorBuffer(cswCommandBuffer* buffer)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processErrorBuffer");
+
 	// !!! No ref 3D data in errors so we dont lock and we delete in unlocked mode for performance
 
 	while (buffer->hasCommands())
@@ -283,6 +316,8 @@ bool UCSWScene::processErrorBuffer(cswCommandBuffer* buffer)
 
 bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processFrameBuffer");
+
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
@@ -314,6 +349,8 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 
 bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processDeleteBuffer");
+
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
@@ -351,6 +388,8 @@ bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 
 bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processNewBuffer");
+
 	if (!buffer->tryLockEdit())		// We failed to lock buffer
 		return false;
 
@@ -389,6 +428,8 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 
 bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processNewNode");
+
 	gzGroup* parentGroup = command->getParent();
 	gzUInt64 parentPathID = command->getParentPathID();
 
@@ -409,7 +450,11 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 	gzNode* node = command->getNode();
 	gzUInt64 pathID = command->getPathID();
 
+	GZ_ENTER_PERFORMANCE_SECTION("UE:NewObject");
+
 	UCSWSceneComponent* component = cswFactory::newObject(parent, node);
+
+	GZ_LEAVE_PERFORMANCE_SECTION;
 
 	if(!component)
 	{
@@ -417,13 +462,18 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		return false;
 	}
 
-	if(!component->build(parent,node))
 	{
-		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
-		return false;
+		GZ_INSTRUMENT_NAME("UCSW*::build");
+		if (!component->build(parent, node))
+		{
+			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
+			return false;
+		}
 	}
 
+	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterComponent");
 	component->RegisterComponent();
+	GZ_LEAVE_PERFORMANCE_SECTION;
 
 	if(!registerComponent(component, node, pathID))
 	{
@@ -445,6 +495,8 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 
 bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processDeleteNode");
+
 	gzNode* node = command->getNode();
 	gzUInt64 pathID = command->getPathID();
 
@@ -457,13 +509,19 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 		return false;
 	}
 
-	if(!component->destroy(node))
+
 	{
-		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to destoy component");
-		return false;
+		GZ_INSTRUMENT_NAME("UCSW*::destroy");
+		if (!component->destroy(node))
+		{
+			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to destoy component");
+			return false;
+		}
 	}
 
+	GZ_ENTER_PERFORMANCE_SECTION("UE:DestroyComponent");
 	component->DestroyComponent();
+	GZ_LEAVE_PERFORMANCE_SECTION;
 
 	if(!unregisterComponent(node,pathID))
 	{
@@ -476,6 +534,8 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 
 bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::processGeoInfo");
+
 	CoordSystem = command->getCoordinateSystem().getWideString();
 
 	if (!command->getCoordinateSystem())
@@ -537,6 +597,8 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 // Register component
 bool UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::registerComponent");
+
 	if (m_indexLUT.find(CSWPathIdentyIndex(node, pathID)))
 		return false;
 
@@ -561,6 +623,8 @@ bool UCSWScene::registerComponent(UCSWSceneComponent* component, gzNode* node, g
 // Unregister component
 bool UCSWScene::unregisterComponent(gzNode* node, gzUInt64 pathID)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::unregisterComponent");
+
 	gzVoid* res = m_indexLUT.find(CSWPathIdentyIndex(node, pathID));
 
 	if (!res)
@@ -578,6 +642,8 @@ bool UCSWScene::unregisterComponent(gzNode* node, gzUInt64 pathID)
 
 UCSWSceneComponent* UCSWScene::getComponent(gzNode* node, gzUInt64 pathID)
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::getComponent");
+
 	gzVoid* res = m_indexLUT.find(CSWPathIdentyIndex(node, pathID));
 
 	if (!res)
@@ -596,6 +662,8 @@ gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
 
 bool UCSWScene::onMapUrlsPropertyUpdate()
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::onMapUrlsPropertyUpdate");
+
 	gzString mapURL = toString(MapUrls);
 
 	if (mapURL.length())
@@ -618,6 +686,7 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 
 bool UCSWScene::onCoordTypePropertyUpdate()
 {
+	GZ_INSTRUMENT_NAME("UCSWScene::onCoordTypePropertyUpdate");
 
 	FTransform m;
 
@@ -697,85 +766,3 @@ void UCSWScene::PostEditImport()
 
 #endif // ------------------------------ EDITOR Only --------------------------------------
 
-
-
-//void UCSWScene::test(bool inPlay)
-//{
-//	//_smComp = NewObject<UStaticMeshComponent>(this,NAME_None);
-//
-//	//_smComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("smComp"), true);
-//
-//	_smComp->SetupAttachment(this);
-//
-//
-//
-//	// Build a simple pyramid after play has begun
-//	// Mesh description will hold all the geometry, uv, normals going into the static mesh
-//	FMeshDescription meshDesc;
-//	FStaticMeshAttributes Attributes(meshDesc);
-//	Attributes.Register();
-//
-//	FMeshDescriptionBuilder meshDescBuilder;
-//	meshDescBuilder.SetMeshDescription(&meshDesc);
-//	meshDescBuilder.EnablePolyGroups();
-//	meshDescBuilder.SetNumUVLayers(1);
-//
-//	// Create the 5 vertices needed for the shape
-//	TArray< FVertexID > vertexIDs; vertexIDs.SetNum(3);
-//
-//	vertexIDs[0] = meshDescBuilder.AppendVertex(FVector(0.0, 0.0, 0.0)); // Apex
-//	vertexIDs[1] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, 0.0)); // Corner 1
-//	vertexIDs[2] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, -100.0)); // Corner 2
-//
-//
-//	// Array to store all the vertex instances (3 per face)
-//	TArray< FVertexInstanceID > vertexInsts;
-//
-//	// Face 1 (Faces towards -X) vertex instances
-//	FVertexInstanceID instance = meshDescBuilder.AppendInstance(vertexIDs[0]);
-//	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-//	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 1), 0);
-//	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-//	vertexInsts.Add(instance);
-//
-//	instance = meshDescBuilder.AppendInstance(vertexIDs[1]);
-//	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-//	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 0), 0);
-//	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-//	vertexInsts.Add(instance);
-//
-//	instance = meshDescBuilder.AppendInstance(vertexIDs[2]);
-//	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-//	meshDescBuilder.SetInstanceUV(instance, FVector2D(1, 0), 0);
-//	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-//	vertexInsts.Add(instance);
-//
-//
-//	// Allocate a polygon group
-//	FPolygonGroupID polygonGroup = meshDescBuilder.AppendPolygonGroup();
-//
-//	// Add triangles to mesh description
-//	meshDescBuilder.AppendTriangle(vertexInsts[2], vertexInsts[1], vertexInsts[0], polygonGroup);
-//
-//	// At least one material must be added
-//	TObjectPtr<UStaticMesh> staticMesh;
-//
-//	if (inPlay)
-//		staticMesh = NewObject<UStaticMesh>(this);
-//	else
-//		staticMesh = CreateDefaultSubobject<UStaticMesh>(TEXT("Oahh"), true);
-//
-//	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
-//
-//	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
-//	mdParams.bBuildSimpleCollision = true;
-//	mdParams.bFastBuild = true;
-//
-//	// Build static mesh
-//	TArray<const FMeshDescription*> meshDescPtrs;
-//	meshDescPtrs.Emplace(&meshDesc);
-//	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
-//
-//	// Assign new static mesh to the static mesh component
-//	_smComp->SetStaticMesh(staticMesh);
-//}
