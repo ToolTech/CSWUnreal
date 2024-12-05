@@ -13,7 +13,7 @@ class CSWPLUGIN_API UCSWGeometry : public UCSWNode
 
 public:	
 	// Sets default values for this component's properties
-	UCSWGeometry();
+	UCSWGeometry(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
 

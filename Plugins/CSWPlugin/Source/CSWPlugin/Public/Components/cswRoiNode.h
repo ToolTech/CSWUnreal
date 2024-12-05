@@ -49,9 +49,7 @@ class CSWPLUGIN_API UCSWRoiNode : public UCSWTransform
 
 public:	
 	// Sets default values for this component's properties
-	UCSWRoiNode();
-
-	virtual ~UCSWRoiNode();
+	UCSWRoiNode(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
 

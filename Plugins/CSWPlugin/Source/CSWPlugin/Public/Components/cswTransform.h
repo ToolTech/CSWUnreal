@@ -49,16 +49,10 @@ class CSWPLUGIN_API UCSWTransform : public UCSWNode
 
 public:	
 	// Sets default values for this component's properties
-	UCSWTransform();
-
-	virtual ~UCSWTransform();
+	UCSWTransform(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
 
 	virtual bool destroy(gzNode* destroyItem) override;
-
-protected:
-
-	TObjectPtr<UCSWGeometry> geom;
 		
 };

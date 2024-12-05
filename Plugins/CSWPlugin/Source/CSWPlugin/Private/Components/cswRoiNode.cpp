@@ -42,14 +42,9 @@
 #include "cswUEMatrix.h"
 
 // Sets default values for this component's properties
-UCSWRoiNode::UCSWRoiNode()
+UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	
-}
-
-UCSWRoiNode::~UCSWRoiNode()
-{
-
 }
 
 

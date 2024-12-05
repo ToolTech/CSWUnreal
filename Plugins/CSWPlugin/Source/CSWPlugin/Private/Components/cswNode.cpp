@@ -39,7 +39,7 @@
 #include "components/cswGeometry.h"
 
 // Sets default values for this component's properties
-UCSWNode::UCSWNode()
+UCSWNode::UCSWNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -50,11 +50,6 @@ UCSWNode::UCSWNode()
 
 }
 
-UCSWNode::~UCSWNode()
-{
-
-}
-
 bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
 	if (!Super::build(parent,buildItem))
@@ -62,7 +57,9 @@ bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 	// gzGroup -----------------------------
 
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_y");
 	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
+	GZ_LEAVE_PERFORMANCE_SECTION;
 	
 	return true;
 }

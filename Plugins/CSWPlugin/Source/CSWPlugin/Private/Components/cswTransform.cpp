@@ -42,16 +42,10 @@
 #include "cswUEMatrix.h"
 
 // Sets default values for this component's properties
-UCSWTransform::UCSWTransform()
+UCSWTransform::UCSWTransform(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 
 }
-
-UCSWTransform::~UCSWTransform()
-{
-
-}
-
 
 bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
@@ -72,30 +66,13 @@ bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
 		SetRelativeTransform(m);
 	}
 
-	geom = NewObject<UCSWGeometry>(this, NAME_None);
-
-	geom->build(this,nullptr);
-
-	geom->RegisterComponent();
-
 	return true;
 }
 
 bool  UCSWTransform::destroy(gzNode* destroyItem)
 {
 	// Do cleanup
-
-	if (geom)
-	{
-
-		if (!geom->destroy(nullptr))
-			return false;
-
-		geom->DestroyComponent();
-
-		geom = nullptr;
-	}
-
+	
 	return Super::destroy(destroyItem);
 }
 

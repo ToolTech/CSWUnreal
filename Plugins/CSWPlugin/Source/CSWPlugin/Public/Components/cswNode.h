@@ -49,9 +49,7 @@ class CSWPLUGIN_API UCSWNode : public UCSWSceneComponent
 
 public:	
 	// Sets default values for this component's properties
-	UCSWNode();
-
-	virtual ~UCSWNode();
+	UCSWNode(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
 

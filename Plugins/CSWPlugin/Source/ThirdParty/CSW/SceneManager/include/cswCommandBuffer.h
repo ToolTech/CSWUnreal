@@ -78,7 +78,7 @@ public:
 	CSW_SM_EXPORT ~cswCommandBuffer();
 
 	//! Command management
-	CSW_SM_EXPORT gzVoid addCommand(cswSceneCommand* command);
+	CSW_SM_EXPORT gzVoid addCommand(cswSceneCommand* command,gzBool reversed=FALSE);
 
 	//! Locking
 	CSW_SM_EXPORT gzBool tryLockRender(gzUInt32 waitValue = 10);

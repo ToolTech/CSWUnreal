@@ -8,7 +8,7 @@
 #include "StaticMeshAttributes.h"
 
 // Sets default values for this component's properties
-UCSWGeometry::UCSWGeometry()
+UCSWGeometry::UCSWGeometry(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
 
@@ -159,12 +159,19 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 
 
-	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterAndAttach");
+	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterComponent_x");
 
 	m_meshComponent->RegisterComponent();
+		
+	GZ_LEAVE_PERFORMANCE_SECTION;
+
+
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_x");
+
+	m_meshComponent->SetMobility(EComponentMobility::Stationary);
 
 	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
+		
 	GZ_LEAVE_PERFORMANCE_SECTION;
 
 
