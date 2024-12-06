@@ -27,7 +27,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	GZ_LEAVE_PERFORMANCE_SECTION;
 	
 
-
+	m_meshComponent->SetSimulatePhysics(false);
+	m_meshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterAttributes");
 	
@@ -127,7 +128,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
 
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
-	mdParams.bBuildSimpleCollision = true;
+	mdParams.bBuildSimpleCollision = false;
 	mdParams.bFastBuild = true;
 
 	GZ_LEAVE_PERFORMANCE_SECTION;
