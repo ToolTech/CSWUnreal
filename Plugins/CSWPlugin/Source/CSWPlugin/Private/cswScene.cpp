@@ -230,7 +230,7 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 }
 
 // We will do all processing in GameThread so we will not start with threaded access to component lookup
-gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
+gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames, gzUInt32 maxBuilds)
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processPendingBuffers");
 
@@ -240,7 +240,7 @@ gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 	bool result(true);
 	gzUInt32 frames(maxFrames);
 
-	while ( (buffer = iterator()) && frames)
+	while ( (buffer = iterator()) && frames && maxBuilds)
 	{
 		/*if (buffer->entries() > 2)
 		{
@@ -264,7 +264,7 @@ gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames)
 				break;
 
 			case CSW_BUFFER_TYPE_NEW:
-				result = processNewBuffer(buffer);
+				result = processNewBuffer(buffer,maxBuilds);
 				break;
 
 			case CSW_BUFFER_TYPE_DELETE:
@@ -335,11 +335,10 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 
 		cswSceneCommandEndFrame* endFrame = gzDynamic_Cast<cswSceneCommandEndFrame>(command);
 
-		if (endFrame)
-		{
-			--maxFrames;
-			continue;
-		}
+		
+		--maxFrames;
+		continue;
+
 	}
 
 	buffer->unLock();				// finished
@@ -386,7 +385,7 @@ bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 	return result;
 }
 
-bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
+bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds)
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processNewBuffer");
 
@@ -395,7 +394,7 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 
 	bool result(true);
 
-	while (buffer->hasCommands())
+	while (buffer->hasCommands() && maxBuilds)
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
 
@@ -405,6 +404,12 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer)
 		{
 			if (!(result = processNewNode(newNode)))
 				break;
+
+			if(maxBuilds)
+				--maxBuilds;
+
+			if (!maxBuilds)
+				result = false;
 
 			continue;
 		}

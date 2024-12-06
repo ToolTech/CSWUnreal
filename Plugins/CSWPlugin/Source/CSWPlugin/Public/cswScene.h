@@ -109,7 +109,7 @@ protected:
 	void fetchBuffers(bool waitForFrame=false, gzUInt32 timeOut = 200);
 
 	// Perform work on buffers Out
-	gzUInt32 processPendingBuffers(gzUInt32 maxFrames=1);
+	gzUInt32 processPendingBuffers(gzUInt32 maxFrames=10,gzUInt32 maxBuilds=10000);
 
 
 
@@ -123,7 +123,7 @@ protected:
 	bool processFrameBuffer(cswCommandBuffer* buffer, gzUInt32 & maxFrames);
 
 	// Perform work on specific buffer
-	bool processNewBuffer(cswCommandBuffer* buffer);
+	bool processNewBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds);
 
 	// Perform work on specific buffer
 	bool processDeleteBuffer(cswCommandBuffer* buffer);
