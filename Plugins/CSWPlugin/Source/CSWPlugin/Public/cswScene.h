@@ -101,6 +101,8 @@ protected:
 
 	// Init scenemanager and set up context
 	void initSceneManager();
+
+	bool isEditorComponent();
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

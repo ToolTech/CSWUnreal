@@ -75,9 +75,33 @@ UCSWScene::~UCSWScene()
 	}
 }
 
+bool UCSWScene::isEditorComponent()
+{
+	AActor* owner = GetOwner();
+	
+	if (!owner)
+		return false;
+
+	return owner->HasAnyFlags(RF_Transactional);
+}
+
+void SubDestroy(USceneComponent* parent)
+{
+	TArray<USceneComponent*> SubComponents = parent->GetAttachChildren();
+
+	for (USceneComponent* SubComp : SubComponents)
+	{
+		SubDestroy(SubComp);
+
+		SubComp->DestroyComponent();
+	}
+}
+
 void UCSWScene::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SubDestroy(this);
 
 #if defined GZ_INSTRUMENT_CODE
 
