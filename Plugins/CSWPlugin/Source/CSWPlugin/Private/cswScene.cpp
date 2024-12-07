@@ -114,40 +114,15 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 	bool isActive = m_manager && m_manager->isRunning();
 
 	// Transfer incoming to gamethread and wait for a frame
-	fetchBuffers(isActive);
+	bool gotFrameOk=fetchBuffers(isActive);
 
 	// Work on buffers
-	processPendingBuffers();
+	gzUInt32 frames=processPendingBuffers();
 
 	// Trigger next frame
-	if(isActive)
+	if(isActive && ((frames>0) || !gotFrameOk))
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 
-	//counter++;
-
-	//if (counter == 10)
-	//{
-	//	UCSWSceneComponent *trans = cswFactory::newObject(this,new gzTransform,RF_Transient);
-
-	//	trans->RegisterComponent();
-
-	//	trans->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-
-	//	trans->build(nullptr);
-
-	//	registerComponent(trans, nullptr, 1);
-	//				
-	//	
-	//	
-	//}
-	//else if (counter == 1000)
-	//{
-	//	UCSWSceneComponent* trans = getComponent(nullptr, 1);
-
-	//	//trans->SetVisibility(false, true);	// Hides recursively
-
-	//	trans->DestroyComponent();		// Unregisters component. removes it from root but not hierachically
-	//}
 }
 
 void UCSWScene::initSceneManager()
@@ -179,7 +154,7 @@ void UCSWScene::initSceneManager()
 }
 
 // lock and iterate over incoming commands and transfer them to game thread
-void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
+bool UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 {
 	gzPerformanceBody A("fetchBuffers");
 
@@ -227,6 +202,8 @@ void UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 
 		
 	}
+
+	return !waitForFrame;
 }
 
 // We will do all processing in GameThread so we will not start with threaded access to component lookup
