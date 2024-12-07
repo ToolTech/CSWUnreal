@@ -109,7 +109,7 @@ protected:
 	bool fetchBuffers(bool waitForFrame=false, gzUInt32 timeOut = 200);
 
 	// Perform work on buffers Out
-	gzUInt32 processPendingBuffers(gzUInt32 maxFrames=10,gzUInt32 maxBuilds=10);
+	gzUInt32 processPendingBuffers(gzUInt32 maxFrames=10,gzUInt32 maxBuilds=10000);
 
 
 
