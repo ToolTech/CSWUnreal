@@ -113,17 +113,27 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	bool isActive = m_manager && m_manager->isRunning();
 
-	// Transfer incoming to gamethread and wait for a frame
-	bool gotFrameOk=fetchBuffers(isActive);
+	// Transfer incoming to gamethread and don not wait for a frame
+	fetchBuffers();
 
 	// Work on buffers
-	gzUInt32 frames=processPendingBuffers();
+	gzUInt32 frames(0);
+	
+	//Modify();
+	{
+		//FScopedMovementUpdate BatchUpdate(this);
+
+		frames = processPendingBuffers();
+	}
 
 	// Trigger next frame
-	if(isActive && ((frames>0) || !gotFrameOk))
+	if(isActive && ((frames>0) || m_firstRun))
+	{ 
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
-
+		m_firstRun = false;
+	}
 }
+
 
 void UCSWScene::initSceneManager()
 {
