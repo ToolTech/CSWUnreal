@@ -95,9 +95,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	double RenderTime;
 
-protected:
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	uint32 MaxPrimitivesPerFrame;
 
-	int32 counter;
+protected:
 
 	// Init scenemanager and set up context
 	void initSceneManager();

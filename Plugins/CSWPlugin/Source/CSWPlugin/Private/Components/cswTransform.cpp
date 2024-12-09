@@ -61,7 +61,7 @@ bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	{
 		FTransform m;
 
-		m.SetFromMatrix(cswMatrix4<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
+		m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
 
 		SetRelativeTransform(m);
 	}

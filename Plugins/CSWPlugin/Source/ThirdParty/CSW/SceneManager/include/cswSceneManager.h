@@ -49,6 +49,7 @@ enum cswCapability
 	CSW_CAPABILITY_OPTIMIZE_GEOMETRY	= 1 << 1,		// Optimize a geometry to fastest rendering (tristrip etc)
 	CSW_CAPABILITY_REMOVE_NAME			= 1 << 2,		// Removes node name to free up memory
 	CSW_CAPABILITY_REMOVE_META_DATA		= 1 << 3,		// Removes all nmeta data connected to node
+	CSW_CAPABILITY_INDEX_GEOMETRY		= 1 << 4,		// Create index
 };
 
 GZ_USE_BIT_LOGIC(cswCapability);

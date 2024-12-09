@@ -61,7 +61,7 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 	// Perform init of scenemanager 
 	initSceneManager();
 
-	counter = 0;
+	MaxPrimitivesPerFrame = 10000;
 }
 
 UCSWScene::~UCSWScene()
@@ -147,7 +147,7 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 	{
 		//FScopedMovementUpdate BatchUpdate(this);
 
-		frames = processPendingBuffers();
+		frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
 	}
 
 	// Trigger next frame
@@ -164,6 +164,9 @@ void UCSWScene::initSceneManager()
 	if (!m_manager)
 	{
 		m_manager = new cswSceneManager();
+
+		// Do conversion in manager thread
+		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY);
 
 		// Register us as receiver of scene commands
 		m_manager->addCommandReceiver(this);
@@ -713,18 +716,18 @@ bool UCSWScene::onCoordTypePropertyUpdate()
 		case CoordType::Geometry:
 		case CoordType::Projected:
 		case CoordType::UTM:
-			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
 			break;
 
 		case CoordType::Geodetic:
 			break;
 
 		case CoordType::Geocentric:
-			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
 			break;
 
 		case CoordType::FlatEarth:
-			m.SetFromMatrix(cswMatrix4<double>::UEMatrix4(cswMatrix4<double>::GZ_2_UE()));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
 			break;
 	}
 
