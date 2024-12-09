@@ -84,7 +84,15 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 			switch (geom->getNormalBind())
 			{
 				case GZ_BIND_OFF:
-					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(gzVec3(0,1,0)));
+					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(gzVec3(0,1, 0)));
+					break;
+
+				case GZ_BIND_OVERALL:
+					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(geom->getNormalArray(FALSE)[0]));
+					break;
+
+				case GZ_BIND_PER_PRIM:
+					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(geom->getNormalArray(FALSE)[i/3]));
 					break;
 
 				case GZ_BIND_ON:
@@ -100,6 +108,15 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 					case GZ_BIND_OFF:
 						break;
 
+					case GZ_BIND_OVERALL:
+						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[0]), layer);
+						break;
+
+					case GZ_BIND_PER_PRIM:
+						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[i/3]), layer);
+						break;
+
+
 					case GZ_BIND_ON:
 						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[indices[index]]), layer);
 						break;
@@ -110,6 +127,14 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 			switch (geom->getColorBind())
 			{
 				case GZ_BIND_OFF:
+					break;
+
+				case GZ_BIND_OVERALL:
+					meshDescBuilder.SetInstanceColor(index, cswVector4::UEVector4(geom->getColorArray(FALSE)[0]));
+					break;
+
+				case GZ_BIND_PER_PRIM:
+					meshDescBuilder.SetInstanceColor(index, cswVector4::UEVector4(geom->getColorArray(FALSE)[i/3]));
 					break;
 
 				case GZ_BIND_ON:
@@ -123,53 +148,6 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	}
 
 
-
-
-
-
-
-	//GZ_ENTER_PERFORMANCE_SECTION("UE:AppendVertex");
-
-	//// Create the 5 vertices needed for the shape
-	//TArray< FVertexID > vertexIDs; vertexIDs.SetNum(3);
-
-	//vertexIDs[0] = meshDescBuilder.AppendVertex(FVector(0.0, 0.0, 0.0)); // Apex
-	//vertexIDs[1] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, 0.0)); // Corner 1
-	//vertexIDs[2] = meshDescBuilder.AppendVertex(FVector(100.0, 0.0, -100.0)); // Corner 2
-
-
-	// Array to store all the vertex instances (3 per face)
-	//TArray< FVertexInstanceID > vertexInsts;
-
-	// Face 1 (Faces towards -X) vertex instances
-	/*FVertexInstanceID instance = meshDescBuilder.AppendInstance(vertexIDs[0]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 1), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-
-	instance = meshDescBuilder.AppendInstance(vertexIDs[1]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(0, 0), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-
-	instance = meshDescBuilder.AppendInstance(vertexIDs[2]);
-	meshDescBuilder.SetInstanceNormal(instance, FVector(0, 1, 0));
-	meshDescBuilder.SetInstanceUV(instance, FVector2D(1, 0), 0);
-	meshDescBuilder.SetInstanceColor(instance, FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	vertexInsts.Add(instance);
-
-	GZ_LEAVE_PERFORMANCE_SECTION;*/
-
-	
-
-	
-
-
-
-	GZ_ENTER_PERFORMANCE_SECTION("UE:StaticMesh:NewObject");
-
 	// At least one material must be added
 	TObjectPtr<UStaticMesh> staticMesh;
 
@@ -181,51 +159,22 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	mdParams.bBuildSimpleCollision = false;
 	mdParams.bFastBuild = true;
 
-	GZ_LEAVE_PERFORMANCE_SECTION;
-
-
-
-
-
-	GZ_ENTER_PERFORMANCE_SECTION("UE:BuildFromMeshDescriptions");
 
 	// Build static mesh
 	TArray<const FMeshDescription*> meshDescPtrs;
 	meshDescPtrs.Emplace(&meshDesc);
 	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
 
-	GZ_LEAVE_PERFORMANCE_SECTION;
-	
-	
-	
-	
-	GZ_ENTER_PERFORMANCE_SECTION("UE:SetStaticMesh");
 
 	// Assign new static mesh to the static mesh component
 	m_meshComponent->SetStaticMesh(staticMesh);
 
-	GZ_LEAVE_PERFORMANCE_SECTION;
-
-
-
-
-	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_x");
 
 	m_meshComponent->SetMobility(EComponentMobility::Stationary);
 
 	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-		
-	GZ_LEAVE_PERFORMANCE_SECTION;
-
-
-
-	GZ_ENTER_PERFORMANCE_SECTION("UE:RegisterComponent_x");
 
 	m_meshComponent->RegisterComponent();
-
-	GZ_LEAVE_PERFORMANCE_SECTION;
-
-
 
 	return true;
 }
