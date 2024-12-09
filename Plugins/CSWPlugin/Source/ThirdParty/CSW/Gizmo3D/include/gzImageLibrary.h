@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the image library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.200
+// Product		: Gizmo3D 2.12.201
 //		
 //
 //			

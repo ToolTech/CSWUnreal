@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gizmo db extension format
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.200
+// Product		: Gizmo3D 2.12.201
 //		
 //
 //			

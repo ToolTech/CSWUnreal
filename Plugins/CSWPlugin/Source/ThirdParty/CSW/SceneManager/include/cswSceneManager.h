@@ -42,6 +42,17 @@
 
 class cswCommandReceiverInterface;
 
+enum cswCapability
+{
+	CSW_CAPABILITY_OFF					= 0,			// No features activated
+	CSW_CAPABILITY_CONVERT_TO_TRIANGLE	= 1 << 0,		// Converts all surface rendering primitives to triangles
+	CSW_CAPABILITY_OPTIMIZE_GEOMETRY	= 1 << 1,		// Optimize a geometry to fastest rendering (tristrip etc)
+	CSW_CAPABILITY_REMOVE_NAME			= 1 << 2,		// Removes node name to free up memory
+	CSW_CAPABILITY_REMOVE_META_DATA		= 1 << 3,		// Removes all nmeta data connected to node
+};
+
+GZ_USE_BIT_LOGIC(cswCapability);
+
 enum cswTraverseReason
 {
 	CSW_TRAVERSE_NEW,
@@ -98,9 +109,14 @@ public:
 	CSW_SM_EXPORT	gzVoid removeAllMaps(const gzUInt32& refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid centerMap(const gzUInt32 &refCommandID = 0);
 
-	GZ_PROPERTY_GET_EXPORT(gzString,	CoordinateSystem,	CSW_SM_EXPORT);
+	CSW_SM_EXPORT	gzVoid enableCapabilities(cswCapability caps);
+	CSW_SM_EXPORT	gzVoid disableCapabilities(cswCapability caps);
 
-	GZ_PROPERTY_GET_EXPORT(gzUInt32,	TopBits,			CSW_SM_EXPORT);
+	CSW_SM_EXPORT	virtual gzVoid checkCapability(gzNode* node, gzState* state);
+
+	GZ_PROPERTY_GET_EXPORT(gzString,		CoordinateSystem,	CSW_SM_EXPORT);
+	GZ_PROPERTY_GET_EXPORT(gzUInt32,		TopBits,			CSW_SM_EXPORT);
+	GZ_PROPERTY_GET_EXPORT(cswCapability,	Capabilities,		CSW_SM_EXPORT);
 
 	CSW_SM_EXPORT	static gzBool initializeSceneSystem();
 	CSW_SM_EXPORT	static gzBool unInitializeSceneSystem();

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzRGBA class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.200
+// Product		: GizmoBase 2.12.201
 //		
 //
 //			

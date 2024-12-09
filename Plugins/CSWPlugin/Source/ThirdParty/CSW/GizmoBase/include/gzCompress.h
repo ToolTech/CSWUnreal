@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions for compress utility
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.200
+// Product		: GizmoBase 2.12.201
 //		
 //
 //			
