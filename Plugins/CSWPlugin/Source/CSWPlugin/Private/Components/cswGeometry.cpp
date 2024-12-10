@@ -30,8 +30,35 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	if (!geom)
 		return false;
 
+	// Check supported primitives right now
+
+	switch (geom->getGeoPrimType())
+	{
+
+		case GZ_PRIM_NOPRIM:
+		case GZ_PRIM_POINTS:
+		case GZ_PRIM_LINES:
+		case GZ_PRIM_LINESTRIPS:
+		case GZ_PRIM_FLAT_LINESTRIPS:
+		case GZ_PRIM_LINELOOPS:
+			return true;				// Lets just swallow these prims ok right now
+
+		case GZ_PRIM_TRIS:
+			break;
+
+		case GZ_PRIM_QUADS:				// All these types are basically error
+		case GZ_PRIM_TRISTRIPS:
+		case GZ_PRIM_FLAT_TRISTRIPS:
+		case GZ_PRIM_TRIFANS:
+		case GZ_PRIM_FLAT_TRIFANS:
+		case GZ_PRIM_POLYS:
+		case GZ_PRIM_QUADSTRIPS:
+		case GZ_PRIM_HIDDEN_POLYS:
+			return false;
+	}
+
 	// New object
-	m_meshComponent = NewObject<UStaticMeshComponent>(this, NAME_None);
+	m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
 
 	// Settings specific
 	m_meshComponent->SetSimulatePhysics(false);
