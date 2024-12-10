@@ -78,10 +78,6 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 
 
-
-
-
-
 	// --------------- coordinates (vertices) ----------------------
 
 	gzArray<gzVec3>& coordinates = geom->getCoordinateArray(FALSE);
@@ -107,7 +103,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	gzArray<gzVec3>& normal_in(geom->getNormalArray(FALSE));
 	gzArray<gzVec4>& colors_in(geom->getColorArray(FALSE));
 	gzArray<gzArray<gzVec2>>& texcoord_in(geom->getTexCoordinateArrays(FALSE));
-
+	
 
 	TArray<FVertexInstanceID> id;
 	id.SetNum(3);
@@ -123,6 +119,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 				gzUInt32 index = i + 2 - j;
 
 				id[j] = ind = MeshDescription.CreateVertexInstance(indices[index]);
+
+				// Normal indexed -----------------------------------------------
 
 				switch (geom->getNormalBind())
 				{
@@ -144,7 +142,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 				}
 
-
+				// Tex indexed -----------------------------------------------
 
 				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
 				{
@@ -168,6 +166,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 					}
 				}
+
+				// Color indexed -----------------------------------------------
 
 				switch (geom->getColorBind())
 				{
@@ -204,6 +204,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 				id[j] = ind = MeshDescription.CreateVertexInstance(index);
 
+				// Normal -----------------------------------------------
+
 				switch (geom->getNormalBind())
 				{
 					case GZ_BIND_OFF:
@@ -224,7 +226,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 				}
 
-
+				// Tex -----------------------------------------------
 
 				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
 				{
@@ -248,6 +250,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 					}
 				}
+
+				// Color -----------------------------------------------
 
 				switch (geom->getColorBind())
 				{

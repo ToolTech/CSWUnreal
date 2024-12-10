@@ -137,6 +137,8 @@ protected:
 	bool processNewNode(cswSceneCommandNewNode* command);
 	bool processDeleteNode(cswSceneCommandDeleteNode* command);
 
+	bool processActivation(cswSceneCommandActivation* command);
+
 
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();

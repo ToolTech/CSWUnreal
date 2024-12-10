@@ -339,6 +339,16 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
 
+		cswSceneCommandActivation* activation = gzDynamic_Cast<cswSceneCommandActivation>(command);
+
+		if (activation)
+		{
+			if (!processActivation(activation))
+				return false;
+			
+			continue;
+		}
+
 		cswSceneCommandStartFrame* startFrame = gzDynamic_Cast<cswSceneCommandStartFrame>(command);
 
 		if (startFrame)
@@ -537,6 +547,26 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to unregister component");
 		return false;
 	}
+
+	return true;
+}
+
+bool UCSWScene::processActivation(cswSceneCommandActivation* command)
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::processActivation");
+
+	gzNode* node = command->getNode();
+	gzUInt64 pathID = command->getPathID();
+
+	UCSWSceneComponent* component = getComponent(node, pathID);
+
+	if (!component)
+	{
+		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get component for activation");
+		return false;
+	}
+
+	component->SetVisibility(command->getActivation() == ACTIVATION_ON,true);
 
 	return true;
 }
