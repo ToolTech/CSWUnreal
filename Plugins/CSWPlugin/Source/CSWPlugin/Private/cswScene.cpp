@@ -166,7 +166,7 @@ void UCSWScene::initSceneManager()
 		m_manager = new cswSceneManager();
 
 		// Do conversion in manager thread
-		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY);
+		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY|CSW_CAPABILITY_REBUILD_INDEX_GEOMETRY);
 
 		// Register us as receiver of scene commands
 		m_manager->addCommandReceiver(this);

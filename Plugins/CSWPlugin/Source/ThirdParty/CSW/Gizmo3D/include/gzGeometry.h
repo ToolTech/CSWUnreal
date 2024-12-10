@@ -77,16 +77,20 @@ enum gzGeoPrimType
 
 enum gzGeoOptimizeLevel
 {	GZ_GEO_OPTIMIZE_NO_OPTS				=	(1<<0),		//!< Just convert
+	GZ_GEO_OPTIMIZE_GENERATE_INDEXED	=	(1<<1),		//!< Generate indexed geometry
 	GZ_GEO_OPTIMIZE_LEAVE_LINES			=	(1<<2),		//!< Do not remove points on parallell line
 	GZ_GEO_OPTIMIZE_FAN_TO_TRISTRIP		=	(1<<3),		//!< Convert fans to tristrip
 	GZ_GEO_OPTIMIZE_GENERATE_NORMALS	=	(1<<4),		//!< Generate Normals
-	GZ_GEO_OPTIMIZE_INDEXED				=	(1<<5),		//!< Optimize indexed geometry
-	GZ_GEO_OPTIMIZE_TO_TRIANGLES		=	(1<<6),		//!< Just create triangle soup
+	GZ_GEO_OPTIMIZE_USE_INDEXED			=	(1<<5),		//!< Optimize and change indexed geometry
+	GZ_GEO_OPTIMIZE_TO_TRIANGLES		=	(1<<6),		//!< Just create triangle soup with all attributes per vertex
 	GZ_GEO_OPTIMIZE_DONT_USE_PER_PRIM	=	(1<<7),		//!< Do not set per prim values. Either overall or per vertex
 	GZ_GEO_OPTIMIZE_COMBINE_INTERNAL	=	(1<<8),		//!< Combine internal geometry
 	GZ_GEO_OPTIMIZE_USE_OVERALL			=	(1<<9),		//!< Try to set overall binding
 	GZ_GEO_OPTIMIZE_FORCE				=	(1<<10),	//!< Force optimization (may result in zero data)
 };
+
+//! Use as attribute for meta data to skip optims
+#define GZ_SKIP_GEO_OPTIMIZE "optimize", "dont_optimize"
 
 enum gzPolygonWinding
 {

@@ -44,12 +44,13 @@ class cswCommandReceiverInterface;
 
 enum cswCapability
 {
-	CSW_CAPABILITY_OFF					= 0,			// No features activated
-	CSW_CAPABILITY_CONVERT_TO_TRIANGLE	= 1 << 0,		// Converts all surface rendering primitives to triangles
-	CSW_CAPABILITY_OPTIMIZE_GEOMETRY	= 1 << 1,		// Optimize a geometry to fastest rendering (tristrip etc)
-	CSW_CAPABILITY_REMOVE_NAME			= 1 << 2,		// Removes node name to free up memory
-	CSW_CAPABILITY_REMOVE_META_DATA		= 1 << 3,		// Removes all nmeta data connected to node
-	CSW_CAPABILITY_INDEX_GEOMETRY		= 1 << 4,		// Create index
+	CSW_CAPABILITY_OFF						= 0,			// No features activated
+	CSW_CAPABILITY_CONVERT_TO_TRIANGLE		= 1 << 0,		// Converts all surface rendering primitives to triangles
+	CSW_CAPABILITY_OPTIMIZE_GEOMETRY		= 1 << 1,		// Optimize a geometry to fastest rendering (tristrip etc)
+	CSW_CAPABILITY_REMOVE_NAME				= 1 << 2,		// Removes node name to free up memory
+	CSW_CAPABILITY_REMOVE_META_DATA			= 1 << 3,		// Removes all nmeta data connected to node
+	CSW_CAPABILITY_INDEX_GEOMETRY			= 1 << 4,		// Create index geom
+	CSW_CAPABILITY_REBUILD_INDEX_GEOMETRY	= 1 << 5,		// Rebuild already indexed TRIS
 };
 
 GZ_USE_BIT_LOGIC(cswCapability);
