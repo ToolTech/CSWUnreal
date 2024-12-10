@@ -155,8 +155,6 @@ protected:
 
 	cswSceneManagerPtr m_manager;
 
-	
-
 private:
 
 	gzEvent									m_bufferInLock;		// Lock for callback accessing bufferIn

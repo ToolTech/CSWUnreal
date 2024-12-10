@@ -8,7 +8,6 @@
 #include "gzGeometry.h"
 
 #include "MeshDescription.h"
-#include "MeshDescriptionBuilder.h"
 #include "StaticMeshAttributes.h"
 
 // Sets default values for this component's properties
@@ -66,112 +65,212 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
-	FMeshDescription meshDesc;
-	FStaticMeshAttributes Attributes(meshDesc);
-	Attributes.Register();
+	FMeshDescription MeshDescription;
+	FStaticMeshAttributes Attributes(MeshDescription); Attributes.Register();
 
-	// builder is used to work on description
-	FMeshDescriptionBuilder meshDescBuilder;
-	meshDescBuilder.SetMeshDescription(&meshDesc);
-	//meshDescBuilder.EnablePolyGroups();
 
-	// Create first polygon group
-	FPolygonGroupID polygonGroup = meshDescBuilder.AppendPolygonGroup();
+	
+	// Registrera så många UV-lager du behöver (standard är 1) // Om du vill ha fler lager:
+	 Attributes.GetVertexInstanceUVs().SetNumChannels(geom->getTextureUnits());
+
+	// Skapa en PolygonGroup (en grupp för polygoner, oftast en grupp = ett material) 
+	FPolygonGroupID PolygonGroupID = MeshDescription.CreatePolygonGroup();
+
+
+
+
+
 
 
 	// --------------- coordinates (vertices) ----------------------
 
 	gzArray<gzVec3>& coordinates = geom->getCoordinateArray(FALSE);
 
-	meshDescBuilder.ReserveNewVertices(coordinates.getSize());
-
-	meshDescBuilder.SetNumUVLayers(geom->getTextureUnits());
+	MeshDescription.ReserveNewVertices(coordinates.getSize());
+	
+	TVertexAttributesRef<FVector3f> vertex = Attributes.GetVertexPositions();
 
 	for (gzUInt32 i = 0; i < coordinates.getSize(); i++)
 	{
-		gzVec3& coord = coordinates[i];
-
-		meshDescBuilder.AppendVertex(FVector(coord.x, coord.y, coord.z));
+		MeshDescription.CreateVertex();
+		vertex[i] = cswVector3::UEVector3(coordinates[i]);
 	}
 
 	// --------------- indices -------------------------------------
 
 	gzArray<gzUInt32>& indices = geom->getIndexArray(FALSE);
 
-	for (gzUInt32 i = 0; i < indices.getSize(); i += 3)
+	TVertexInstanceAttributesRef<FVector3f> normal = Attributes.GetVertexInstanceNormals();
+	TVertexInstanceAttributesRef<FVector2f> texcoord = Attributes.GetVertexInstanceUVs();
+	TVertexInstanceAttributesRef<FVector4f> colors = Attributes.GetVertexInstanceColors();
+
+	gzArray<gzVec3>& normal_in(geom->getNormalArray(FALSE));
+	gzArray<gzVec4>& colors_in(geom->getColorArray(FALSE));
+	gzArray<gzArray<gzVec2>>& texcoord_in(geom->getTexCoordinateArrays(FALSE));
+
+
+	TArray<FVertexInstanceID> id;
+	id.SetNum(3);
+
+	FVertexInstanceID ind;
+
+	if (indices.getSize())	// We have an indexed structure
 	{
-		gzArray<FVertexInstanceID> id(3);
-
-		for (gzUInt32 j = 0; j < 3; j++)
+		for (gzUInt32 i = 0; i < indices.getSize(); i += 3)
 		{
-			gzUInt32 index = i + j;
-
-			id[j] = meshDescBuilder.AppendInstance(indices[index]);
-
-			switch (geom->getNormalBind())
+			for (gzUInt32 j = 0; j < 3; j++)
 			{
-				case GZ_BIND_OFF:
-					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(gzVec3(0,1, 0)));
-					break;
+				gzUInt32 index = i + 2 - j;
 
-				case GZ_BIND_OVERALL:
-					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(geom->getNormalArray(FALSE)[0]));
-					break;
+				id[j] = ind = MeshDescription.CreateVertexInstance(indices[index]);
 
-				case GZ_BIND_PER_PRIM:
-					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(geom->getNormalArray(FALSE)[i/3]));
-					break;
+				switch (geom->getNormalBind())
+				{
+					case GZ_BIND_OFF:
+						normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
+						break;
 
-				case GZ_BIND_ON:
-					meshDescBuilder.SetInstanceNormal(index, cswVector3d::UEVector3(geom->getNormalArray(FALSE)[indices[index]]));
-					break;
+					case GZ_BIND_OVERALL:
+						normal[ind] = cswVector3::UEVector3(normal_in[0]);
+						break;
 
-			}
+					case GZ_BIND_PER_PRIM:
+						normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
+						break;
 
-			for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
-			{
-				switch (geom->getTexBind(layer))
+					case GZ_BIND_ON:
+						normal[ind] = cswVector3::UEVector3(normal_in[indices[index]]);
+						break;
+
+				}
+
+
+
+				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
+				{
+					switch (geom->getTexBind(layer))
+					{
+						case GZ_BIND_OFF:
+							break;
+
+						case GZ_BIND_OVERALL:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
+							break;
+
+						case GZ_BIND_PER_PRIM:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
+							break;
+
+
+						case GZ_BIND_ON:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][indices[index]]));
+							break;
+
+					}
+				}
+
+				switch (geom->getColorBind())
 				{
 					case GZ_BIND_OFF:
 						break;
 
 					case GZ_BIND_OVERALL:
-						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[0]), layer);
+						colors[ind] = cswVector4::UEVector4(colors_in[0]);
 						break;
 
 					case GZ_BIND_PER_PRIM:
-						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[i/3]), layer);
+						colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
 						break;
 
-
 					case GZ_BIND_ON:
-						meshDescBuilder.SetInstanceUV(index, cswVector2d::UEVector2(geom->getTexCoordinateArray(layer, FALSE)[indices[index]]), layer);
+						colors[ind] = cswVector4::UEVector4(colors_in[indices[index]]);
 						break;
 
 				}
 			}
 
-			switch (geom->getColorBind())
-			{
-				case GZ_BIND_OFF:
-					break;
-
-				case GZ_BIND_OVERALL:
-					meshDescBuilder.SetInstanceColor(index, cswVector4::UEVector4(geom->getColorArray(FALSE)[0]));
-					break;
-
-				case GZ_BIND_PER_PRIM:
-					meshDescBuilder.SetInstanceColor(index, cswVector4::UEVector4(geom->getColorArray(FALSE)[i/3]));
-					break;
-
-				case GZ_BIND_ON:
-					meshDescBuilder.SetInstanceColor(index, cswVector4::UEVector4(geom->getColorArray(FALSE)[indices[index]]));
-					break;
-
-			}
+			MeshDescription.CreatePolygon(PolygonGroupID, id);
 		}
+	}
+	else
+	{
+		// Non indexed. Not so optimal perhapsbut we dont take the penalty here to convert it
 
-		meshDescBuilder.AppendTriangle(id[2], id[1], id[0], polygonGroup);
+		for (gzUInt32 i = 0; i < coordinates.getSize(); i += 3)
+		{
+			for (gzUInt32 j = 0; j < 3; j++)
+			{
+				gzUInt32 index = i + 2 - j;
+
+				id[j] = ind = MeshDescription.CreateVertexInstance(index);
+
+				switch (geom->getNormalBind())
+				{
+					case GZ_BIND_OFF:
+						normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
+						break;
+
+					case GZ_BIND_OVERALL:
+						normal[ind] = cswVector3::UEVector3(normal_in[0]);
+						break;
+
+					case GZ_BIND_PER_PRIM:
+						normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
+						break;
+
+					case GZ_BIND_ON:
+						normal[ind] = cswVector3::UEVector3(normal_in[index]);
+						break;
+
+				}
+
+
+
+				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
+				{
+					switch (geom->getTexBind(layer))
+					{
+						case GZ_BIND_OFF:
+							break;
+
+						case GZ_BIND_OVERALL:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
+							break;
+
+						case GZ_BIND_PER_PRIM:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
+							break;
+
+
+						case GZ_BIND_ON:
+							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][index]));
+							break;
+
+					}
+				}
+
+				switch (geom->getColorBind())
+				{
+					case GZ_BIND_OFF:
+						break;
+
+					case GZ_BIND_OVERALL:
+						colors[ind] = cswVector4::UEVector4(colors_in[0]);
+						break;
+
+					case GZ_BIND_PER_PRIM:
+						colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
+						break;
+
+					case GZ_BIND_ON:
+						colors[ind] = cswVector4::UEVector4(colors_in[index]);
+						break;
+
+				}
+			}
+
+			MeshDescription.CreatePolygon(PolygonGroupID, id);
+		}
 	}
 
 
@@ -189,7 +288,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 
 	// Build static mesh
 	TArray<const FMeshDescription*> meshDescPtrs;
-	meshDescPtrs.Emplace(&meshDesc);
+	meshDescPtrs.Emplace(&MeshDescription);
 	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
 
 

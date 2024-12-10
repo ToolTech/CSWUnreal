@@ -465,7 +465,7 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get registered parent");
 		return false;
 	}
-
+		
 	gzNode* node = command->getNode();
 	gzUInt64 pathID = command->getPathID();
 
@@ -499,15 +499,6 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to register component");
 		return false;
 	}
-
-	/*if (node->hasAttribute("debug", "pathID"))
-	{
-		gzUInt64 exPathID;
-
-		gzDynamic_Cast(node->getAttribute("debug", "pathID"), exPathID);
-	}
-
-	node->setAttribute("debug", "pathID", pathID);*/
 	
 	return true;
 }
@@ -527,7 +518,6 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get component for deletion");
 		return false;
 	}
-
 
 	{
 		GZ_INSTRUMENT_NAME("UCSW*::destroy");
