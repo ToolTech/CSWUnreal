@@ -127,3 +127,66 @@ private:
 
 };
 
+//******************************************************************************
+// Class	: cswUEReference<MyClass>
+//									
+// Purpose  : gzReference management of objects
+//									
+// Notes	: 
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	241122	Created 
+//									
+//******************************************************************************
+template <class T> class cswUEReference : public gzReference
+{
+public:
+
+	//! Default constructor
+	cswUEReference() {}
+
+	//! Default copy constructor
+	cswUEReference(const T* handle):m_handle(handle){};
+
+	//! Default assignment operator
+	cswUEReference& operator=(const T* handle) { m_handle = handle; return *this; }
+	
+	virtual gzVoid unref()
+	{
+		if (_refCount)
+		{
+			if (!(--_refCount))
+				destroyHandle();
+		}
+		else
+		{
+			gzReference::throwFatalException("REFERENCE MISMATCH ! Unref an object with zero reference count."); //NOSONAR - We want this exception to happend even in destructor
+		}
+	}
+
+	gzBool checkDelete()
+	{
+		if (!_refCount)
+		{
+			destroyHandle();
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+
+	virtual gzVoid destroyHandle()
+	{
+		// right now just zero out handle
+		m_handle = nullptr;
+	}
+
+private:
+
+	const T* m_handle=nullptr;
+
+};
+

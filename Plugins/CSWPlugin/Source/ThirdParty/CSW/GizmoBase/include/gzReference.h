@@ -206,11 +206,11 @@ protected:
 
     gzUInt32			_refCount;
 
+	// Protected utility function
+
+	static gzVoid throwFatalException(const char* str1, const char* str2 = NULL);
+
 private:
-
-	// Private utility function
-
-	static gzVoid throwFatalException( const char * str1 , const char * str2 = NULL);
 
 	gzCopyMode		m_copyMode;	// class dependant
 };

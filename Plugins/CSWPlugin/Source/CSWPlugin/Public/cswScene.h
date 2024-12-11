@@ -41,6 +41,7 @@
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
+#include "cswResourceManager.h"
 
 #include "UEGlue/cswUETemplates.h"
 #include "UEGlue//cswUETypes.h"
@@ -103,6 +104,7 @@ protected:
 
 	// Init scenemanager and set up context
 	void initSceneManager();
+	void initResourceManager();
 
 	bool isEditorComponent();
 	
@@ -156,7 +158,11 @@ protected:
 
 	UCSWSceneComponent* getComponent(gzNode* node, gzUInt64 pathID);
 
-	cswSceneManagerPtr m_manager;
+	// the scene manager of components
+	cswSceneManagerPtr	m_manager;
+
+	// the shared resources
+	cswResourceManager	m_resource;
 
 private:
 

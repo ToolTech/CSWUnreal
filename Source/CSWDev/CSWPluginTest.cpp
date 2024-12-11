@@ -4,6 +4,7 @@
 #include "CSWPluginTest.h"
 #include "UEGlue/cswUEUtility.h"
 #include "UEGlue/cswUEGlue.h"
+#include "UEGlue/cswUETemplates.h"
 
 
 // Sets default values
@@ -24,9 +25,13 @@ void ACSWDevTest::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACSWDevTest *test=NewObject<ACSWDevTest>();
+	cswUEReference<UMaterial>* test = new cswUEReference<UMaterial>;
 
-	//FString t("kjh");
+	*test=NewObject<UMaterial>();
+
+	{
+		gzRefPointer<cswUEReference<UMaterial>> inst = test;
+	}
 
 }
 

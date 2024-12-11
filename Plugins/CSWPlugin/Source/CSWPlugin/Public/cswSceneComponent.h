@@ -55,12 +55,6 @@ class CSWPLUGIN_API UCSWSceneComponent :	public USceneComponent,
 public:	
 	// Sets default values for this component's properties
 	UCSWSceneComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	/*UPROPERTY(VisibleAnywhere)
-	uint32 ComponentID;
-
-	UPROPERTY(VisibleAnywhere)
-	uint64 PathID;*/
 	
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem);
 

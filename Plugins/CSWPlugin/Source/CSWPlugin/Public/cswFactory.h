@@ -15,7 +15,7 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswFactoryInterface.h
+// File			: cswFactory.h
 // Module		: CSW StreamingMap Unreal
 // Description	: Interface to Factory builders
 // Author		: Anders Modén		

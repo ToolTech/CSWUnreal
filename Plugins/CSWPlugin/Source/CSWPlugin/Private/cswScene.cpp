@@ -62,6 +62,9 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Perform init of scenemanager 
 	initSceneManager();
+
+	// Perform init of resource manager 
+	initResourceManager();
 }
 
 UCSWScene::~UCSWScene()
@@ -188,6 +191,10 @@ void UCSWScene::initSceneManager()
 
 		m_manager->addCommandBuffer(buffer);
 	}
+}
+
+void UCSWScene::initResourceManager()
+{
 }
 
 // lock and iterate over incoming commands and transfer them to game thread
