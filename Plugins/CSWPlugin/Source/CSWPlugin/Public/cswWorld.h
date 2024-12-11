@@ -39,9 +39,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "UEGlue/cswUETemplates.h"
+
 #include "cswScene.h"
 #include "cswCamera.h"
-#include "cswUETemplates.h"
 
 #include "cswWorld.generated.h"
 

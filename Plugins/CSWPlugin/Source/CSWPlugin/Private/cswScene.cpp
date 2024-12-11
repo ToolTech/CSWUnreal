@@ -35,10 +35,12 @@
 //
 //******************************************************************************
 
+
 #include "cswScene.h"
-#include "cswUEUtility.h"
-#include "cswUEMatrix.h"
 #include "cswFactory.h"
+
+
+#include "UEGlue/cswUEMatrix.h"
 
 #include "gzCoordinate.h"
 
@@ -60,8 +62,6 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Perform init of scenemanager 
 	initSceneManager();
-
-	MaxPrimitivesPerFrame = 10000;
 }
 
 UCSWScene::~UCSWScene()

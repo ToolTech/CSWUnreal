@@ -34,7 +34,7 @@
 // AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
-#include "cswUEUtility.h"
+#include "UEGlue/cswUEUtility.h"
 
 #undef UpdateResource
 

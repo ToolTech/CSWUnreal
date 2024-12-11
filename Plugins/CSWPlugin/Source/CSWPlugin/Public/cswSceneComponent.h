@@ -41,7 +41,7 @@
 
 // Interfaces
 #include "Interfaces/cswBuildInterface.h"
-#include "cswUETypes.h"
+#include "UEGlue//cswUETypes.h"
 
 #include "cswSceneComponent.generated.h"
 

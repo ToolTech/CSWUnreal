@@ -41,7 +41,8 @@
 #include "Interfaces/IPluginManager.h"
 #include "Misc/Paths.h"
 #include "HAL/PlatformProcess.h"
-#include "cswUEGlue.h"
+
+#include "UEGlue/cswUEGlue.h"
 
 class FStreamingMapPlugin : public ICSWPlugin
 {

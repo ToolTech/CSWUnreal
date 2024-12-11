@@ -2,8 +2,8 @@
 
 
 #include "CSWPluginTest.h"
-#include "cswUEUtility.h"
-#include "cswUEGlue.h"
+#include "UEGlue/cswUEUtility.h"
+#include "UEGlue/cswUEGlue.h"
 
 
 // Sets default values

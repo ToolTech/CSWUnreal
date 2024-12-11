@@ -36,7 +36,7 @@
 //******************************************************************************
 
 
-#include "cswUEGlue.h"
+#include "UEGlue/cswUEGlue.h"
 #include "cswSceneManager.h"
 
 //-------------------- cswToUnrealMessageReceiver --------------------------------------------

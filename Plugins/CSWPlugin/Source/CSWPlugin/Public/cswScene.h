@@ -37,12 +37,13 @@
 #pragma once
 
 
-#include "components/cswSceneComponent.h"
+#include "cswSceneComponent.h"
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
-#include "cswUETemplates.h"
-#include "cswUETypes.h"
+
+#include "UEGlue/cswUETemplates.h"
+#include "UEGlue//cswUETypes.h"
 
 UENUM()
 enum CoordType
@@ -96,7 +97,7 @@ public:
 	double RenderTime;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint32 MaxPrimitivesPerFrame;
+	uint32 MaxPrimitivesPerFrame=10;
 
 protected:
 

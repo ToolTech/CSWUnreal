@@ -36,8 +36,7 @@
 //******************************************************************************
 #include "CSWWorld.h"
 
-#include "cswUEGlue.h"
-#include "cswUEMatrix.h"
+#include "UEGlue/cswUEGlue.h"
 
 
 ACSWWorld::ACSWWorld()

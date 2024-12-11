@@ -39,7 +39,7 @@
 #include "components/cswGeometry.h"
 
 #include "gzRoi.h"
-#include "cswUEMatrix.h"
+#include "UEGlue/cswUEMatrix.h"
 
 // Sets default values for this component's properties
 UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

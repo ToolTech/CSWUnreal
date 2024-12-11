@@ -39,7 +39,7 @@
 #include "components/cswGeometry.h"
 
 #include "gzTransform.h"
-#include "cswUEMatrix.h"
+#include "UEGlue/cswUEMatrix.h"
 
 // Sets default values for this component's properties
 UCSWTransform::UCSWTransform(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

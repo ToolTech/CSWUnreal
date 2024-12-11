@@ -2,7 +2,7 @@
 
 
 #include "components/cswGeometry.h"
-#include "cswUEMatrix.h"
+#include "UEGlue/cswUEMatrix.h"
 
 // GizmoSDK
 #include "gzGeometry.h"
