@@ -35,7 +35,7 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
-#include "components/cswNode.h"
+#include "Builders/cswNode.h"
 
 //---------------------- cswNodeFactory -------------------------------------
 

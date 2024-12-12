@@ -35,7 +35,7 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
-#include "components/cswRoiNode.h"
+#include "Builders/cswRoiNode.h"
 
 //---------------------- cswRoiNodeFactory -------------------------------------
 

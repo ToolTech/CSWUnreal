@@ -35,7 +35,7 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
-#include "components/cswGeometry.h"
+#include "Builders/cswGeometry.h"
 
 //---------------------- cswGeometryFactory -------------------------------------
 

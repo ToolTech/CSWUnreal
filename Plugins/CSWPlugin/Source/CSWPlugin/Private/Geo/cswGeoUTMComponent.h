@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswUEGlue.cpp
+// File			: cswGeoUTMComponent.h
 // Module		: CSW StreamingMap Unreal
-// Description	: Glue Between Unreal CSW and GizmoSDK callbacks
+// Description	: Base class for CSW UTM projection
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -34,45 +34,23 @@
 // AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
+#pragma once
 
-#include "components/cswTransform.h"
-#include "components/cswGeometry.h"
 
-#include "gzTransform.h"
-#include "UEGlue/cswUEMatrix.h"
+#include "cswGeoComponent.h"
 
-// Sets default values for this component's properties
-UCSWTransform::UCSWTransform(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+
+#include "cswGeoUTMComponent.generated.h"
+
+
+UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
+class CSWPLUGIN_API UCSWGeoUTMComponent :	public UCSWGeoComponent
 {
+	GENERATED_BODY()
 
-}
+public:	
+	// Sets default values for this component's properties
+	UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+};
 
-bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
-{
-	if (!Super::build(parent,buildItem))
-		return false;
-
-	gzTransform* transform = gzDynamic_Cast<gzTransform>(buildItem);
-
-	if (!transform)
-		return false;
-
-	if (transform->isActive())
-	{
-		FTransform m;
-
-		m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
-
-		SetRelativeTransform(m);
-	}
-
-	return true;
-}
-
-bool  UCSWTransform::destroy(gzNode* destroyItem)
-{
-	// Do cleanup
-	
-	return Super::destroy(destroyItem);
-}
 

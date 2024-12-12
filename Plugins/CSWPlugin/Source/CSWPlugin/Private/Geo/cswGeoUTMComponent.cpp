@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswUEGlue.cpp
+// File			: cswGeoUTMComponent.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Glue Between Unreal CSW and GizmoSDK callbacks
+// Description	: Base class for CSW UTM projection
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,43 +35,13 @@
 //
 //******************************************************************************
 
-#include "components/cswNode.h"
-#include "components/cswGeometry.h"
+#include "Geo/cswGeoUTMComponent.h"
+
 
 // Sets default values for this component's properties
-UCSWNode::UCSWNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UCSWGeoUTMComponent::UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	//bTickInEditor = true;
-	//bAutoActivate = true;
-
 }
-
-bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
-{
-	if (!Super::build(parent,buildItem))
-		return false;
-
-	// gzGroup -----------------------------
-
-	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_y");
-	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
-	GZ_LEAVE_PERFORMANCE_SECTION;
-	
-	return true;
-}
-
-bool  UCSWNode::destroy(gzNode* destroyItem)
-{
-	// Do cleanup
-
-	DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-
-	return Super::destroy(destroyItem);
-}
-
 
 

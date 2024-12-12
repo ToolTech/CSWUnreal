@@ -15,9 +15,9 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswUEGlue.cpp
+// File			: cswNode.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Glue Between Unreal CSW and GizmoSDK callbacks
+// Description	: Builder class for gzNode and parents
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		
@@ -35,46 +35,42 @@
 //
 //******************************************************************************
 
-#include "components/cswRoiNode.h"
-#include "components/cswGeometry.h"
-
-#include "gzRoi.h"
-#include "UEGlue/cswUEMatrix.h"
+#include "Builders/cswNode.h"
 
 // Sets default values for this component's properties
-UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UCSWNode::UCSWNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = false;
+
+	//bTickInEditor = true;
+	//bAutoActivate = true;
+
 }
 
-
-bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
+bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 {
-	if (!UCSWNode::build(parent,buildItem))
+	if (!Super::build(parent,buildItem))
 		return false;
 
-	gzRoiNode* roi = gzDynamic_Cast<gzRoiNode>(buildItem);
+	// gzGroup -----------------------------
 
-	if (!roi)
-		return false;
-
-	/*if (transform->isActive())
-	{
-		FTransform m;
-
-		m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
-
-		SetRelativeTransform(m);
-	}
-	*/	
-
+	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_y");
+	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
+	GZ_LEAVE_PERFORMANCE_SECTION;
+	
 	return true;
 }
 
-bool  UCSWRoiNode::destroy(gzNode* destroyItem)
+bool  UCSWNode::destroy(gzNode* destroyItem)
 {
 	// Do cleanup
 
+	DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+
 	return Super::destroy(destroyItem);
 }
+
+
 

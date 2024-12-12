@@ -35,7 +35,7 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
-#include "components/cswTransform.h"
+#include "Builders/cswTransform.h"
 
 //---------------------- cswTransformFactory -------------------------------------
 
