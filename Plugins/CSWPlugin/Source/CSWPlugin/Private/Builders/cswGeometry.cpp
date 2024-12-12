@@ -42,6 +42,8 @@
 // Glue
 #include "UEGlue/cswUEMatrix.h"
 
+#include "cswResourceManager.h"
+
 #include "MeshDescription.h"
 #include "StaticMeshAttributes.h"
 
@@ -51,9 +53,9 @@ UCSWGeometry::UCSWGeometry(const FObjectInitializer& ObjectInitializer) : Super(
 }
 
 
-bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties, cswResourceManager* resources)
+bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources)
 {
-	if (!Super::build(parent,buildItem, buildProperties,resources))
+	if (!Super::build(parent,buildItem, state, buildProperties,resources))
 		return false;
 
 	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
@@ -318,7 +320,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildPro
 
 	staticMesh = NewObject<UStaticMesh>(this);
 
-	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
+	staticMesh->GetStaticMaterials().Add(resources->getStaticMaterial(state));
 
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
 	mdParams.bBuildSimpleCollision = buildProperties.buildSimpleCollision;

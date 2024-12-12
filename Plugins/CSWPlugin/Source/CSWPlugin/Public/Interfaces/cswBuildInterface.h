@@ -62,6 +62,6 @@ class IBuildInterface
 {
 public:
 
-	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem,BuildProperties &buildProperties, cswResourceManager *resources)=0;
+	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem, gzState *state, BuildProperties &buildProperties, cswResourceManager *resources)=0;
 	virtual bool destroy(gzNode* destroyItem,cswResourceManager* resources) = 0;
 };

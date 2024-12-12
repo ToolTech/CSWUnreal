@@ -48,9 +48,9 @@ UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(Ob
 }
 
 
-bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties, cswResourceManager* resources)
+bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state,  BuildProperties& buildProperties, cswResourceManager* resources)
 {
-	if (!UCSWNode::build(parent,buildItem, buildProperties, resources))
+	if (!UCSWNode::build(parent,buildItem, state, buildProperties, resources))
 		return false;
 
 	gzRoiNode* roi = gzDynamic_Cast<gzRoiNode>(buildItem);

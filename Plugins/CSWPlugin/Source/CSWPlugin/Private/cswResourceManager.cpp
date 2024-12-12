@@ -38,3 +38,12 @@
 
 GZ_DECLARE_TYPE_CHILD(gzObject, cswResourceManager, "cswResourceManager");
 
+UMaterial* cswResourceManager::getMaterial(gzState* state)
+{
+	return nullptr;
+}
+
+FStaticMaterial cswResourceManager::getStaticMaterial(gzState* state)
+{
+	return FStaticMaterial();
+}

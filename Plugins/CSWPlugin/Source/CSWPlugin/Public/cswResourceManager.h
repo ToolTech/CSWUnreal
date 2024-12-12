@@ -37,6 +37,7 @@
 #pragma once
 
 #include "gzNode.h"
+#include "Materials/Material.h"
 
 
 class cswResourceManager : public gzObject
@@ -46,7 +47,9 @@ public:
 	// Type info
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
 
-	
+	UMaterial* getMaterial(gzState* state);
+
+	FStaticMaterial getStaticMaterial(gzState* state);
 };
 
 GZ_DECLARE_REFPTR(cswResourceManager);

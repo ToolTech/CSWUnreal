@@ -512,7 +512,7 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		GZ_INSTRUMENT_NAME("UCSW*::build");
 			
 
-		if (!component->build(parent, node, m_buildProperties,m_resource))
+		if (!component->build(parent, node, command->getState(), m_buildProperties,m_resource))
 		{
 			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
 			return false;

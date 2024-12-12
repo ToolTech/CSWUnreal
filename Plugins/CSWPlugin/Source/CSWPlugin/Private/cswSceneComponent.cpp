@@ -47,7 +47,7 @@ UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializ
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties ,cswResourceManager* resources)
+bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state,BuildProperties& buildProperties ,cswResourceManager* resources)
 {
 	return true;
 }
