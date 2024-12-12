@@ -17,7 +17,7 @@
 //
 // File			: cswGeoGeocentricComponent.cpp
 // Module		: CSW StreamingMap Unreal
-// Description	: Base class for CSW UTM projection
+// Description	: Base class for CSW Geocentric projection
 // Author		: Anders Modén		
 // Product		: CSW 1.1.1
 //		

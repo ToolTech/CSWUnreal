@@ -44,6 +44,10 @@
 
 #include "Geo/cswGeoModelComponent.h"
 #include "Geo/cswGeoUTMComponent.h"
+#include "Geo/cswGeoProjectedComponent.h"
+#include "Geo/cswGeoGeodeticComponent.h"
+#include "Geo/cswGeoGeocentricComponent.h"
+#include "Geo/cswGeoFlatEarthComponent.h"
 
 #include "gzCoordinate.h"
 
@@ -616,14 +620,17 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 			{
 				case gzCoordType::GZ_COORDTYPE_GEOCENTRIC:
 					CoordType = CoordType::Geocentric;
+					GeoInfo = NewObject<UCSWGeoGeocentricComponent>(this);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_GEODETIC:
 					CoordType = CoordType::Geodetic;
+					GeoInfo = NewObject<UCSWGeoGeodeticComponent>(this);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_PROJECTED:
 					CoordType = CoordType::Projected;
+					GeoInfo = NewObject<UCSWGeoProjectedComponent>(this);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_UTM:
@@ -633,10 +640,12 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 
 				case gzCoordType::GZ_COORDTYPE_FLATEARTH:
 					CoordType = CoordType::FlatEarth;
+					GeoInfo = NewObject<UCSWGeoFlatEarthComponent>(this);
 					break;
 
 				default:
 					CoordType = CoordType::Geometry;
+					GeoInfo = NewObject<UCSWGeoModelComponent>(this);
 					break;
 			}
 		}
