@@ -165,10 +165,10 @@ protected:
 	UCSWSceneComponent* getComponent(gzNode* node, gzUInt64 pathID);
 
 	// the scene manager of components
-	cswSceneManagerPtr	m_manager;
+	cswSceneManagerPtr		m_manager;
 
 	// the shared resources
-	cswResourceManager	m_resource;
+	cswResourceManagerPtr	m_resource;
 
 private:
 

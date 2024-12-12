@@ -51,9 +51,9 @@ UCSWGeometry::UCSWGeometry(const FObjectInitializer& ObjectInitializer) : Super(
 }
 
 
-bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
+bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties, cswResourceManager* resources)
 {
-	if (!Super::build(parent,buildItem, buildProperties))
+	if (!Super::build(parent,buildItem, buildProperties,resources))
 		return false;
 
 	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
@@ -344,11 +344,11 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildPro
 	return true;
 }
 
-bool  UCSWGeometry::destroy(gzNode* destroyItem)
+bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
 
 	m_meshComponent->DestroyComponent();
 
-	return Super::destroy(destroyItem);
+	return Super::destroy(destroyItem, resources);
 }

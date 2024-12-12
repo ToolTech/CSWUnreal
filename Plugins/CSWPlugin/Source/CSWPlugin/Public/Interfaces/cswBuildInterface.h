@@ -56,10 +56,12 @@ struct BuildProperties
 	ECollisionEnabled::Type collision = ECollisionEnabled::NoCollision;
 };
 
+class cswResourceManager;
+
 class IBuildInterface
 {
 public:
 
-	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem,BuildProperties &buildProperties)=0;
-	virtual bool destroy(gzNode* destroyItem) = 0;
+	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem,BuildProperties &buildProperties, cswResourceManager *resources=nullptr)=0;
+	virtual bool destroy(gzNode* destroyItem,cswResourceManager* resources = nullptr) = 0;
 };

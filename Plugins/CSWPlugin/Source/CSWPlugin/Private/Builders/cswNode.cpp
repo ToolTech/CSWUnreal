@@ -49,9 +49,9 @@ UCSWNode::UCSWNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 
 }
 
-bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties & buildProperties)
+bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties & buildProperties, cswResourceManager* resources)
 {
-	if (!Super::build(parent,buildItem,buildProperties))
+	if (!Super::build(parent,buildItem,buildProperties, resources))
 		return false;
 
 	// gzGroup -----------------------------
@@ -63,13 +63,13 @@ bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildPropert
 	return true;
 }
 
-bool  UCSWNode::destroy(gzNode* destroyItem)
+bool  UCSWNode::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
 
 	DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 
-	return Super::destroy(destroyItem);
+	return Super::destroy(destroyItem, resources);
 }
 
 

@@ -47,12 +47,12 @@ UCSWSceneComponent::UCSWSceneComponent(const FObjectInitializer& ObjectInitializ
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
+bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties ,cswResourceManager* resources)
 {
 	return true;
 }
 
-bool  UCSWSceneComponent::destroy(gzNode* destroyItem)
+bool  UCSWSceneComponent::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
 

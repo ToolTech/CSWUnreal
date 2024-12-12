@@ -204,6 +204,7 @@ void UCSWScene::initSceneManager()
 
 void UCSWScene::initResourceManager()
 {
+	m_resource = new cswResourceManager;
 }
 
 // lock and iterate over incoming commands and transfer them to game thread
@@ -511,7 +512,7 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		GZ_INSTRUMENT_NAME("UCSW*::build");
 			
 
-		if (!component->build(parent, node, m_buildProperties))
+		if (!component->build(parent, node, m_buildProperties,m_resource))
 		{
 			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
 			return false;
@@ -549,7 +550,7 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 
 	{
 		GZ_INSTRUMENT_NAME("UCSW*::destroy");
-		if (!component->destroy(node))
+		if (!component->destroy(node,m_resource))
 		{
 			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to destoy component");
 			return false;

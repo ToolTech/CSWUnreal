@@ -46,9 +46,9 @@ UCSWTransform::UCSWTransform(const FObjectInitializer& ObjectInitializer) : Supe
 
 }
 
-bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
+bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties, cswResourceManager* resources)
 {
-	if (!Super::build(parent,buildItem, buildProperties))
+	if (!Super::build(parent,buildItem, buildProperties, resources))
 		return false;
 
 	gzTransform* transform = gzDynamic_Cast<gzTransform>(buildItem);
@@ -68,10 +68,10 @@ bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildPr
 	return true;
 }
 
-bool  UCSWTransform::destroy(gzNode* destroyItem)
+bool  UCSWTransform::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
 	
-	return Super::destroy(destroyItem);
+	return Super::destroy(destroyItem, resources);
 }
 

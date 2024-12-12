@@ -48,9 +48,9 @@ UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(Ob
 }
 
 
-bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
+bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties, cswResourceManager* resources)
 {
-	if (!UCSWNode::build(parent,buildItem, buildProperties))
+	if (!UCSWNode::build(parent,buildItem, buildProperties, resources))
 		return false;
 
 	gzRoiNode* roi = gzDynamic_Cast<gzRoiNode>(buildItem);
@@ -75,10 +75,10 @@ bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProp
 	return true;
 }
 
-bool  UCSWRoiNode::destroy(gzNode* destroyItem)
+bool  UCSWRoiNode::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
 
-	return Super::destroy(destroyItem);
+	return Super::destroy(destroyItem, resources);
 }
 
