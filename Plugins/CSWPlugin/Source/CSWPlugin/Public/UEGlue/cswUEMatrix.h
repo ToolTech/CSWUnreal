@@ -67,6 +67,11 @@ public:
 	{
 		return UE::Math::TVector<T>(from.x, from.y, from.z);
 	}
+
+	template <class Y> static gzVec3_<T> GZVector3(const UE::Math::TVector<Y>& from)
+	{
+		return gzVec3_<T>(from.X, from.Y, from.Z);
+	}
 };
 
 typedef cswVector3_<gzFloat>	cswVector3;
@@ -148,32 +153,32 @@ public:
 		return GZMatrix;
 	}
 
-	static gzMatrix4_<T> GZ_2_UE();
-	static gzMatrix4_<T> UE_2_GZ();
+	static gzMatrix4_<T> GZ_2_UE(gzVec3_<T> trans=gzVec3_<T>(0,0,0),T scale=1)
+	{
+		// Map GZ(X,Y,Z) to UE(X,Z,Y)
+		return gzMatrix4_<T>(gzVec4_<T>(scale, 0, 0, 0), gzVec4_<T>(0, 0, scale, 0), gzVec4_<T>(0, scale, 0, 0), gzVec4_<T>(trans.x*scale, trans.z*scale, trans.y*scale, 1));
+	}
 
-	static gzMatrix4_<T> GZ_2_UE_GEO_Flat();
-	static gzMatrix4_<T> GZ_2_UE_GEO_Cartesian();
+	static gzMatrix4_<T> UE_2_GZ()
+	{
+		// Map UE(X,Y,Z) to GZ(X,Z,Y)
+		return gzMatrix4_<T>(gzVec4_<T>(1, 0, 0, 0), gzVec4_<T>(0, 0, 1, 0), gzVec4_<T>(0, 1, 0, 0), gzVec4_<T>(0, 0, 0, 1));
+	}
+
+	static gzMatrix4_<T> GZ_2_UE_GEO_Flat()
+	{
+		// Map GZ(X,Y,Z) to UE(X,-Y,Z)
+		return gzMatrix4_<T>(gzVec4_<T>(1, 0, 0, 0), gzVec4_<T>(0, -1, 0, 0), gzVec4_<T>(0, 0, 1, 0), gzVec4_<T>(0, 0, 0, 1));
+	}
+
+	static gzMatrix4_<T> GZ_2_UE_GEO_Cartesian()
+	{
+		// Map GZ(X,Y,Z) to UE(X,-Y,Z)
+		return gzMatrix4_<T>(gzVec4_<T>(1, 0, 0, 0), gzVec4_<T>(0, -1, 0, 0), gzVec4_<T>(0, 0, 1, 0), gzVec4_<T>(0, 0, 0, 1));
+	}
 
 };
 
-
-template <class T> inline gzMatrix4_<T>  cswMatrix4_<T>::GZ_2_UE()
-{
-	// Map GZ(X,Y,Z) to UE(X,Z,Y)
-	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
-}
-
-template <class T> inline gzMatrix4_<T>  cswMatrix4_<T>::UE_2_GZ()
-{
-	// Map UE(X,Y,Z) to GZ(X,Z,Y)
-	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 1, 0, 0), gzVec4D(0, 0, 0, 1));
-}
-
-template <class T> inline gzMatrix4_<T>  cswMatrix4_<T>::GZ_2_UE_GEO_Cartesian()
-{
-	// Map GZ(X,Y,Z) to UE(X,-Y,Z)
-	return gzMatrix4D(gzVec4D(1, 0, 0, 0), gzVec4D(0, -1, 0, 0), gzVec4D(0, 0, 1, 0), gzVec4D(0, 0, 0, 1));
-}
 
 typedef cswMatrix4_<gzFloat>	cswMatrix4;
 typedef cswMatrix4_<gzDouble>	cswMatrix4d;

@@ -37,13 +37,29 @@
 #pragma once
 
 #include "gzNode.h"
+#include "Engine/EngineTypes.h"
 
 class UCSWSceneComponent;
+
+struct BuildProperties
+{
+	// Use fastbuild for meshes as default
+	bool fastBuild = true;
+
+	// dont build any collisions. lets integrate ours
+	bool buildSimpleCollision = false;
+
+	// right now dont knwo what this affects
+	bool simulatePhysics = false;
+
+	// turn of collsion
+	ECollisionEnabled::Type collision = ECollisionEnabled::NoCollision;
+};
 
 class IBuildInterface
 {
 public:
 
-	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem)=0;
+	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem,BuildProperties &buildProperties)=0;
 	virtual bool destroy(gzNode* destroyItem) = 0;
 };

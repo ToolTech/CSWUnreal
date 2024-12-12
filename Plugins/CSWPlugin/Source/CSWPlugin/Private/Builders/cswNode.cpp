@@ -49,9 +49,9 @@ UCSWNode::UCSWNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 
 }
 
-bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
+bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties & buildProperties)
 {
-	if (!Super::build(parent,buildItem))
+	if (!Super::build(parent,buildItem,buildProperties))
 		return false;
 
 	// gzGroup -----------------------------

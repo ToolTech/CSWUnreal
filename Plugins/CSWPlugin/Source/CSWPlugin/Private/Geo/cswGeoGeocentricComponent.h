@@ -53,10 +53,14 @@ public:
 	UCSWGeoGeocentricComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	FString Hemisphere;
+	double X;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	double Easting;
+	double Y;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Z;
+
 
 	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };

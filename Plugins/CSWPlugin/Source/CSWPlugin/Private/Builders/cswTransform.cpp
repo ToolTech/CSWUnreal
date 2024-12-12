@@ -46,9 +46,9 @@ UCSWTransform::UCSWTransform(const FObjectInitializer& ObjectInitializer) : Supe
 
 }
 
-bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem)
+bool UCSWTransform::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
 {
-	if (!Super::build(parent,buildItem))
+	if (!Super::build(parent,buildItem, buildProperties))
 		return false;
 
 	gzTransform* transform = gzDynamic_Cast<gzTransform>(buildItem);

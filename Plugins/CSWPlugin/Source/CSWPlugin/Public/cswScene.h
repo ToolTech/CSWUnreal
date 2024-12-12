@@ -92,7 +92,16 @@ public:
 	uint32 MaxPrimitivesPerFrame=10;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	UCSWGeoComponent* GeoInfo;
+	UCSWGeoComponent* GeoOrigin;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double ModelOriginX=0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double ModelOriginY = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double ModelOriginZ = 0;
 
 protected:
 
@@ -143,6 +152,9 @@ protected:
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
+	FVector3d localToGlobal(const gzVec3D& local, enum CoordType type);
+	gzVec3D globalToLocal(const FVector3d& global,enum CoordType type);
+
 
 	// Register component
 	bool registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID);
@@ -167,6 +179,8 @@ private:
 	gzDict<CSWPathIdentyIndex, gzVoid>		m_indexLUT;
 	gzQueue<gzUInt32>						m_slots;
 	gzDynamicArray<UCSWSceneComponent*>		m_components;
+
+	BuildProperties							m_buildProperties;
 
 	bool									m_firstRun=true;
 };

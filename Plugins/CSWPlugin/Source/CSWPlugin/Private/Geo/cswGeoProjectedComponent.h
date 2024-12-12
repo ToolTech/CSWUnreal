@@ -53,10 +53,16 @@ public:
 	UCSWGeoProjectedComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	FString Hemisphere;
+	FString Projection = TEXT("SWEREF99");
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double X = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	double Easting;
+	double Y = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Height = 0;
 
 	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };

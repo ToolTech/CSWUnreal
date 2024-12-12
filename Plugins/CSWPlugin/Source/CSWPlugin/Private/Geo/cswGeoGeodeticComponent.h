@@ -53,10 +53,13 @@ public:
 	UCSWGeoGeodeticComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	FString Hemisphere;
+	FString Latitude;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	double Easting;
+	FString Longitude;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Altitude = 0;
 
 	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };

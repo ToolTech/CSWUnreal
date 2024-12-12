@@ -51,9 +51,9 @@ UCSWGeometry::UCSWGeometry(const FObjectInitializer& ObjectInitializer) : Super(
 }
 
 
-bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
+bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
 {
-	if (!Super::build(parent,buildItem))
+	if (!Super::build(parent,buildItem, buildProperties))
 		return false;
 
 	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
@@ -95,8 +95,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
 
 	// Settings specific
-	m_meshComponent->SetSimulatePhysics(false);
-	m_meshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);
+	m_meshComponent->SetCollisionEnabled(buildProperties.collision);
 
 	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
@@ -321,8 +321,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	staticMesh->GetStaticMaterials().Add(FStaticMaterial());
 
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
-	mdParams.bBuildSimpleCollision = false;
-	mdParams.bFastBuild = true;
+	mdParams.bBuildSimpleCollision = buildProperties.buildSimpleCollision;
+	mdParams.bFastBuild = buildProperties.fastBuild;
 
 
 	// Build static mesh

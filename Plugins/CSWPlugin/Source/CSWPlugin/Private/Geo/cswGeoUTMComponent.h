@@ -53,10 +53,19 @@ public:
 	UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	FString Hemisphere;
+	FString Hemisphere=TEXT("N");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	double Easting;
+	uint8 Zone=32;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Easting=0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Northing=0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Height=0;
 
 	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };

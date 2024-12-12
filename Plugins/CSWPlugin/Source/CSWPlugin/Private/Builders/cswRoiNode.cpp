@@ -38,6 +38,7 @@
 #include "Builders/cswRoiNode.h"
 
 #include "gzRoi.h"
+#include "UEGlue/cswUEMatrix.h"
 
 
 // Sets default values for this component's properties
@@ -47,9 +48,9 @@ UCSWRoiNode::UCSWRoiNode(const FObjectInitializer& ObjectInitializer) : Super(Ob
 }
 
 
-bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
+bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties)
 {
-	if (!UCSWNode::build(parent,buildItem))
+	if (!UCSWNode::build(parent,buildItem, buildProperties))
 		return false;
 
 	gzRoiNode* roi = gzDynamic_Cast<gzRoiNode>(buildItem);
@@ -57,15 +58,19 @@ bool UCSWRoiNode::build(UCSWSceneComponent* parent, gzNode* buildItem)
 	if (!roi)
 		return false;
 
-	/*if (transform->isActive())
-	{
-		FTransform m;
+	FTransform m;
 
-		m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4((gzMatrix4D)transform->getTransform()));
+	// Get roi position
+	gzDoubleXYZ position = roi->getPosition();
 
-		SetRelativeTransform(m);
-	}
-	*/	
+	// We will send this subtree to roi position in Unreal
+
+	gzMatrix4D translation=gzMatrix4D::translateMatrix(position.x,position.y,position.z);
+	
+	m.SetFromMatrix(cswMatrix4d::UEMatrix4(translation));
+
+	SetRelativeTransform(m);
+		
 
 	return true;
 }

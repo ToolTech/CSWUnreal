@@ -51,7 +51,7 @@ public:
 	// Sets default values for this component's properties
 	UCSWRoiNode(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem) override;
+	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem, BuildProperties& buildProperties) override;
 
 	virtual bool destroy(gzNode* destroyItem) override;
 

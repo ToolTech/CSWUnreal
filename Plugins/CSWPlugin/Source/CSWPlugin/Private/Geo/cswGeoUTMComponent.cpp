@@ -37,6 +37,7 @@
 
 #include "Geo/cswGeoUTMComponent.h"
 
+#include "gzCoordinate.h"
 
 // Sets default values for this component's properties
 UCSWGeoUTMComponent::UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
@@ -47,5 +48,41 @@ UCSWGeoUTMComponent::UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitial
 gzVoid UCSWGeoUTMComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
 {
 	Super::setCoordinateSystem(cs, origo);
+
+	gzCoordSystem system;
+
+	gzCoordSystemMetaData meta;
+
+	if (!gzCoordinate::getCoordinateSystem(cs, system, meta))
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CS from '%s' in UCSWGeoUTMComponent", cs);
+		return;
+	}
+
+	gzLatPos latpos;
+
+	if(!gzCoordinate::getGlobalCoordinate(origo, system, meta, latpos))
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get Global Coordinate from '%s:%s' in UCSWGeoUTMComponent", cs,origo.asString());
+		return;
+	}
+
+	gzCoordinate converter;
+
+	converter.setLatPos(latpos);
+
+	gzUTMPos utmpos;
+
+	if(!converter.getUTMPos(utmpos))
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get UTMPos from '%s:%s' in UCSWGeoUTMComponent", cs, origo.asString());
+		return;
+	}
+
+	Zone = utmpos.zone;
+	Hemisphere = utmpos.north ? "Northern" : "Southern";
+	Easting = gzPrecision(utmpos.easting,2);
+	Northing = gzPrecision(utmpos.northing,2);
+	Height = utmpos.h;
 }
 

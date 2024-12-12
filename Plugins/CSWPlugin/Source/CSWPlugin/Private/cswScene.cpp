@@ -509,7 +509,9 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 
 	{
 		GZ_INSTRUMENT_NAME("UCSW*::build");
-		if (!component->build(parent, node))
+			
+
+		if (!component->build(parent, node, m_buildProperties))
 		{
 			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to build component");
 			return false;
@@ -593,11 +595,16 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 
 	CoordSystem = command->getCoordinateSystem().getWideString();
 
+	FVector3d UEOrigin;
+
+	double scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters
+
 	if (!command->getCoordinateSystem())
 	{
 		// Empty. Plain Geometry
 		CoordType = CoordType::Geometry;
-		GeoInfo = NewObject<UCSWGeoModelComponent>(this);
+		GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
+		UEOrigin = localToGlobal(command->getOrigin(), CoordType::Geometry);
 	}
 	else
 	{
@@ -609,7 +616,8 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 		if (!gzCoordinate::getCoordinateSystem(command->getCoordinateSystem(), system, meta))
 		{
 			CoordType = CoordType::Geometry;
-			GeoInfo = NewObject<UCSWGeoModelComponent>(this);
+			GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
+			UEOrigin = localToGlobal(command->getOrigin(), CoordType::Geometry);
 			GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to set interpret coordinate system %s", command->getCoordinateSystem());
 			
 		}
@@ -620,38 +628,48 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 			{
 				case gzCoordType::GZ_COORDTYPE_GEOCENTRIC:
 					CoordType = CoordType::Geocentric;
-					GeoInfo = NewObject<UCSWGeoGeocentricComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoGeocentricComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::Geocentric);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_GEODETIC:
 					CoordType = CoordType::Geodetic;
-					GeoInfo = NewObject<UCSWGeoGeodeticComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoGeodeticComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::Geodetic);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_PROJECTED:
 					CoordType = CoordType::Projected;
-					GeoInfo = NewObject<UCSWGeoProjectedComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoProjectedComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::Projected);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_UTM:
 					CoordType = CoordType::UTM;
-					GeoInfo = NewObject<UCSWGeoUTMComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoUTMComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::UTM);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_FLATEARTH:
 					CoordType = CoordType::FlatEarth;
-					GeoInfo = NewObject<UCSWGeoFlatEarthComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoFlatEarthComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::FlatEarth);
 					break;
 
 				default:
 					CoordType = CoordType::Geometry;
-					GeoInfo = NewObject<UCSWGeoModelComponent>(this);
+					GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
+					UEOrigin = localToGlobal(command->getOrigin(), CoordType::Geometry);
 					break;
 			}
 		}
 	}
 
-	GeoInfo->setCoordinateSystem(command->getCoordinateSystem(), command->getOrigin());
+	GeoOrigin->setCoordinateSystem(command->getCoordinateSystem(), command->getOrigin());
+
+	ModelOriginX = UEOrigin.X;
+	ModelOriginY = UEOrigin.Y;
+	ModelOriginZ = UEOrigin.Z;
 
 	propertyUpdate("CoordType");
 
@@ -756,13 +774,22 @@ bool UCSWScene::onCoordTypePropertyUpdate()
 	FTransform m;
 
 	// map SCENE content in Gizmo World to UE world
+
+	gzVec3D origin;
+
+	double scale = 100;
+	
+	if(GetWorld())
+		scale=GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
 	
 	switch (CoordType)
 	{
 		case CoordType::Geometry:
 		case CoordType::Projected:
 		case CoordType::UTM:
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
+			origin = globalToLocal(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType::UTM);
+			// Move children negative origin so our map origin ends up in 0,0,0
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE(-origin,scale)));
 			break;
 
 		case CoordType::Geodetic:
@@ -781,6 +808,27 @@ bool UCSWScene::onCoordTypePropertyUpdate()
 
 	return true;
 }
+
+FVector3d UCSWScene::localToGlobal(const gzVec3D& local,enum CoordType type)
+{
+	double scale = 100;
+
+	if (GetWorld())
+		scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
+
+	return cswVector3d::UEVector3(scale * (gzVec3D)(cswMatrix4_<double>::GZ_2_UE() * local));
+}
+
+gzVec3D UCSWScene::globalToLocal(const FVector3d& global, enum CoordType type)
+{
+	double scale = 100;
+
+	if (GetWorld())
+		scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
+
+	return  (gzVec3D) (cswMatrix4_<double>::UE_2_GZ() * cswVector3d::GZVector3(global)) / scale ;
+}
+
 
 // Called after the C++ constructor and after the properties have been initialized, including those loaded from config.This is called before any serialization or other setup has happened.
 
