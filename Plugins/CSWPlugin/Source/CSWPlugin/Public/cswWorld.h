@@ -36,13 +36,13 @@
 //******************************************************************************
 #pragma once
 
-#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
 #include "UEGlue/cswUETemplates.h"
 
 #include "cswScene.h"
 #include "cswCamera.h"
+#include "cswGeoComponent.h"
 
 #include "cswWorld.generated.h"
 
@@ -78,6 +78,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	UCSWScene* Scene;
+
 
 	UPROPERTY(EditAnywhere,Category = "CSW")
 	UCSWCamera* DefaultCamera;

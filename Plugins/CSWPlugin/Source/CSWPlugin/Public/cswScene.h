@@ -38,6 +38,7 @@
 
 
 #include "cswSceneComponent.h"
+#include "cswGeoComponent.h"
 
 #include "cswSceneManager.h"
 #include "cswCommandReceiver.h"
@@ -46,16 +47,6 @@
 #include "UEGlue/cswUETemplates.h"
 #include "UEGlue//cswUETypes.h"
 
-UENUM()
-enum CoordType
-{
-	Geometry	UMETA(DisplayName = "Geometry"),
-	Geocentric  UMETA(DisplayName = "Geocentric"),
-	Geodetic    UMETA(DisplayName = "Geodetic"),
-	Projected   UMETA(DisplayName = "Projected"),
-	UTM			UMETA(DisplayName = "UTM"),
-	FlatEarth   UMETA(DisplayName = "FlatEarth"),
-};
 
 #include "CSWScene.generated.h"
 
@@ -85,7 +76,7 @@ public:
 	// Properties ------------------------------------------------------------------
 	// 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CSW")
 	FString MapUrls;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
@@ -99,6 +90,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	uint32 MaxPrimitivesPerFrame=10;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	UCSWGeoComponent* GeoInfo;
 
 protected:
 

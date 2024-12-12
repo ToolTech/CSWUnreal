@@ -43,3 +43,8 @@ UCSWGeoComponent::UCSWGeoComponent(const FObjectInitializer& ObjectInitializer):
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+gzVoid UCSWGeoComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
+{
+	
+}
+

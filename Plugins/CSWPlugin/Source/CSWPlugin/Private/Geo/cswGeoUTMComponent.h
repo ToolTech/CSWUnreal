@@ -43,7 +43,7 @@
 #include "cswGeoUTMComponent.generated.h"
 
 
-UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
+UCLASS()
 class CSWPLUGIN_API UCSWGeoUTMComponent :	public UCSWGeoComponent
 {
 	GENERATED_BODY()
@@ -51,6 +51,14 @@ class CSWPLUGIN_API UCSWGeoUTMComponent :	public UCSWGeoComponent
 public:	
 	// Sets default values for this component's properties
 	UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	FString Hemisphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Easting;
+
+	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };
 
 

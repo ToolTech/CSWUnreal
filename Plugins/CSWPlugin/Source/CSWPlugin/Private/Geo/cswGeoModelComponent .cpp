@@ -44,4 +44,8 @@ UCSWGeoModelComponent::UCSWGeoModelComponent(const FObjectInitializer& ObjectIni
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+gzVoid UCSWGeoModelComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
+{
+	Super::setCoordinateSystem(cs, origo);
+}
 

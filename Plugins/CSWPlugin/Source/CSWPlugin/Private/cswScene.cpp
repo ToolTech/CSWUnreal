@@ -42,6 +42,9 @@
 
 #include "UEGlue/cswUEMatrix.h"
 
+#include "Geo/cswGeoModelComponent.h"
+#include "Geo/cswGeoUTMComponent.h"
+
 #include "gzCoordinate.h"
 
 
@@ -52,6 +55,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 	bAutoActivate = true;
 
 	SetMobility(EComponentMobility::Movable);
+
+	//GeoInfo = CreateDefaultSubobject<UCSWGeoModelComponent>(TEXT("GeoInfo"),true);
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
@@ -588,6 +593,7 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 	{
 		// Empty. Plain Geometry
 		CoordType = CoordType::Geometry;
+		GeoInfo = NewObject<UCSWGeoModelComponent>(this);
 	}
 	else
 	{
@@ -599,6 +605,7 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 		if (!gzCoordinate::getCoordinateSystem(command->getCoordinateSystem(), system, meta))
 		{
 			CoordType = CoordType::Geometry;
+			GeoInfo = NewObject<UCSWGeoModelComponent>(this);
 			GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to set interpret coordinate system %s", command->getCoordinateSystem());
 			
 		}
@@ -621,6 +628,7 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 
 				case gzCoordType::GZ_COORDTYPE_UTM:
 					CoordType = CoordType::UTM;
+					GeoInfo = NewObject<UCSWGeoUTMComponent>(this);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_FLATEARTH:
@@ -633,6 +641,8 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 			}
 		}
 	}
+
+	GeoInfo->setCoordinateSystem(command->getCoordinateSystem(), command->getOrigin());
 
 	propertyUpdate("CoordType");
 

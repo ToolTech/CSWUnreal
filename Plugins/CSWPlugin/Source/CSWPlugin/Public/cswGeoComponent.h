@@ -36,12 +36,21 @@
 //******************************************************************************
 #pragma once
 
-#include "CoreMinimal.h"
-
+#include "gzMatrix.h"
 #include "cswGeoComponent.generated.h"
 
+UENUM()
+enum CoordType
+{
+	Geometry	UMETA(DisplayName = "Geometry"),
+	Geocentric  UMETA(DisplayName = "Geocentric"),
+	Geodetic    UMETA(DisplayName = "Geodetic"),
+	Projected   UMETA(DisplayName = "Projected"),
+	UTM			UMETA(DisplayName = "UTM"),
+	FlatEarth   UMETA(DisplayName = "FlatEarth"),
+};
 
-UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
+UCLASS(Abstract)
 class CSWPLUGIN_API UCSWGeoComponent :	public UActorComponent
 {
 	GENERATED_BODY()
@@ -49,8 +58,8 @@ class CSWPLUGIN_API UCSWGeoComponent :	public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UCSWGeoComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
 
+	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo);
 };
 
 

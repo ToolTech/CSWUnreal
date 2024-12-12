@@ -40,7 +40,7 @@
 #include "cswGeoModelComponent.generated.h"
 
 
-UCLASS(Abstract,ClassGroup=(Custom),NotBlueprintable)
+UCLASS(AdvancedClassDisplay)
 class CSWPLUGIN_API UCSWGeoModelComponent :	public UCSWGeoComponent
 {
 	GENERATED_BODY()
@@ -48,6 +48,8 @@ class CSWPLUGIN_API UCSWGeoModelComponent :	public UCSWGeoComponent
 public:	
 	// Sets default values for this component's properties
 	UCSWGeoModelComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
 };
 
 

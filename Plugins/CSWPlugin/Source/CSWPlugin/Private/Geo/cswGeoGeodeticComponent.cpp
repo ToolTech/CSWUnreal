@@ -15,7 +15,7 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswGeoUTMComponent.cpp
+// File			: cswGeoGeodeticComponent.cpp
 // Module		: CSW StreamingMap Unreal
 // Description	: Base class for CSW UTM projection
 // Author		: Anders Modén		
@@ -35,16 +35,16 @@
 //
 //******************************************************************************
 
-#include "Geo/cswGeoUTMComponent.h"
+#include "Geo/cswGeoGeodeticComponent.h"
 
 
 // Sets default values for this component's properties
-UCSWGeoUTMComponent::UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UCSWGeoGeodeticComponent::UCSWGeoGeodeticComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-gzVoid UCSWGeoUTMComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
+gzVoid UCSWGeoGeodeticComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
 {
 	Super::setCoordinateSystem(cs, origo);
 }

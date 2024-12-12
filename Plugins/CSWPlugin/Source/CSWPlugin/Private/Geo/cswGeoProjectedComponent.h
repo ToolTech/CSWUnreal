@@ -15,7 +15,7 @@
 // Export Control:		NOT EXPORT CONTROLLED
 //
 //
-// File			: cswGeoUTMComponent.cpp
+// File			: cswGeoProjectedComponent.h
 // Module		: CSW StreamingMap Unreal
 // Description	: Base class for CSW UTM projection
 // Author		: Anders Modén		
@@ -34,18 +34,31 @@
 // AMO	241107	Created file 					(1.1.1)
 //
 //******************************************************************************
+#pragma once
 
-#include "Geo/cswGeoUTMComponent.h"
+
+#include "cswGeoComponent.h"
 
 
-// Sets default values for this component's properties
-UCSWGeoUTMComponent::UCSWGeoUTMComponent(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+#include "cswGeoProjectedComponent.generated.h"
+
+
+UCLASS()
+class CSWPLUGIN_API UCSWGeoProjectedComponent :	public UCSWGeoComponent
 {
-	PrimaryComponentTick.bCanEverTick = false;
-}
+	GENERATED_BODY()
 
-gzVoid UCSWGeoUTMComponent::setCoordinateSystem(const gzString& cs, const gzVec3D& origo)
-{
-	Super::setCoordinateSystem(cs, origo);
-}
+public:	
+	// Sets default values for this component's properties
+	UCSWGeoProjectedComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	FString Hemisphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
+	double Easting;
+
+	virtual gzVoid setCoordinateSystem(const gzString& cs, const gzVec3D& origo) override;
+};
+
 
