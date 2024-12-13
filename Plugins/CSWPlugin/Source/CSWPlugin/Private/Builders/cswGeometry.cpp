@@ -340,7 +340,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 			mtlCapabilities = mtlCapabilities & ~bit;
 
-			materials.Add(resources->getStaticMaterial(this, state, bit));
+			materials.Add(resources->getStaticMaterial(m_meshComponent, state, bit));
 		}
 	}
 
