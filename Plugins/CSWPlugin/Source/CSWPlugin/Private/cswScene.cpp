@@ -64,8 +64,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 	// Register callbacks
 	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
-
 	registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
+	registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
 
 	registerComponent(this, nullptr, 0);	// Register root
 
@@ -598,7 +598,7 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 
 	FVector3d UEOrigin;
 
-	double scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters
+	double scale = getWorldScale();
 
 	if (!command->getCoordinateSystem())
 	{
@@ -768,29 +768,42 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 	return true;
 }
 
+bool UCSWScene::onCenterOriginPropertyUpdate()
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::onCenterOriginPropertyUpdate");
+
+	updateOriginTransform();
+
+	return true;
+}
+
 bool UCSWScene::onCoordTypePropertyUpdate()
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::onCoordTypePropertyUpdate");
 
+	updateOriginTransform();
+
+	return true;
+}
+
+void  UCSWScene::updateOriginTransform()
+{
 	FTransform m;
 
 	// map SCENE content in Gizmo World to UE world
 
 	gzVec3D origin;
 
-	double scale = 100;
-	
-	if(GetWorld())
-		scale=GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
-	
+	double scale = getWorldScale();
+
 	switch (CoordType)
 	{
 		case CoordType::Geometry:
 		case CoordType::Projected:
 		case CoordType::UTM:
-			origin = globalToLocal(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType::UTM);
+			origin = CenterOrigin ? globalToLocal(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType::UTM) : GZ_ZERO_VEC3D;
 			// Move children negative origin so our map origin ends up in 0,0,0
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE(-origin,scale)));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE(-origin, scale)));
 			break;
 
 		case CoordType::Geodetic:
@@ -806,28 +819,28 @@ bool UCSWScene::onCoordTypePropertyUpdate()
 	}
 
 	SetRelativeTransform(m);
-
-	return true;
 }
 
 FVector3d UCSWScene::localToGlobal(const gzVec3D& local,enum CoordType type)
 {
-	double scale = 100;
-
-	if (GetWorld())
-		scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
+	double scale = getWorldScale();
 
 	return cswVector3d::UEVector3(scale * (gzVec3D)(cswMatrix4_<double>::GZ_2_UE() * local));
 }
 
 gzVec3D UCSWScene::globalToLocal(const FVector3d& global, enum CoordType type)
 {
-	double scale = 100;
-
-	if (GetWorld())
-		scale = GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
+	double scale = getWorldScale();
 
 	return  (gzVec3D) (cswMatrix4_<double>::UE_2_GZ() * cswVector3d::GZVector3(global)) / scale ;
+}
+
+double UCSWScene::getWorldScale()
+{
+	if (GetWorld())
+		return GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
+	else
+		return 100.0;
 }
 
 

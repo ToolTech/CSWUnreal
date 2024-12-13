@@ -103,6 +103,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	double ModelOriginZ = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
+	bool CenterOrigin = true;
+
 protected:
 
 	// Init scenemanager and set up context
@@ -149,6 +152,11 @@ protected:
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
 	bool onCoordTypePropertyUpdate();
+	bool onCenterOriginPropertyUpdate();
+
+	// Utilities
+	double getWorldScale();
+	void updateOriginTransform();
 
 	virtual gzVoid onCommand(cswCommandBuffer* buffer) override;
 
