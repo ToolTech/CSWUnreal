@@ -320,22 +320,43 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	staticMesh = NewObject<UStaticMesh>(this);
 
-	staticMesh->GetStaticMaterials().Add(resources->getStaticMaterial(state));
+	// Get capabilites from state
+	cswMaterialType mtlCapabilities=resources->getStateCapabilities(state);
 
+	// How many slots do we need
+	uint32 materialSlots = resources->getMaterialSlots(mtlCapabilities);
+
+	// Get material array
+	TArray<FStaticMaterial>& materials = staticMesh->GetStaticMaterials();
+
+	// Add material entries per slut
+	for (uint32 slot = 0; slot < materialSlots; slot++)
+	{
+		cswMaterialType bit = (cswMaterialType)((mtlCapabilities & -mtlCapabilities));
+
+		mtlCapabilities = mtlCapabilities & ~bit;
+
+		materials.Add(resources->getStaticMaterial(state,bit));
+	}
+
+
+	// Some extra build parmeters
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
 	mdParams.bBuildSimpleCollision = buildProperties.buildSimpleCollision;
 	mdParams.bFastBuild = buildProperties.fastBuild;
 
 
-	// Build static mesh
+
+	// Build static mesh ----------------------------------------------------------------------
+
 	TArray<const FMeshDescription*> meshDescPtrs;
 	meshDescPtrs.Emplace(&MeshDescription);
 	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
 
 
-	// Assign new static mesh to the static mesh component
-	m_meshComponent->SetStaticMesh(staticMesh);
+	// Assign new static mesh to the static mesh component and finalize build ------------------
 
+	m_meshComponent->SetStaticMesh(staticMesh);
 
 	m_meshComponent->SetMobility(EComponentMobility::Stationary);
 

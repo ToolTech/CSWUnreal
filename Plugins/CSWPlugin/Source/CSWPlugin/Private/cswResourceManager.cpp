@@ -35,15 +35,85 @@
 //
 //******************************************************************************
 #include "cswResourceManager.h"
+#include "UEGlue/cswUEUtility.h"
+
+#include "Materials/MaterialExpressionTextureSample.h"
 
 GZ_DECLARE_TYPE_CHILD(gzObject, cswResourceManager, "cswResourceManager");
 
-UMaterial* cswResourceManager::getMaterial(gzState* state)
+
+bool cswResourceManager::initialize()
 {
+	ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/CSWPlugin/Materials/cswBaseMaterial.cswBaseMaterial"));
+
+	if (!MaterialFinder.Succeeded())
+		return false;
+
+	m_baseMaterial = MaterialFinder.Object;
+	
+	return true;
+}
+
+UMaterial* cswResourceManager::getMaterial(gzState* state, cswMaterialType type)
+{
+	if (!state)
+		return nullptr;
+
+	if (type == CSW_MATERIAL_TYPE_BASE_MATERIAL)
+	{
+		gzTexture* texture = state->getTexture(0);
+
+		if (!texture)
+			return nullptr;
+
+		gzImage* image = texture->getImage();
+
+		if (!image)
+			return nullptr;
+
+		// Get a texture
+		UTexture2D* ue_texture = cswUETexture2DFromImage(image);
+
+		if (!ue_texture)
+			return nullptr;
+
+		UMaterialInstanceDynamic* material = UMaterialInstanceDynamic::Create(m_baseMaterial, GetTransientPackage());
+
+		if (!material)
+			return nullptr;
+		/*
+
+		material->BlendMode = EBlendMode::BLEND_Opaque;
+		material->bUseMaterialAttributes = false;
+
+		UMaterialExpressionTextureSample* sampler = NewObject<UMaterialExpressionTextureSample>(material);
+
+		if (!sampler)
+			return nullptr;
+
+		sampler->Texture = ue_texture;
+
+		material->Expr*/
+	}
+
 	return nullptr;
 }
 
-FStaticMaterial cswResourceManager::getStaticMaterial(gzState* state)
+FStaticMaterial cswResourceManager::getStaticMaterial(gzState* state, cswMaterialType type)
 {
+	UMaterial* mat = getMaterial(state, type);
+
 	return FStaticMaterial();
+}
+
+cswMaterialType cswResourceManager::getStateCapabilities(gzState* state)
+{
+	// Test code 
+	return CSW_MATERIAL_TYPE_BASE_MATERIAL;
+}
+
+uint32 cswResourceManager::getMaterialSlots(cswMaterialType type) 
+{
+	// Number of defined slot entries in type
+	return gzBitCount((uint32)type);
 }

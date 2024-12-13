@@ -40,6 +40,15 @@
 #include "Materials/Material.h"
 
 
+enum cswMaterialType
+{
+	CSW_MATERIAL_TYPE_BASE_MATERIAL		= 1<<0,		// Standard base material with glTF shader stuff
+	CSW_MATERIAL_TYPE_DSM				= 1<<1,		// Material for Surface height
+	CSW_MATERIAL_TYPE_FEATURE			= 1<<2,		// Material for feature classification
+};
+
+GZ_USE_BIT_LOGIC(cswMaterialType);
+
 class cswResourceManager : public gzObject
 {
 public:
@@ -47,9 +56,19 @@ public:
 	// Type info
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
 
-	UMaterial* getMaterial(gzState* state);
+	CSWPLUGIN_API bool initialize();
 
-	FStaticMaterial getStaticMaterial(gzState* state);
+	CSWPLUGIN_API cswMaterialType getStateCapabilities(gzState* state);
+
+	CSWPLUGIN_API UMaterial* getMaterial(gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
+
+	CSWPLUGIN_API FStaticMaterial getStaticMaterial(gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
+
+	CSWPLUGIN_API static uint32 getMaterialSlots(cswMaterialType type);
+
+private:
+
+	TObjectPtr<UMaterialInterface>	m_baseMaterial;
 };
 
 GZ_DECLARE_REFPTR(cswResourceManager);
