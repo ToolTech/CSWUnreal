@@ -50,14 +50,45 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 	switch (image->getImageType())
 	{
 		case GZ_IMAGE_TYPE_RGB_8_DXT1:
+		case GZ_IMAGE_TYPE_RGBA_8_DXT1:
 			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1 , (const char *)image->getName(),InImageData);
 			break;
+
+		case GZ_IMAGE_TYPE_RGBA_8_DXT3:
+			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT3, (const char*)image->getName(), InImageData);
+			break;
+
+		case GZ_IMAGE_TYPE_RGBA_8_DXT5:
+			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT5, (const char*)image->getName(), InImageData);
+			break;
+
+		case GZ_IMAGE_TYPE_CUSTOM:
+			{
+				switch (image->getFormat())
+				{
+					case GZ_IMAGE_FORMAT_COMPRESSED_RGB_S3TC_DXT1:
+					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT1:
+						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1, (const char*)image->getName(), InImageData);
+						break;
+
+					/*case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT3:
+						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT3, (const char*)image->getName(), InImageData);
+						break;
+
+					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT5:
+						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT5, (const char*)image->getName(), InImageData);
+						break;*/
+
+				}
+			}
+			break;
+
 	}
 
 	if (!newTexture)
 		return nullptr;
 
-	if(image->hasSubImage())	// MipMaps
+	if(false && image->hasSubImage())	// MipMaps
 	{
 		for (gzUInt32 i = 0; i < image->getNumberOfSubImages(); i++)
 		{

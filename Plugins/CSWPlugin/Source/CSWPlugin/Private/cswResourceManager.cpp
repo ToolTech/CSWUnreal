@@ -54,7 +54,7 @@ bool cswResourceManager::initialize()
 	return true;
 }
 
-UMaterial* cswResourceManager::getMaterial(gzState* state, cswMaterialType type)
+UMaterialInterface* cswResourceManager::getMaterial(UActorComponent* owner,gzState* state, cswMaterialType type)
 {
 	if (!state)
 		return nullptr;
@@ -77,33 +77,30 @@ UMaterial* cswResourceManager::getMaterial(gzState* state, cswMaterialType type)
 		if (!ue_texture)
 			return nullptr;
 
-		UMaterialInstanceDynamic* material = UMaterialInstanceDynamic::Create(m_baseMaterial, GetTransientPackage());
+		UMaterialInstanceDynamic* material = UMaterialInstanceDynamic::Create(m_baseMaterial,owner);
 
 		if (!material)
 			return nullptr;
+
+		material->SetTextureParameterValue(TEXT("baseTexture"), ue_texture);
+
 		/*
 
 		material->BlendMode = EBlendMode::BLEND_Opaque;
 		material->bUseMaterialAttributes = false;
+		*/
 
-		UMaterialExpressionTextureSample* sampler = NewObject<UMaterialExpressionTextureSample>(material);
-
-		if (!sampler)
-			return nullptr;
-
-		sampler->Texture = ue_texture;
-
-		material->Expr*/
+		return material;
 	}
 
 	return nullptr;
 }
 
-FStaticMaterial cswResourceManager::getStaticMaterial(gzState* state, cswMaterialType type)
+FStaticMaterial cswResourceManager::getStaticMaterial(UActorComponent* owner,gzState* state, cswMaterialType type)
 {
-	UMaterial* mat = getMaterial(state, type);
+	UMaterialInterface* mat = getMaterial(owner,state, type);
 
-	return FStaticMaterial();
+	return FStaticMaterial(mat);
 }
 
 cswMaterialType cswResourceManager::getStateCapabilities(gzState* state)

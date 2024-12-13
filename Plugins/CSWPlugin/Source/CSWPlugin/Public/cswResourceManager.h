@@ -60,9 +60,9 @@ public:
 
 	CSWPLUGIN_API cswMaterialType getStateCapabilities(gzState* state);
 
-	CSWPLUGIN_API UMaterial* getMaterial(gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
+	CSWPLUGIN_API UMaterialInterface* getMaterial(UActorComponent *owner, gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
 
-	CSWPLUGIN_API FStaticMaterial getStaticMaterial(gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
+	CSWPLUGIN_API FStaticMaterial getStaticMaterial(UActorComponent* owner, gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
 
 	CSWPLUGIN_API static uint32 getMaterialSlots(cswMaterialType type);
 

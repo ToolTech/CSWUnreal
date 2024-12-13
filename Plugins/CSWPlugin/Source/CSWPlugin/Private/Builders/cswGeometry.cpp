@@ -58,6 +58,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	if (!Super::build(parent,buildItem, state, buildProperties,resources))
 		return false;
 
+	
 	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
 
 	// Get Handle to geometry
@@ -314,29 +315,33 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 		}
 	}
 
+	
 
 	// At least one material must be added
 	TObjectPtr<UStaticMesh> staticMesh;
 
 	staticMesh = NewObject<UStaticMesh>(this);
 
-	// Get capabilites from state
-	cswMaterialType mtlCapabilities=resources->getStateCapabilities(state);
-
-	// How many slots do we need
-	uint32 materialSlots = resources->getMaterialSlots(mtlCapabilities);
-
-	// Get material array
-	TArray<FStaticMaterial>& materials = staticMesh->GetStaticMaterials();
-
-	// Add material entries per slut
-	for (uint32 slot = 0; slot < materialSlots; slot++)
+	if (buildItem->getName().left(8) == "building")
 	{
-		cswMaterialType bit = (cswMaterialType)((mtlCapabilities & -mtlCapabilities));
+		// Get capabilites from state
+		cswMaterialType mtlCapabilities = resources->getStateCapabilities(state);
 
-		mtlCapabilities = mtlCapabilities & ~bit;
+		// How many slots do we need
+		uint32 materialSlots = resources->getMaterialSlots(mtlCapabilities);
 
-		materials.Add(resources->getStaticMaterial(state,bit));
+		// Get material array
+		TArray<FStaticMaterial>& materials = staticMesh->GetStaticMaterials();
+
+		// Add material entries per slut
+		for (uint32 slot = 0; slot < materialSlots; slot++)
+		{
+			cswMaterialType bit = (cswMaterialType)((mtlCapabilities & -mtlCapabilities));
+
+			mtlCapabilities = mtlCapabilities & ~bit;
+
+			materials.Add(resources->getStaticMaterial(this, state, bit));
+		}
 	}
 
 
