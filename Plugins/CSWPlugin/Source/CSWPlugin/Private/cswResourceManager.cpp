@@ -54,7 +54,7 @@ bool cswResourceManager::initialize()
 	return true;
 }
 
-UMaterialInterface* cswResourceManager::getMaterial(UActorComponent* owner,gzState* state, cswMaterialType type)
+UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gzState* state, cswMaterialType type)
 {
 	if (!state)
 		return nullptr;
@@ -83,6 +83,8 @@ UMaterialInterface* cswResourceManager::getMaterial(UActorComponent* owner,gzSta
 			return nullptr;
 
 		material->SetTextureParameterValue(TEXT("baseTexture"), ue_texture);
+
+		owner->addRefToTexture(ue_texture,material);
 
 		/*
 

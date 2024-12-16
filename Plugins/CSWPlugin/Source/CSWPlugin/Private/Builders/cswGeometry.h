@@ -52,8 +52,16 @@ public:
 
 	virtual bool destroy(gzNode* destroyItem, cswResourceManager* resources) override;
 
+	virtual void addRefToTexture(UTexture* texture, UMaterialInterface* material) override;
+
 protected:
 
 	TObjectPtr<UStaticMeshComponent>	m_meshComponent;
+
+	UPROPERTY()
+	TObjectPtr<UTexture>			m_texture;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface>	m_material;
 		
 };

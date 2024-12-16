@@ -71,13 +71,13 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1, (const char*)image->getName(), InImageData);
 						break;
 
-					/*case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT3:
+					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT3:
 						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT3, (const char*)image->getName(), InImageData);
 						break;
 
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT5:
 						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT5, (const char*)image->getName(), InImageData);
-						break;*/
+						break;
 
 				}
 			}

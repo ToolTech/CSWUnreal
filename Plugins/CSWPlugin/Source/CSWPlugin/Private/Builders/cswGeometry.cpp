@@ -364,3 +364,9 @@ bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 
 	return Super::destroy(destroyItem, resources);
 }
+
+void UCSWGeometry::addRefToTexture(UTexture* texture, UMaterialInterface* material)
+{
+	m_texture = texture;
+	m_material = material;
+}

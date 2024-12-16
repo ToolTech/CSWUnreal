@@ -38,6 +38,7 @@
 
 #include "gzNode.h"
 #include "Materials/Material.h"
+#include "cswSceneComponent.h"
 
 
 enum cswMaterialType
@@ -58,7 +59,7 @@ public:
 
 	CSWPLUGIN_API bool initialize();
 
-	CSWPLUGIN_API UMaterialInterface* getMaterial(UActorComponent *owner, gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
+	CSWPLUGIN_API UMaterialInterface* getMaterial(UCSWSceneComponent *owner, gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
 
 private:
 

@@ -59,4 +59,9 @@ bool  UCSWSceneComponent::destroy(gzNode* destroyItem, cswResourceManager* resou
 	return true;
 }
 
+void  UCSWSceneComponent::addRefToTexture(UTexture* texture, UMaterialInterface* material)
+{
+	// Do nothing
+}
+
 
