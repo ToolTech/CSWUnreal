@@ -95,22 +95,3 @@ UMaterialInterface* cswResourceManager::getMaterial(UActorComponent* owner,gzSta
 
 	return nullptr;
 }
-
-FStaticMaterial cswResourceManager::getStaticMaterial(UActorComponent* owner,gzState* state, cswMaterialType type)
-{
-	UMaterialInterface* mat = getMaterial(owner,state, type);
-
-	return FStaticMaterial(mat);
-}
-
-cswMaterialType cswResourceManager::getStateCapabilities(gzState* state)
-{
-	// Test code 
-	return CSW_MATERIAL_TYPE_BASE_MATERIAL;
-}
-
-uint32 cswResourceManager::getMaterialSlots(cswMaterialType type) 
-{
-	// Number of defined slot entries in type
-	return gzBitCount((uint32)type);
-}

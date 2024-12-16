@@ -54,7 +54,6 @@ public:
 
 protected:
 
-	TObjectPtr<UStaticMeshComponent> m_meshComponent;
-
+	TObjectPtr<UStaticMeshComponent>	m_meshComponent;
 		
 };
