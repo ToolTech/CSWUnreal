@@ -343,7 +343,6 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	meshDescPtrs.Emplace(&MeshDescription);
 	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
 
-
 	// Assign new static mesh to the static mesh component and finalize build ------------------
 
 	m_meshComponent->SetStaticMesh(staticMesh);
@@ -355,6 +354,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
 	m_meshComponent->RegisterComponent();
+
+	MarkRenderStateDirty();
 
 	return true;
 }
@@ -371,5 +372,5 @@ bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 void UCSWGeometry::addRefToTexture(UTexture* texture, UMaterialInterface* material)
 {
 	m_texture = texture;
-	m_material = material;
+	m_material = Cast<UMaterialInstanceDynamic>(material);
 }

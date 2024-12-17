@@ -82,7 +82,7 @@ UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gz
 		if (!material)
 			return nullptr;
 
-		material->SetTextureParameterValue(TEXT("baseTexture"), ue_texture);
+		material->SetTextureParameterValue(FName("baseTexture"), ue_texture);
 
 		owner->addRefToTexture(ue_texture,material);
 

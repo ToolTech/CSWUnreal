@@ -160,6 +160,8 @@ gzVoid cswInitializeUnrealGlue()
 
 	if (!_counter)
 	{
+		gzMessage::setMessageLevel(GZ_MESSAGE_DETAIL_DEBUG);
+
 		_GZ_Receiver = new cswToUnrealMessageReceiver;
 		_UE_Receiver = new cswFromUnrealMessageReceiver;
 

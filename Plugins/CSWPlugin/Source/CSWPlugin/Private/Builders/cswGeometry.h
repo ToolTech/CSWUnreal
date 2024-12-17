@@ -54,14 +54,19 @@ public:
 
 	virtual void addRefToTexture(UTexture* texture, UMaterialInterface* material) override;
 
+	// TODO: remove down to non public
+
+	UPROPERTY()
+	TObjectPtr<UStaticMeshComponent>	m_meshComponent;;
+
 protected:
 
-	TObjectPtr<UStaticMeshComponent>	m_meshComponent;
+	//TObjectPtr<UStaticMeshComponent>	m_meshComponent;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTexture>			m_texture;
 
 	UPROPERTY(Transient)
-	TObjectPtr<UMaterialInterface>	m_material;
+	TObjectPtr<UMaterialInstanceDynamic>	m_material;
 		
 };
