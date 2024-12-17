@@ -115,7 +115,6 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	FPolygonGroupID PolygonGroupID = MeshDescription.CreatePolygonGroup();
 
 
-
 	// --------------- coordinates (vertices) ----------------------
 
 	gzArray<gzVec3>& coordinates = geom->getCoordinateArray(FALSE);
@@ -158,6 +157,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 				id[j] = ind = MeshDescription.CreateVertexInstance(indices[index]);
 
+				
 				// Normal indexed -----------------------------------------------
 
 				switch (geom->getNormalBind())
@@ -242,6 +242,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 				id[j] = ind = MeshDescription.CreateVertexInstance(index);
 
+
+				
 				// Normal -----------------------------------------------
 
 				switch (geom->getNormalBind())
@@ -263,6 +265,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 						break;
 
 				}
+				
 
 				// Tex -----------------------------------------------
 

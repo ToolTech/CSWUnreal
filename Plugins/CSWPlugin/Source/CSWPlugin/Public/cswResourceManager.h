@@ -57,7 +57,7 @@ public:
 	// Type info
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSWPLUGIN_API);			// Each factory has a specific type and hierarchy
 
-	CSWPLUGIN_API bool initialize();
+	CSWPLUGIN_API UMaterialInterface* initializeBaseMaterial();
 
 	CSWPLUGIN_API UMaterialInterface* getMaterial(UCSWSceneComponent *owner, gzState* state, cswMaterialType type = CSW_MATERIAL_TYPE_BASE_MATERIAL);
 

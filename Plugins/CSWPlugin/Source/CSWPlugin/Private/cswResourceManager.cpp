@@ -42,16 +42,16 @@
 GZ_DECLARE_TYPE_CHILD(gzObject, cswResourceManager, "cswResourceManager");
 
 
-bool cswResourceManager::initialize()
+UMaterialInterface* cswResourceManager::initializeBaseMaterial()
 {
 	ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/CSWPlugin/Materials/cswBaseMaterial.cswBaseMaterial"));
 
 	if (!MaterialFinder.Succeeded())
-		return false;
+		return nullptr;
 
 	m_baseMaterial = MaterialFinder.Object;
 	
-	return true;
+	return m_baseMaterial;
 }
 
 UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gzState* state, cswMaterialType type)

@@ -178,6 +178,9 @@ protected:
 	// the shared resources
 	cswResourceManagerPtr	m_resource;
 
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInterface> m_baseMaterial;
+
 private:
 
 	gzEvent									m_bufferInLock;		// Lock for callback accessing bufferIn

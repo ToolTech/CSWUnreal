@@ -206,10 +206,7 @@ void UCSWScene::initResourceManager()
 {
 	m_resource = new cswResourceManager;
 
-	if (!m_resource->initialize())
-	{
-		// Some kind of fallback
-	}
+	m_baseMaterial = m_resource->initializeBaseMaterial();
 }
 
 // lock and iterate over incoming commands and transfer them to game thread

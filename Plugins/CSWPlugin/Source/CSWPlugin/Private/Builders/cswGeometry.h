@@ -58,10 +58,10 @@ protected:
 
 	TObjectPtr<UStaticMeshComponent>	m_meshComponent;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TObjectPtr<UTexture>			m_texture;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TObjectPtr<UMaterialInterface>	m_material;
 		
 };
