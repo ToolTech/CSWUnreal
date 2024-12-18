@@ -110,7 +110,9 @@ enum gzImageType
 
 	GZ_IMAGE_TYPE_META_DATA,	// Empty image with possibly user meta data populated
 
-	GZ_IMAGE_TYPE_CUSTOM
+	GZ_IMAGE_TYPE_CUSTOM,		// Custom type
+
+	GZ_IMAGE_TYPE_BGRA_8,
 };
 
 enum gzImageFormat
@@ -370,8 +372,7 @@ public:
 	//!Sets the width and height and depth for the image.
 	GZ_BASE_EXPORT gzVoid	setSize(gzUInt32 width, gzUInt32 height, gzUInt32 depth = 1);
 
-	GZ_PROPERTY_GET_EXPORT(gzImageType, ImageType, GZ_BASE_EXPORT);
-
+	GZ_PROPERTY_EXPORT(gzImageType,			ImageType,			GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT_(gzImageFormat,		Format,				GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT_(gzComponentType,	ComponentType,		GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT_(gzUByte,			Alignment,			GZ_BASE_EXPORT);
@@ -546,6 +547,9 @@ public:
 	//!All sub images are removed.
 	GZ_BASE_EXPORT gzVoid	removeAllSubImages();
 
+	//! Mipmap generation
+	GZ_BASE_EXPORT gzBool	createMipMaps(gzBool forceCreate=FALSE);
+
 	// ---- Serializing --------------------------------
 
 	//!Writes the gzImage data to the adapter.
@@ -583,7 +587,6 @@ public:
 protected:
 
 	GZ_BASE_EXPORT gzFloat	sampleFunction(gzFloat x);
-	GZ_BASE_EXPORT gzVoid	setImageType(const gzImageType& type);
 
 
 	ImageData 							m_data;

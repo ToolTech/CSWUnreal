@@ -71,6 +71,14 @@ void ACSWWorld::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	// Drive the scene from tick
+
+	/*static bool first = true;
+
+	Scene->processFrames(first);
+
+	first = false;*/
 }
 
 // Called after the C++ constructor and after the properties have been initialized, including those loaded from config.This is called before any serialization or other setup has happened.

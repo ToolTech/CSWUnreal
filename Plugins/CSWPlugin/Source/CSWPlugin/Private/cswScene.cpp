@@ -118,6 +118,13 @@ void UCSWScene::BeginPlay()
 
 	SubDestroy(this);
 
+	/*for(gzUInt32 i = 0; i < 1000; )
+	{
+		i+=processFrames(m_firstRun);
+		m_firstRun = false;
+		gzSleep(1);
+	}*/
+
 #if defined GZ_INSTRUMENT_CODE
 
 	gzClearPerformanceSection("", 0);
@@ -150,55 +157,11 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
 
-	bool isActive = m_manager && m_manager->isRunning();
+	// Drive the scene from tick
 
-	// Transfer incoming to gamethread and don not wait for a frame
-	fetchBuffers();
+	processFrames(m_firstRun);
 
-	// Work on buffers
-	gzUInt32 frames(0);
-	
-	//Modify();
-	{
-		//FScopedMovementUpdate BatchUpdate(this);
-
-		frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
-	}
-
-	// Trigger next frame
-	if(isActive && ((frames>0) || m_firstRun))
-	{ 
-		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
-		m_firstRun = false;
-
-		
-		// TODO: remove
-		// Logging test
-
-		/*gzLoggerPtr logger = new gzLogger("c:/test/textures.txt");
-
-		for (gzUInt32 i = 0; i < m_components.getSize(); i++)
-		{
-			UCSWGeometry* geom = Cast<UCSWGeometry>(m_components[i]);
-
-			if (geom)
-			{
-				UStaticMeshComponent* mesh = geom->m_meshComponent;
-				
-				UMaterialInterface* mat = mesh->GetMaterial(0);
-
-				UMaterialInstanceDynamic* dyn = Cast<UMaterialInstanceDynamic>(mat);
-
-				if (dyn)
-				{
-					UTexture* tex;
-
-					if (!dyn->GetTextureParameterValue(FName("baseTexture"), tex))
-						GZMESSAGE(GZ_MESSAGE_DEBUG, "Fail");
-				}
-			}
-		}*/
-	}
+	m_firstRun = false;
 }
 
 
@@ -238,6 +201,23 @@ void UCSWScene::initResourceManager()
 	m_resource = new cswResourceManager;
 
 	m_baseMaterial = m_resource->initializeBaseMaterial();
+}
+
+gzUInt32 UCSWScene::processFrames(bool forceFrame)
+{
+	bool isActive = m_manager && m_manager->isRunning();
+
+	// Transfer incoming to gamethread and don not wait for a frame
+	fetchBuffers();
+
+	// Work on buffers
+	gzUInt32 frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
+	
+	// Trigger next frame
+	if (isActive && ((frames > 0) || forceFrame))
+		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
+
+	return frames;
 }
 
 // lock and iterate over incoming commands and transfer them to game thread

@@ -66,10 +66,20 @@ UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gz
 		if (!texture)
 			return nullptr;
 
-		gzImage* image = texture->getImage();
+		gzImagePtr image = texture->getImage();
 
 		if (!image)
 			return nullptr;
+
+		// Lets try other format
+
+		//image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 0.f, 1.f), GZ_IMAGE_TYPE_BW_8, 512, 512);
+
+		image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 1.f, 1.f), GZ_IMAGE_TYPE_RGBA_8, 512, 512,16,16);
+
+		image->createMipMaps();
+
+		//image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 0.f, 1.f), GZ_IMAGE_TYPE_BW_8, 4, 4, 2, 2);
 
 		// Get a texture
 		UTexture2D* ue_texture = cswUETexture2DFromImage(image);

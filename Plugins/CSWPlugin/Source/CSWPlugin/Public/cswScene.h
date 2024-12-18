@@ -67,6 +67,8 @@ public:
 	virtual void PostInitProperties() override;
 	virtual void PostLoad() override;
 
+	gzUInt32 processFrames(bool forceFrame = false);
+
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void PostEditUndo() override;

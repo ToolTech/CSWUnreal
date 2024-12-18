@@ -49,6 +49,15 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 	
 	switch (image->getImageType())
 	{
+		case GZ_IMAGE_TYPE_BW_8:
+			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_G8, (const char*)image->getName(), InImageData);
+			break;
+
+		case GZ_IMAGE_TYPE_RGBA_8:
+			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_R8G8B8A8, (const char*)image->getName(), InImageData);
+			break;
+
+
 		case GZ_IMAGE_TYPE_RGB_8_DXT1:
 		case GZ_IMAGE_TYPE_RGBA_8_DXT1:
 			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1 , (const char *)image->getName(),InImageData);
@@ -88,7 +97,7 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 	if (!newTexture)
 		return nullptr;
 
-	if(false && image->hasSubImage())	// MipMaps
+	if(image->hasSubImage())	// MipMaps
 	{
 		for (gzUInt32 i = 0; i < image->getNumberOfSubImages(); i++)
 		{
@@ -96,6 +105,12 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 
 			if (subImage)
 			{
+				if (subImage->getWidth() == 0)
+					GZBREAK;
+
+				if (subImage->getHeight() == 0)
+					GZBREAK;
+
 				gzUInt32 BytesForImage = subImage->getArray().getSize();
 
 				if (BytesForImage)
@@ -116,10 +131,15 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 				}
 			}
 		}
-	}
-		
-	newTexture->UpdateResource();
 
+		newTexture->UpdateResource();
+	}
+
+
+	//newTexture->MipGenSettings = TMGS_NoMipmaps;
+	//newTexture->CompressionSettings = TC_Default;
+	//newTexture->SRGB = true;
+	
 	return newTexture;
 }
 
