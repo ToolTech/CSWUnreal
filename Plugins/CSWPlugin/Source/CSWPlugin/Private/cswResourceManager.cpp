@@ -75,9 +75,9 @@ UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gz
 
 		//image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 0.f, 1.f), GZ_IMAGE_TYPE_BW_8, 512, 512);
 
-		image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 1.f, 1.f), GZ_IMAGE_TYPE_RGBA_8, 512, 512,16,16);
+		/*image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 1.f, 1.f), GZ_IMAGE_TYPE_RGBA_8, 512, 512,16,16);
 
-		image->createMipMaps();
+		image->createMipMaps();*/
 
 		//image = gzImage::createChecker(gzRGBA(1.f, 1.f, 1.f, 1.f), gzRGBA(0.f, 0.f, 0.f, 1.f), GZ_IMAGE_TYPE_BW_8, 4, 4, 2, 2);
 

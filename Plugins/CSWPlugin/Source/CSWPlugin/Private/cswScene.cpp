@@ -118,12 +118,13 @@ void UCSWScene::BeginPlay()
 
 	SubDestroy(this);
 
-	/*for(gzUInt32 i = 0; i < 1000; )
-	{
-		i+=processFrames(m_firstRun);
-		m_firstRun = false;
-		gzSleep(1);
-	}*/
+	//// Test to drive a whole scene from begin play
+	//for(gzUInt32 i = 0; i < 100; )
+	//{
+	//	i+=processFrames(m_firstRun);
+	//	m_firstRun = false;
+	//	gzSleep(1);
+	//}
 
 #if defined GZ_INSTRUMENT_CODE
 

@@ -5,9 +5,9 @@ A project aiming to create a fast stream implementation in Unreal Engine.
 ## Setup
 
 1. Install UE 5.5
-2. Checkout files from repo and generate a solution from CSW.uproject by rightclick and select *Generate Visual Studio Files* from unreal menu
+2. Checkout files from repo (incl LFS) and generate a solution from CSW.uproject by rightclick and select *Generate Visual Studio Files* from unreal menu
 3. Drop a CSWDevTest instance into a scene
-4. Enter a map url to a gzd map in the *Map Urls* property (there is a map provided in the download under */maps*)
+4. Enter a map url to a .gzd map in the *Map Urls* property (there is a map provided in the download under */maps*)
 5. Enable **GZ_INSTRUMENT_CODE** in the CSWPlugin.Build.cs file if you want to measure performance
 6. The map will load in Editor mode but performance is measured between play and stop
 7. You will get output from the log when you filter on sender **CSW**

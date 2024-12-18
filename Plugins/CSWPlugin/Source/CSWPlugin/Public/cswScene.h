@@ -91,7 +91,7 @@ public:
 	double RenderTime;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint32 MaxPrimitivesPerFrame=10;
+	uint32 MaxPrimitivesPerFrame=5;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	UCSWGeoComponent* GeoOrigin;
