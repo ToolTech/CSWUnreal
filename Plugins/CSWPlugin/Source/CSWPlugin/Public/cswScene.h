@@ -197,7 +197,7 @@ private:
 
 	BuildProperties							m_buildProperties;
 
-	bool									m_firstRun=true;
+	bool									m_firstRun=false;
 };
 
 

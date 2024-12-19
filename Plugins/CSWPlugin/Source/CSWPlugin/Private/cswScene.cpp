@@ -769,6 +769,9 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 
 	gzString mapURL = toString(MapUrls);
 
+	// Remove possible quotes
+	mapURL=mapURL.strip('"');
+
 	if (mapURL.length())
 	{
 		if (!m_manager->isRunning())
@@ -778,6 +781,7 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 		}
 
 		m_manager->addSingleCommand(new cswSceneCommandSetMapUrls(mapURL));
+		m_firstRun = true;
 	}
 	else
 	{
