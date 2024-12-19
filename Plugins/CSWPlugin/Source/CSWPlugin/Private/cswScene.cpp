@@ -769,9 +769,6 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 
 	gzString mapURL = toString(MapUrls);
 
-	// Remove possible quotes
-	mapURL=mapURL.strip('"');
-
 	if (mapURL.length())
 	{
 		if (!m_manager->isRunning())
