@@ -204,18 +204,19 @@ void UCSWScene::initResourceManager()
 	m_baseMaterial = m_resource->initializeBaseMaterial();
 }
 
-gzUInt32 UCSWScene::processFrames(bool forceFrame)
+//! Processes all updates, waits for possible frame with timeout
+gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt32 timeOut )
 {
 	bool isActive = m_manager && m_manager->isRunning();
 
 	// Transfer incoming to gamethread and don not wait for a frame
-	fetchBuffers();
+	fetchBuffers(waitForFrame,timeOut);
 
-	// Work on buffers
+	// Work on buffers, max 10 full frames, max primitives per frame
 	gzUInt32 frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
 	
 	// Trigger next frame
-	if (isActive && ((frames > 0) || forceFrame))
+	if (isActive && ((frames > 0) || forceNewFrame))
 		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
 
 	return frames;
