@@ -50,6 +50,8 @@ enum cswMaterialType
 
 GZ_USE_BIT_LOGIC(cswMaterialType);
 
+
+//! The resource manager will keep track of used materials and states and recycle them
 class cswResourceManager : public gzObject
 {
 public:

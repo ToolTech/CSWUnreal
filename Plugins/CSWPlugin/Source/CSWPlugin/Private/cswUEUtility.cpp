@@ -36,66 +36,108 @@
 //******************************************************************************
 #include "UEGlue/cswUEUtility.h"
 
+//#if WITH_EDITOR
+//#include "TextureCompiler.h"
+//#endif
+
 #undef UpdateResource
 
-UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
+UTexture2D* cswUETexture2DFromImage(gzImage* image)
 {
 	if (!image)
 		return nullptr;
 
 	UTexture2D* newTexture(nullptr);
 
-	TArrayView<uint8> InImageData((uint8 *)image->getArray().getAddress(), image->getArray().getSize());
+	EPixelFormat pixelFormat(PF_Unknown);
 	
-	switch (image->getImageType())
+	// Check compatible pixel format
+
+	switch (image->getFormat())
 	{
 		case GZ_IMAGE_TYPE_BW_8:
-			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_G8, (const char*)image->getName(), InImageData);
+			pixelFormat = PF_G8;
+			break;
+
+		case GZ_IMAGE_TYPE_BW_16:
+			pixelFormat = PF_G16;
 			break;
 
 		case GZ_IMAGE_TYPE_RGBA_8:
-			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_R8G8B8A8, (const char*)image->getName(), InImageData);
+			pixelFormat = PF_R8G8B8A8;
 			break;
 
 
 		case GZ_IMAGE_TYPE_RGB_8_DXT1:
 		case GZ_IMAGE_TYPE_RGBA_8_DXT1:
-			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1 , (const char *)image->getName(),InImageData);
+			pixelFormat = PF_DXT1;
 			break;
 
 		case GZ_IMAGE_TYPE_RGBA_8_DXT3:
-			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT3, (const char*)image->getName(), InImageData);
+			pixelFormat = PF_DXT3;
 			break;
 
 		case GZ_IMAGE_TYPE_RGBA_8_DXT5:
-			newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT5, (const char*)image->getName(), InImageData);
+			pixelFormat = PF_DXT5;
 			break;
 
-		case GZ_IMAGE_TYPE_CUSTOM:
+		default:
 			{
 				switch (image->getFormat())
 				{
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGB_S3TC_DXT1:
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT1:
-						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT1, (const char*)image->getName(), InImageData);
+						pixelFormat = PF_DXT1;
 						break;
 
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT3:
-						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT3, (const char*)image->getName(), InImageData);
+						pixelFormat = PF_DXT3;
 						break;
 
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT5:
-						newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), PF_DXT5, (const char*)image->getName(), InImageData);
+						pixelFormat = PF_DXT5;
 						break;
+
+					default:
+						GZMESSAGE(GZ_MESSAGE_WARNING, "No conversion found for pixel format %d", image->getFormat());
+						return nullptr;
 
 				}
 			}
 			break;
-
 	}
+
+	// Create the texure
+	newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), pixelFormat, (const char*)image->getName());
 
 	if (!newTexture)
 		return nullptr;
+
+	// Dont do this in constructor as we add mode mips lateron and this is not thread safe
+
+	gzUInt32 MipSize = image->getNumberOfSubImages() + 1;
+
+	// Reserve and avoid reallocs
+
+	newTexture->GetPlatformData()->Mips.Reserve(MipSize);
+
+	// ---------- MIP 0 ----------------------------
+
+	FTexture2DMipMap* Mip = &newTexture->GetPlatformData()->Mips[0];
+
+	gzUInt32 BytesForImage = image->getArray().getSize();
+	
+	Mip->BulkData.Lock(LOCK_READ_WRITE);
+
+	void* DestImageData = Mip->BulkData.Realloc(BytesForImage);
+
+	FMemory::Memcpy(DestImageData, (uint8*)image->getArray().getAddress(), BytesForImage);
+
+	Mip->BulkData.Unlock();
+
+	// ---------- SUB MIPS -------------------------------
+
+	// Now onto possible sub images
 
 	if(image->hasSubImage())	// MipMaps
 	{
@@ -111,35 +153,35 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image,gzUInt32 /*layer*/)
 				if (subImage->getHeight() == 0)
 					GZBREAK;
 
-				gzUInt32 BytesForImage = subImage->getArray().getSize();
+				BytesForImage = subImage->getArray().getSize();
 
 				if (BytesForImage)
 				{
-					FTexture2DMipMap* Mip = new FTexture2DMipMap(subImage->getWidth(), subImage->getHeight(), 1);
+					Mip = new FTexture2DMipMap(subImage->getWidth(), subImage->getHeight(), 1);
 
 					newTexture->GetPlatformData()->Mips.Add(Mip);
 
-					InImageData= TArrayView<uint8>((uint8*)subImage->getArray().getAddress(), BytesForImage);
 
 					Mip->BulkData.Lock(LOCK_READ_WRITE);
 			
-					void* DestImageData = Mip->BulkData.Realloc(BytesForImage);
+					DestImageData = Mip->BulkData.Realloc(BytesForImage);
 
-					FMemory::Memcpy(DestImageData, InImageData.GetData(), BytesForImage);
+					FMemory::Memcpy(DestImageData, (uint8*)subImage->getArray().getAddress(), BytesForImage);
 
 					Mip->BulkData.Unlock();
 				}
 			}
 		}
-
-		newTexture->UpdateResource();
 	}
 
+	// Now we release it to texture compiler
 
-	//newTexture->MipGenSettings = TMGS_NoMipmaps;
-	//newTexture->CompressionSettings = TC_Default;
-	//newTexture->SRGB = true;
-	
+	newTexture->UpdateResource();
+
+	//FTextureCompilingManager::Get().FinishCompilation({ newTexture });
+
+	//newTexture->WaitForPendingInitOrStreaming();
+
 	return newTexture;
 }
 

@@ -45,7 +45,8 @@
 // CSW/Gizmo includes
 #include "gzGraphLibrary.h"
 
-CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image, gzUInt32 layer=0);
+//! Create a UTexture2D from a gzImage 
+CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image);
 
 CSWPLUGIN_API void cswScreenMessage(const gzString& message,const FColor &color=FColor::Yellow);
 

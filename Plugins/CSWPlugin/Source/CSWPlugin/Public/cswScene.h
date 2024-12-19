@@ -67,7 +67,9 @@ public:
 	virtual void PostInitProperties() override;
 	virtual void PostLoad() override;
 
-	gzUInt32 processFrames(bool forceFrame = false);
+	// processes one frame or suitable number of updates
+	// First time you will force a request for a new frame
+	gzUInt32 processFrames(bool forceNewFrame = false);
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
