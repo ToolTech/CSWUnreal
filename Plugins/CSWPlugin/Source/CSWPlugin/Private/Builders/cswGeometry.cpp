@@ -347,15 +347,16 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	m_meshComponent->SetStaticMesh(staticMesh);
 
-	m_meshComponent->SetMaterial(0, resources->getMaterial(this, state, CSW_MATERIAL_TYPE_BASE_MATERIAL));
+	UMaterialInterface* material = resources->getMaterial(this, state, CSW_MATERIAL_TYPE_BASE_MATERIAL);
+
+	if(material)
+		m_meshComponent->SetMaterial(0,material);
 
 	m_meshComponent->SetMobility(EComponentMobility::Stationary);
 
 	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
 	m_meshComponent->RegisterComponent();
-
-	MarkRenderStateDirty();
 
 	return true;
 }
