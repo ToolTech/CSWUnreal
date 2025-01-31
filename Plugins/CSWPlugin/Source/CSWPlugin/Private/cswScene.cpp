@@ -81,13 +81,7 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 UCSWScene::~UCSWScene()
 {
-	if (m_manager)
-	{
-		m_manager->shutdown();
-
-		// Cleanup while we have virtual members
-		m_manager = nullptr;
-	}
+	unInitSceneManager();
 }
 
 bool UCSWScene::isEditorComponent()
@@ -194,6 +188,17 @@ void UCSWScene::initSceneManager()
 		buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
 
 		m_manager->addCommandBuffer(buffer);
+	}
+}
+
+void UCSWScene::unInitSceneManager()
+{
+	if (m_manager)
+	{
+		m_manager->shutdown();
+
+		// Cleanup while we have virtual members
+		m_manager = nullptr;
 	}
 }
 

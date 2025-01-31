@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic methods and vars
 // Author		: Anders Modén
-// Product		: GizmoBase 2.12.201
+// Product		: GizmoBase 2.12.211
 //
 //
 //
@@ -879,7 +879,7 @@ public:
 
 	// Creation
 
-	GZ_BASE_EXPORT gzDynamicTypeContainer(gzUInt32 hashsize=1);
+	GZ_BASE_EXPORT gzDynamicTypeContainer(gzUInt32 hashsize=10);	// Lets default to size 10 (2.12.209)
 
 	GZ_BASE_EXPORT virtual ~gzDynamicTypeContainer();
 

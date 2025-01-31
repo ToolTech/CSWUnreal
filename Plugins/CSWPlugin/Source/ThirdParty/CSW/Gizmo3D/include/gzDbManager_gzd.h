@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gizmo db format
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -155,6 +155,11 @@
 //		gzVertexAttribute: vertex attributes correctly saved with binding etc.
 //		gzFrameTransform : now uses interpolation modes
 //		gzFrame : now saves uniform frame duration
+
+// Version 19 - added features (in progress)
+//		gzImage : subImageType
+//
+// 
 
 // UserData Db INFO attributes
 const gzString GZ_DB_INFO_TYPE_GIZMO3D				= "gzd";

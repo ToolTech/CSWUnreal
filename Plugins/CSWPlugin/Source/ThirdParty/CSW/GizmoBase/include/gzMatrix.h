@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.201
+// Product		: GizmoBase 2.12.211
 //		
 //
 //			
@@ -2580,6 +2580,11 @@ public:
 		return gzQuaternion_<T>(w, -x, -y, -z);
 	}
 
+	gzQuaternion_<T>	neg()								const
+	{
+		return gzQuaternion_<T>(-w, -x, -y, -z);
+	}
+
 	gzQuaternion_<T>	unit()								const
 	{
 		T l = norm();
@@ -2608,7 +2613,7 @@ public:
 		return gzQuaternion_<T>(exp(w) * cos(vnorm), x * vfactor, y * vfactor, z * vfactor);
 	}
 
-	gzQuaternion_<T>	ln()								const
+	gzQuaternion_<T> ln() const
 	{
 		T vnorm = gzSqrt(gzSq2(x) + gzSq2(y) + gzSq2(z));
 
@@ -2619,12 +2624,17 @@ public:
 		return gzQuaternion_(log(qlen), x * vfactor, y * vfactor, z * vfactor);
 	}
 
-	gzQuaternion_<T>	slerp(const gzQuaternion_<T>& B, const T& val) const
+	gzQuaternion_<T> slerp(const gzQuaternion_<T>& B, const T& val) const
 	{
 		return operator * ((recip() * B).pow(val));
 	}
 
-	gzVec3_<T>	vec()							const
+	T dot(const gzQuaternion_<T>& B) const
+	{
+		return w * B.w + x * B.x + y * B.y + z * B.z;
+	}
+
+	gzVec3_<T>	vec() const
 	{
 		T mag = gzSqrt(gzSq2(x) + gzSq2(y) + gzSq2(z));
 

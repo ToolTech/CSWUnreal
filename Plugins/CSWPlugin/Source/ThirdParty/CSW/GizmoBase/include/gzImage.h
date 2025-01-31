@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzImage class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.201
+// Product		: GizmoBase 2.12.211
 //		
 //
 //			
@@ -266,6 +266,15 @@ enum gzImageInfoSampleType
 };
 
 GZ_DECLARE_DYNAMIC_ENUM(gzImageInfoSampleType);
+
+//! SubImage types
+enum gzSubImageType
+{
+	GZ_SUB_IMAGE_TYPE_UNDEFINED,			// undefined type. plain subimages
+	GZ_SUB_IMAGE_TYPE_MIPMAP,				// MipMap pyramid
+	GZ_SUB_IMAGE_TYPE_VIRTUAL_LAYOUT,		// Virtual layout for super large images
+	GZ_SUB_IMAGE_TYPE_FRAMES,				// Image frames (discrete movie)
+};
 
 //! Serialize class for GZ_IMAGE_INFO_IMAGE_TO_WORLD_HOMOGRAPHY
 class gzImageHomography : public gzSerializeData
@@ -523,6 +532,8 @@ public:
 	GZ_BASE_EXPORT virtual gzReference* clone() const override;
 
 	// Sub Images (mipmaps,animations etc.)
+
+	GZ_PROPERTY_EXPORT(gzSubImageType, SubImageType, GZ_BASE_EXPORT);
 
 	//!Returns true if the image has a sub image.
 	GZ_BASE_EXPORT gzBool	hasSubImage();

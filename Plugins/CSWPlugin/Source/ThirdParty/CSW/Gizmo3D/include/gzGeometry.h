@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzGeometry class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -90,7 +90,7 @@ enum gzGeoOptimizeLevel
 };
 
 //! Use as attribute for meta data to skip optims
-#define GZ_SKIP_GEO_OPTIMIZE "optimize", "dont_optimize"
+#define GZ_SKIP_OPTIMIZE "optimize", "dont_optimize"
 
 enum gzPolygonWinding
 {

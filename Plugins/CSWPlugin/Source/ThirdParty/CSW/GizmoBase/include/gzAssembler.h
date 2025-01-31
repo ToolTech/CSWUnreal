@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of assembler opcodes.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.201
+// Product		: GizmoBase 2.12.211
 //		
 //
 //			

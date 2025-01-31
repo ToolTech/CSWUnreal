@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the COLLADA format loader
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -569,6 +569,7 @@ private:
 	gzUInt32				m_skipLevels;
 
 	gzDbInfoStatusBits		m_dbStatus;
+	gzString				m_dbStatusMessage;
 
 	//gzString				m_currentTechniqueProfile;
 

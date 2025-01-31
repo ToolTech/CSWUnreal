@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Constant and structures for node attributes and definitions
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -37,6 +37,7 @@
 // AMO	230309	Added some macros for dynamic types					(2.12.67)
 // AMO	230413	Added MapTypes										(2.12.72)
 // AMO	231019	Added Map Title as identifier for map in readable	(2.12.110)
+// AMO	250117	Added STATUS_MESSAGE with list of messages			(2.12.207)
 //
 //******************************************************************************
 #ifndef __GZ_NODE_CONSTANTS_H__
@@ -103,6 +104,7 @@ const gzString	GZ_DB_INFO_COMMENT			= "DbI-Comment";				// String generic commen
 
 const gzString	GZ_DB_INFO_SHADOW_GENERATOR	= "GenShad";
 const gzString	GZ_DB_INFO_STATUS			= "Dbi-Status";					// gzDbInfoStatusBits
+const gzString	GZ_DB_INFO_STATUS_MESSAGE	= "Dbi-Status-Message";			// List of vital status messages
 
 
 // DFAD data & ID

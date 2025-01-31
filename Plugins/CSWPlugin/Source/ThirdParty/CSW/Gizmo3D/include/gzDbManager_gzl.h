@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gizmo xml db extension format
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -158,7 +158,8 @@ public:
 	GZ_PROPERTY_GET_EXPORT(gzWeight,				CurrentWeight,		GZ_DB_EXPORT);
 	GZ_PROPERTY_GET_EXPORT(gzDynamicArray<gzWeight>,CurrentWeightArray,	GZ_DB_EXPORT);
 
-	GZ_PROPERTY_EXPORT(gzDbInfoStatusBits, Status, GZ_DB_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDbInfoStatusBits,	Status,						GZ_DB_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString,			StatusMessage,				GZ_DB_EXPORT);
 
 private:
 

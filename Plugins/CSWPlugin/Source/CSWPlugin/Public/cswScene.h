@@ -114,6 +114,8 @@ protected:
 
 	// Init scenemanager and set up context
 	void initSceneManager();
+	void unInitSceneManager();
+
 	void initResourceManager();
 
 	bool isEditorComponent();

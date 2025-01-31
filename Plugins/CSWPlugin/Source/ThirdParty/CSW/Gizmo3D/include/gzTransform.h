@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzTransform class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.201
+// Product		: Gizmo3D 2.12.211
 //		
 //
 //			
@@ -764,6 +764,9 @@ public:
 	
 	//!Sets the mode for various interpolations
 	GZ_PROPERTY_EXPORT(gzFrameTransformInterpolation, Interpolation, GZ_GRAPH_EXPORT);
+
+	//!Sets the mode shortest path interp between quats
+	GZ_PROPERTY_EXPORT(gzBool, UseShortestPath, GZ_GRAPH_EXPORT);
 
 	//! Must be called to enable accumulated rotations.
 	GZ_GRAPH_EXPORT gzVoid calculateAccumulatedRotations();

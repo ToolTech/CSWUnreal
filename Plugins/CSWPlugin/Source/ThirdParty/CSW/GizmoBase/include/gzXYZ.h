@@ -19,7 +19,7 @@
 // Module		: gzXYZ
 // Description	: Class definition of XYZ templates
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.201
+// Product		: GizmoBase 2.12.211
 //		
 //
 //			
