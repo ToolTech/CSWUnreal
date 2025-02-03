@@ -50,7 +50,7 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 	UTexture2D* newTexture(nullptr);
 
 	EPixelFormat pixelFormat(PF_Unknown);
-	
+
 	// Check compatible pixel format
 
 	switch (image->getFormat())
@@ -108,38 +108,44 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 	}
 
 	// Create the texure
-	newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), pixelFormat, (const char*)image->getName());
+	// newTexture = UTexture2D::CreateTransient(image->getWidth(), image->getHeight(), pixelFormat, (const char*)image->getName());
+	newTexture = NewObject<UTexture2D>(GetTransientPackage(), MakeUniqueObjectName(GetTransientPackage(), UTexture2D::StaticClass(), "CSWTexture"), RF_Transient | RF_DuplicateTransient | RF_TextExportTransient);
+
+
+	// Initialize the texture properties
+	newTexture->SetPlatformData(new FTexturePlatformData());
+	newTexture->GetPlatformData()->SizeX = image->getWidth();
+	newTexture->GetPlatformData()->SizeY = image->getHeight();
+	newTexture->GetPlatformData()->PixelFormat = pixelFormat;
+	newTexture->NeverStream = true;
 
 	if (!newTexture)
 		return nullptr;
 
 	// Dont do this in constructor as we add mode mips lateron and this is not thread safe
 
+
 	gzUInt32 MipSize = image->getNumberOfSubImages() + 1;
-
-	// Reserve and avoid reallocs
-
-	newTexture->GetPlatformData()->Mips.Reserve(MipSize);
 
 	// ---------- MIP 0 ----------------------------
 
-	FTexture2DMipMap* Mip = &newTexture->GetPlatformData()->Mips[0];
+	newTexture->GetPlatformData()->Mips.Reserve(MipSize); // Ok to reserve, but we need to allocate
+	FTexture2DMipMap* Mip = new FTexture2DMipMap(image->getWidth(), image->getHeight());
 
-	gzUInt32 BytesForImage = image->getArray().getSize();
-	
 	Mip->BulkData.Lock(LOCK_READ_WRITE);
-
+	gzUInt32 BytesForImage = image->getArray().getSize();
 	void* DestImageData = Mip->BulkData.Realloc(BytesForImage);
-
 	FMemory::Memcpy(DestImageData, (uint8*)image->getArray().getAddress(), BytesForImage);
-
 	Mip->BulkData.Unlock();
+
+	newTexture->GetPlatformData()->Mips.Add(Mip);
+
 
 	// ---------- SUB MIPS -------------------------------
 
 	// Now onto possible sub images
 
-	if(image->hasSubImage())	// MipMaps
+	if (image->hasSubImage())	// MipMaps
 	{
 		for (gzUInt32 i = 0; i < image->getNumberOfSubImages(); i++)
 		{
@@ -159,16 +165,12 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 				{
 					Mip = new FTexture2DMipMap(subImage->getWidth(), subImage->getHeight(), 1);
 
-					newTexture->GetPlatformData()->Mips.Add(Mip);
-
-
 					Mip->BulkData.Lock(LOCK_READ_WRITE);
-			
 					DestImageData = Mip->BulkData.Realloc(BytesForImage);
-
 					FMemory::Memcpy(DestImageData, (uint8*)subImage->getArray().getAddress(), BytesForImage);
-
 					Mip->BulkData.Unlock();
+
+					newTexture->GetPlatformData()->Mips.Add(Mip);
 				}
 			}
 		}
