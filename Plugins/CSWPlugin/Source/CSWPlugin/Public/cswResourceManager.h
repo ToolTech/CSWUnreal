@@ -19,7 +19,7 @@
 // Module		: CSW StreamingMap Unreal
 // Description	: Interface to shared Resources per scenemanager
 // Author		: Anders Modén		
-// Product		: CSW 1.1.1
+// Product		: CSW 1.1.2
 //		
 //
 //			

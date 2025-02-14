@@ -19,7 +19,7 @@
 // Module		: CSW StreamingMap Unreal
 // Description	: Implementation if factory for cswNode
 // Author		: Anders Modén		
-// Product		: CSW 1.1.1
+// Product		: CSW 1.1.2
 //		
 //
 //			

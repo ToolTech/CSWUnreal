@@ -19,7 +19,7 @@
 // Module		: CSW StreamingMap Unreal
 // Description	: Glue Between Unreal CSW and GizmoSDK
 // Author		: Anders Modén		
-// Product		: CSW 1.1.1
+// Product		: CSW 1.1.2
 //		
 //
 //			

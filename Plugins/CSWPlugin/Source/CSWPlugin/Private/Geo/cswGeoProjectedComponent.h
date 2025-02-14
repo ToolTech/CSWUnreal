@@ -19,7 +19,7 @@
 // Module		: CSW StreamingMap Unreal
 // Description	: Base class for CSW Trans Mercator projections
 // Author		: Anders Modén		
-// Product		: CSW 1.1.1
+// Product		: CSW 1.1.2
 //		
 //
 //			
