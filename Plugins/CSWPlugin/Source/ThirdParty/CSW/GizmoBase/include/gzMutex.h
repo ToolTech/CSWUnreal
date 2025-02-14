@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of mutex functionality
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			
@@ -59,7 +59,7 @@
 const gzUInt32 GZ_SLEEP_SECOND = 1000;
 
 //! Infinite sleep time
-const gzUInt32 GZ_SLEEP_INFINITE = 0xFFFFFFFFUL;
+const gzUInt32 GZ_WAIT_INFINITE = 0xFFFFFFFFUL;
 
 // -----------------------------------------------------------------------------------------
 
@@ -544,18 +544,18 @@ public:
 		\return TRUE if event was fired.
 		\return FALSE if timeout occurred.
 	*/
-	gzBool wait(gzUInt32 timeout=GZ_SLEEP_INFINITE,gzBool alreadyLockedMutex=FALSE,gzBool return_if_signaled=FALSE);
+	gzBool wait(gzUInt32 timeout=GZ_WAIT_INFINITE,gzBool alreadyLockedMutex=FALSE,gzBool return_if_signaled=FALSE);
 
 	//! Wait for events and keep event locked
-	gzBool waitAndLock(gzUInt32 timeout = GZ_SLEEP_INFINITE,gzBool alreadyLockedMutex=FALSE, gzBool return_if_signaled = FALSE) ;
+	gzBool waitAndLock(gzUInt32 timeout = GZ_WAIT_INFINITE,gzBool alreadyLockedMutex=FALSE, gzBool return_if_signaled = FALSE) ;
 
-	gzBool waitSignaled(gzUInt32 timeout = GZ_SLEEP_INFINITE, gzBool alreadyLockedMutex = FALSE);
+	gzBool waitSignaled(gzUInt32 timeout = GZ_WAIT_INFINITE, gzBool alreadyLockedMutex = FALSE);
 
 	//! Wait for events and keep event locked
-	gzBool waitAndLockSignaled(gzUInt32 timeout = GZ_SLEEP_INFINITE, gzBool alreadyLockedMutex = FALSE);
+	gzBool waitAndLockSignaled(gzUInt32 timeout = GZ_WAIT_INFINITE, gzBool alreadyLockedMutex = FALSE);
 
 
-	static gzEvent *wait(const gzRefList<gzEvent> &list, gzUInt32 timeout= GZ_SLEEP_INFINITE);
+	static gzEvent *wait(const gzRefList<gzEvent> &list, gzUInt32 timeout= GZ_WAIT_INFINITE);
 
 	//! Signaled states set by fire
 	gzVoid set();
@@ -589,7 +589,7 @@ GZ_DECLARE_REFPTR(gzEvent);
 class GZ_BASE_EXPORT gzEventGuard
 {
 public:
-	gzEventGuard(gzEvent& guard, gzUInt32 timeout = GZ_SLEEP_INFINITE, gzBool alreadyLockedMutex = FALSE, gzBool return_if_signaled = FALSE) :m_guard(&guard) { m_guard->waitAndLock(timeout, alreadyLockedMutex, return_if_signaled); }
+	gzEventGuard(gzEvent& guard, gzUInt32 timeout = GZ_WAIT_INFINITE, gzBool alreadyLockedMutex = FALSE, gzBool return_if_signaled = FALSE) :m_guard(&guard) { m_guard->waitAndLock(timeout, alreadyLockedMutex, return_if_signaled); }
 
 	virtual ~gzEventGuard() { m_guard->unLock(); }
 
@@ -619,7 +619,7 @@ private:
 class GZ_BASE_EXPORT gzSignalGuard
 {
 public:
-	gzSignalGuard(gzEvent& guard, gzUInt32 timeout = GZ_SLEEP_INFINITE, gzBool alreadyLockedMutex = FALSE) :m_guard(&guard) { m_result=m_guard->waitAndLockSignaled(timeout, alreadyLockedMutex); m_guard->reset(); }
+	gzSignalGuard(gzEvent& guard, gzUInt32 timeout = GZ_WAIT_INFINITE, gzBool alreadyLockedMutex = FALSE) :m_guard(&guard) { m_result=m_guard->waitAndLockSignaled(timeout, alreadyLockedMutex); m_guard->reset(); }
 
 	virtual ~gzSignalGuard() { m_guard->unLock(); }
 

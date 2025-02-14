@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 // 		
 //			
@@ -86,7 +86,7 @@ const gzString	GZ_URLBASE_MEMORY			= "mem:";	// address,length
 const gzString	GZ_URLBASE_REGISTRY			= "reg:";	// name of registry key
 const gzString	GZ_URLBASE_PIPE				= "pipe:";	// name of pipe
 const gzString	GZ_URLBASE_PIPESERVER		= "psrv:";	// name of pipe
-const gzString	GZ_URLBASE_PURL				= "purl:";	// pipename,url
+const gzString	GZ_URLBASE_PURL				= "purl:";	// pipename,url {?host=GUID|IP&machid=GUID}
 const gzString	GZ_URLBASE_CONSOLE			= "con:";	// console {?lf=no&echo=yes}
 const gzString	GZ_URLBASE_CACHE			= "cache:";	// offset,len,url
 const gzString	GZ_URLBASE_ADAPTER			= "adapt:";	// address of adapter
@@ -289,6 +289,8 @@ public:
 	GZ_BASE_EXPORT gzVoid	pushBackAdapterData();
 
 	GZ_BASE_EXPORT gzVoid	allocPushBack(gzUInt32 size);
+
+	GZ_BASE_EXPORT gzUInt32	getAllocPushBackSize();
 
 	GZ_BASE_EXPORT gzBool	hasData(gzUInt32 mincount=1);	// mincount==0 returns isActive()
 
@@ -5649,7 +5651,7 @@ private:
 // ------------------ URL Syncronisation ------------------------
 
 //******************************************************************************
-// Class	: gzURLSyncronizer
+// Class	: gzURLSynchronizer
 //									
 // Purpose  : Auto sync of source and destination URL 
 //									
@@ -5662,17 +5664,22 @@ private:
 // AMO	240327	Created							(2.12.140)
 //									
 //******************************************************************************
-class gzURLSyncronizer : public gzReference
+class gzURLSynchronizer 
 {
 public:
 
-	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);
+	GZ_BASE_EXPORT	gzURLSynchronizer() : m_syncronized(0), m_already_syncronized(0) {}
 
-	GZ_BASE_EXPORT	gzURLSyncronizer() : m_syncronized(0), m_already_syncronized(0) {}
+	GZ_BASE_EXPORT	gzBool syncronize(const gzString& source, const gzString& destination, gzBool verbose = FALSE, gzBool useCRC = FALSE, gzString* errorString = nullptr, gzSerializeAdapterError* errorType = nullptr, gzUInt64 *transferred = nullptr);
 
-	GZ_BASE_EXPORT	gzBool syncronize(const gzString& source, const gzString& destination, gzBool verbose = TRUE, gzBool useCRC = FALSE, gzString* errorString = NULL, gzSerializeAdapterError* errorType = NULL);
+	//! Called on each file in progress
+	GZ_BASE_EXPORT	virtual gzVoid onProgress(const gzUByte& progress, const gzString& item, const gzUInt32& syncronised, const gzUInt32& already_syncronised, const gzFloat& speed, const gzUInt64& transferred, gzBool verbose);
 
-	GZ_BASE_EXPORT	virtual gzVoid onStatus(const gzUByte& progress, const gzString& item, const gzUInt32& syncronised, const gzUInt32& already_syncronised, const gzFloat& speed, gzBool verbose);
+	//! Called if source was empty
+	GZ_BASE_EXPORT	virtual gzVoid onEmptySource(const gzString& source, gzBool verbose);
+
+	//! return TRUE if we want to cancel syncronize
+	GZ_BASE_EXPORT	virtual gzBool requestCancel();
 
 private:
 

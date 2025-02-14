@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 // 
 //			
@@ -3224,10 +3224,10 @@ GZ_USE_BIT_LOGIC(gzClientEnumBits);
 #endif
 
 
-#define GZ_VERSION_STR	"2.12.211"
+#define GZ_VERSION_STR	"2.12.220"
 #define GZ_VERSION_MAJ	2
 #define GZ_VERSION_MIN	12
-#define GZ_VERSION_DEV	211
+#define GZ_VERSION_DEV	220
 
 GZ_BASE_EXPORT const char * gzGenerateDebugString(const char *file , gzInt32 line,const char *version);
 GZ_BASE_EXPORT gzVoid exitNoExceptions();

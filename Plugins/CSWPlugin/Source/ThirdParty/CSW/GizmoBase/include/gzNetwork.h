@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Network classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			

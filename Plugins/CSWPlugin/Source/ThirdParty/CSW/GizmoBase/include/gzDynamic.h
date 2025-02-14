@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic methods and vars
 // Author		: Anders Modén
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //
 //
 //
@@ -85,6 +85,10 @@ const gzUInt64	IID_LICENSE_INFO			= LLU(0x7fffffff00000006);
 //! Get notify about module is sucessfully loaded
 const gzString	IIDS_LOADED					= "loaded";
 const gzUInt64	IID_LOADED					= LLU(0x7fffffff00000007);
+
+//! Get compound module info
+const gzString	IIDS_MODULE_INFO			= "moduleInfo";
+const gzUInt64	IID_MODULE_INFO				= LLU(0x7fffffff00000008);
 
 const gzUInt64	IID_NOT_SUPPORTED			= LLU(0xFFFFFFFFFFFFFFFF);
 

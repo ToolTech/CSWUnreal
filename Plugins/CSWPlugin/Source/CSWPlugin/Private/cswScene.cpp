@@ -57,26 +57,25 @@
 
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
 {
-	PrimaryComponentTick.bCanEverTick = true;
-	bTickInEditor = true;
-	bAutoActivate = true;
+	if (!IsTemplate())	// Avoid construction of threads and resources for CDO
+	{
+		PrimaryComponentTick.bCanEverTick = true;
+		bTickInEditor = true;
+		bAutoActivate = true;
 
-	SetMobility(EComponentMobility::Movable);
+		// Register callbacks
+		registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
+		registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
+		registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
 
-	//GeoInfo = CreateDefaultSubobject<UCSWGeoModelComponent>(TEXT("GeoInfo"),true);
+		registerComponent(this, nullptr, 0);	// Register root
 
-	// Register callbacks
-	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
-	registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
-	registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
+		// Perform init of scenemanager 
+		initSceneManager();
 
-	registerComponent(this, nullptr, 0);	// Register root
-
-	// Perform init of scenemanager 
-	initSceneManager();
-
-	// Perform init of resource manager 
-	initResourceManager();
+		// Perform init of resource manager 
+		initResourceManager();
+	}
 }
 
 UCSWScene::~UCSWScene()

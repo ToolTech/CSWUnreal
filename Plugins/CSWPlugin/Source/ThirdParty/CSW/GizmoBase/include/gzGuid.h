@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of GUID types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			
@@ -32,6 +32,7 @@
 // Who	Date	Description						
 //									
 // AMO	980819	Created file 	
+// AMO	250213	Added isValid as !isNULL		(2.12.217)
 //
 //******************************************************************************
 
@@ -102,11 +103,12 @@ public:
 	gzVoid		generate();	// Generate a new GUID
 	gzVoid		reset();	// Generate NULL guid
 
-	gzBool		isNull() const;
+	gzBool		isNull()		const;
+	gzBool		isValid()		const;
 	gzBool		isStandardDCE() const;
 	gzBool		isRandomBased() const;
-	gzBool		isTimeBased() const;
-	gzBool		isNameBased() const;
+	gzBool		isTimeBased()	const;
+	gzBool		isNameBased()	const;
 
 	gzTime		getGenerationTime() const;
 	gzString	asString() const;

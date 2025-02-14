@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			

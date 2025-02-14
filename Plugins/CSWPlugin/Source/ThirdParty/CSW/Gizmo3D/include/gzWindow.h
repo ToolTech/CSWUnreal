@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzWindow class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.211
+// Product		: Gizmo3D 2.12.220
 //		
 //
 //			

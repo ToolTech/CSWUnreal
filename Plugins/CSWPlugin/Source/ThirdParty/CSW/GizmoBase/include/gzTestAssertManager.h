@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of platform dependant test assert integrations
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			
@@ -43,30 +43,27 @@
 
 	using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 	#define Assert_Fail(x) Assert::Fail(x)
+	#define Logger(x) Logger::WriteMessage(x)
 
 #else
 
 	// Fix this for other platforms and other test frameworks ... (amo 180425)
-	#define Assert_Fail(x) GZMESSAGE(GZ_MESSAGE_ALWAYS,x);
+	#define Assert_Fail(x) 
+	#define Logger(x) printf("%s\n",(const char *)x);
 
 #endif
 
 
 
-class gzTestAssertManager : public gzMessageReceiverInterface , 
+class gzTestAssertManager : public gzMessageReceiverInterface, 
+							public gzNameInterface,
 							public gzReference
 {
 public:
 
-	gzTestAssertManager(gzString logname,gzBool assertOnFatal=TRUE, gzBool assertOnWarning = FALSE, gzBool immediateAssert = TRUE ):m_propertyAssertOnFatal(assertOnFatal),m_propertyAssertOnWarning(assertOnWarning),m_propertyImmediateAssert(immediateAssert)
+	gzTestAssertManager(gzString testName,gzBool assertOnFatal=TRUE, gzBool assertOnWarning = FALSE, gzBool immediateAssert = TRUE ):gzNameInterface(testName),m_propertyAssertOnFatal(assertOnFatal),m_propertyAssertOnWarning(assertOnWarning),m_propertyImmediateAssert(immediateAssert)
 	{
 		gzMessage::addMessageReceiver(this);
-
-		gzString logURL;
-
-		logURL.format("%s-%s.txt", logname, gzTime::now().asString("%4d-%02d-%02d--%02d_%02d_%02d"));
-
-		m_logger = new gzLogger(logURL);
 	}
 	
 	virtual ~gzTestAssertManager()
@@ -76,16 +73,49 @@ public:
 		reportErrors();
 	}
 
-	gzVoid onMessage(const gzString& /*sender*/, gzMessageLevel level, const char *message)
+	gzVoid onMessage(const gzString& sender, gzMessageLevel level, const char *message)
 	{
-		if ((level & GZ_MESSAGE_LEVEL_MASK_STD) == GZ_MESSAGE_ASSERT)
-			m_asserts += message;
-		else if (m_propertyAssertOnFatal && ((level & GZ_MESSAGE_LEVEL_MASK_STD) == GZ_MESSAGE_FATAL))
-			m_asserts += message;
-		else if (m_propertyAssertOnWarning && ((level & GZ_MESSAGE_LEVEL_MASK_STD) == GZ_MESSAGE_WARNING))
-			m_asserts += message;
-		else
-			return;
+		gzString logText;
+
+		switch (level & GZ_MESSAGE_LEVEL_MASK_STD)
+		{
+			case GZ_MESSAGE_DEBUG:
+				logText=gzString::formatString("Sender:%s DEBUG:%s\n", sender, message);
+				Logger(logText.getWideString());
+				return;
+
+			case GZ_MESSAGE_NOTICE:
+				logText = gzString::formatString("Sender:%s NOTICE:%s\n", sender, message);
+				Logger(logText.getWideString()); 
+				return;
+
+			case GZ_MESSAGE_WARNING:
+				logText = gzString::formatString("Sender:%s WARNING:%s\n", sender, message);
+				Logger(logText.getWideString());
+
+				if (!m_propertyAssertOnWarning)
+					return;
+
+				m_asserts += message;
+				break;
+
+			case GZ_MESSAGE_FATAL:
+				logText = gzString::formatString("Sender:%s FATAL:%s\n", sender, message);
+				Logger(logText.getWideString());
+
+				if (!m_propertyAssertOnFatal)
+					return;
+
+				m_asserts += message;
+				break;
+
+			case GZ_MESSAGE_ASSERT:
+				logText = gzString::formatString("Sender:%s ASSERT:%s\n", sender, message);
+				Logger(logText.getWideString()); 
+				
+				m_asserts += message;
+				break;
+		}
 
 		if (m_propertyImmediateAssert)
 			reportErrors();
@@ -105,9 +135,7 @@ public:
 
 private:
 
-	
 	gzDynamicArray<gzString>	m_asserts;
-	gzLoggerPtr					m_logger;
 };
 
 GZ_DECLARE_REFPTR(gzTestAssertManager);

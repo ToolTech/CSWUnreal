@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			
@@ -878,6 +878,10 @@ public:
 	gzBool 				foundEntry();
 	
 	gzDirectoryEntry 	getEntry();
+
+	virtual gzBool		descent(const gzString& path,const gzString& name);
+
+	virtual gzDirectoryIterator* getDescentIterator(const gzString& path, gzBool recursive = FALSE);
 
 	GZ_NO_IMPLICITS(gzDirectoryIterator);
 	

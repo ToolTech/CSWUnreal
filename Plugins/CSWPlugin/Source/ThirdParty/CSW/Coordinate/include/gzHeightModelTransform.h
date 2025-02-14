@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of height model transforms
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			

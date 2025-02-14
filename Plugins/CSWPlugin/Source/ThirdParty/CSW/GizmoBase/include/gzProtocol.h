@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize protocol classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.211
+// Product		: GizmoBase 2.12.220
 //		
 //
 //			
@@ -117,7 +117,7 @@ public:
 protected:
 
 	// Utilities
-	GZ_BASE_EXPORT			gzBool		waitForAnswer( gzUInt32 timeOut=GZ_SLEEP_INFINITE);
+	GZ_BASE_EXPORT			gzBool		waitForAnswer( gzUInt32 timeOut=GZ_WAIT_INFINITE);
 
 	GZ_BASE_EXPORT virtual	gzVoid		initConnection();
 	GZ_BASE_EXPORT virtual	gzVoid		sendOptionRequest();

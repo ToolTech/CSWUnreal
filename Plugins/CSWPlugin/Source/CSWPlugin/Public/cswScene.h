@@ -67,6 +67,8 @@ public:
 	virtual void PostInitProperties() override;
 	virtual void PostLoad() override;
 
+	void InitializeSceneSystem();
+	
 	// processes one frame or suitable number of updates
 	// First time you will force a request for a new frame
 	gzUInt32 processFrames(bool forceNewFrame = false, bool waitForFrame = false, gzUInt32 timeOut = 200);
