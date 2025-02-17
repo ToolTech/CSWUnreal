@@ -41,6 +41,7 @@
 
 
 #include "UEGlue/cswUEMatrix.h"
+#include "UEGlue/cswUEUtility.h"
 
 #include "Geo/cswGeoModelComponent.h"
 #include "Geo/cswGeoUTMComponent.h"
@@ -62,6 +63,8 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 		PrimaryComponentTick.bCanEverTick = true;
 		bTickInEditor = true;
 		bAutoActivate = true;
+		
+		SetMobility(EComponentMobility::Movable);
 
 		// Register callbacks
 		registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
@@ -153,8 +156,10 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	// Drive the scene from tick
 
-	processFrames(m_firstRun);
+	processCameras(m_firstRun);
 
+	processFrames(m_firstRun);
+	
 	m_firstRun = false;
 }
 
@@ -206,6 +211,110 @@ void UCSWScene::initResourceManager()
 	m_resource = new cswResourceManager;
 
 	m_baseMaterial = m_resource->initializeBaseMaterial();
+}
+
+bool UCSWScene::processCameras(bool forceUpdate)
+{
+	FVector		CameraLocation;
+	FRotator	CameraRotation;
+
+	float		CameraVFOV = 90.0f;
+	float		CameraHFOV = 90.0f;
+
+#if WITH_EDITOR
+
+	if (!GEditor)
+		return false;
+
+	if (!GEditor->IsPlayingSessionInEditor())
+	{
+		FViewport *viewport=GEditor->GetActiveViewport();
+
+		if (!viewport)
+			return false;
+
+		FEditorViewportClient* client = (FEditorViewportClient*)viewport->GetClient();
+
+		if (!client)
+			return false;
+
+		CameraLocation = client->GetViewLocation();
+		CameraRotation = client->GetViewRotation();
+
+		float aspectRatio = 1.0f;
+
+		FIntPoint size = viewport->GetSizeXY();
+
+		aspectRatio = (float)size.X / (float)size.Y;
+
+		CameraHFOV = client->ViewFOV;
+		CameraVFOV = atan( tan(CameraHFOV*GZ_DEG2RAD_F/2) / aspectRatio) * GZ_RAD2DEG_F * 2;
+	}
+	else
+#endif
+	// In play Mode
+	{
+		UWorld* world = GetWorld();
+
+		if (!world)
+			return false;
+
+		APlayerController* playerController = world->GetFirstPlayerController();
+
+		if (!playerController)
+			return false;
+
+		APlayerCameraManager* cameraManager = playerController->PlayerCameraManager;
+
+		if (!cameraManager)
+			return false;
+
+		CameraLocation = cameraManager->GetCameraLocation();
+		CameraRotation = cameraManager->GetCameraRotation();
+
+		float aspectRatio = 1.0f;
+
+		UEngine* engine = GEngine;
+
+		if (!engine)
+			return false;
+
+		UGameViewportClient *client=engine->GameViewport;
+
+		if (!client)
+			return false;
+
+		FViewport* viewport = client->Viewport;
+
+		if (!viewport)
+			return false;
+
+		FIntPoint size = viewport->GetSizeXY();
+
+		aspectRatio = (float)size.X / (float)size.Y;
+
+		CameraHFOV = cameraManager->GetFOVAngle();
+		CameraVFOV = atan(tan(CameraHFOV * GZ_DEG2RAD_F / 2) / aspectRatio) * GZ_RAD2DEG_F * 2;
+	}
+
+	if (CenterOrigin)
+		CameraLocation += FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ);
+
+	gzVec3D pos = globalToLocal(CameraLocation, CoordType);
+
+	FMatrix rotation = FRotationMatrix::Make(CameraRotation).RemoveTranslation();
+
+	cswScreenMessage(gzString::formatString("rotation %s", toString(rotation.ToString())));
+
+	gzMatrix4D mat=cswMatrix4d::UE_2_GZ()*cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation())*cswMatrix4d::GZ_2_UE();
+
+	gzMatrix3D rot = mat.quaternion().rotationMatrix();
+
+	double h, p, r;
+
+	rot.decompose_euler_yxz(h, p, r);
+
+	return true;
 }
 
 //! Processes all updates, waits for possible frame with timeout

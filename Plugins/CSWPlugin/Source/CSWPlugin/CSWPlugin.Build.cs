@@ -35,6 +35,7 @@
 //
 //******************************************************************************
 
+using System.Collections.Generic;
 using UnrealBuildTool;
 using UnrealBuildTool.Rules;
 
@@ -76,21 +77,32 @@ public class CSWPlugin : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Engine",
-				//"InputCore",
-				"MeshDescription",
+                //"InputCore",
+				
+                "MeshDescription",
 				//"RenderCore",
 				//"RHI",
 				"StaticMeshDescription",
 				//"PhysicsCore",
                 "CSW",
 				"Projects",				// Plugins
-				"MeshConversion"
-				// ... add other public dependencies that you statically link with here ...
-			}
+				"MeshConversion",
+                // ... add other public dependencies that you statically link with here ...
+				     
+            }
 			);
-			
-		
-		PrivateDependencyModuleNames.AddRange(
+
+		if (Target.bBuildEditor)
+		{
+			PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"UnrealEd",             // for GEditor
+			});
+		}
+
+
+        PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
 				// ... add private dependencies that you statically link with here ...	

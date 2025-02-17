@@ -71,7 +71,8 @@ public:
 	
 	// processes one frame or suitable number of updates
 	// First time you will force a request for a new frame
-	gzUInt32 processFrames(bool forceNewFrame = false, bool waitForFrame = false, gzUInt32 timeOut = 200);
+	gzUInt32	processFrames(bool forceNewFrame = false, bool waitForFrame = false, gzUInt32 timeOut = 200);
+	bool		processCameras(bool forceUpdate = false);
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
