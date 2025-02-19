@@ -48,7 +48,7 @@
 //! Create a UTexture2D from a gzImage 
 CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image);
 
-CSWPLUGIN_API void cswScreenMessage(const gzString& message,const FColor &color=FColor::Yellow);
+CSWPLUGIN_API void cswScreenMessage(const gzString& message,const gzInt32 &line=-1,const FColor &color=FColor::Yellow);
 
 // Utility classes
 

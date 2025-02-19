@@ -153,15 +153,27 @@ public:
 		return GZMatrix;
 	}
 
-	static gzMatrix4_<T> GZ_2_UE(gzVec3_<T> trans=gzVec3_<T>(0,0,0),T scale=1)
+	static gzMatrix4_<T> GZ_2_UE(gzVec3_<T> trans = gzVec3_<T>(0, 0, 0), T scale = 1)
 	{
-		// Map GZ(X,Y,Z) to UE(X,Z,Y)
-		return gzMatrix4_<T>(gzVec4_<T>(scale, 0, 0, 0), gzVec4_<T>(0, 0, scale, 0), gzVec4_<T>(0, scale, 0, 0), gzVec4_<T>(trans.x*scale, trans.z*scale, trans.y*scale, 1));
+		// Map GZ(X=Right,Y=Up,Z=Backwards) to UE(-Z,X,Y) 
+		return gzMatrix4_<T>(gzVec4_<T>(0, scale, 0, 0), gzVec4_<T>(0, 0, scale, 0), gzVec4_<T>(-scale, 0, 0, 0), gzVec4_<T>(-trans.z * scale, trans.x * scale, trans.y * scale, 1));
 	}
 
 	static gzMatrix4_<T> UE_2_GZ()
 	{
-		// Map UE(X,Y,Z) to GZ(X,Z,Y)
+		// Map UE(X=Forward,Y=Right,Z=Up) to GZ(Y,Z,-X)
+		return gzMatrix4_<T>(gzVec4_<T>(0, 0, -1, 0), gzVec4_<T>(1, 0, 0, 0), gzVec4_<T>(0, 1, 0, 0), gzVec4_<T>(0, 0, 0, 1));
+	}
+
+	static gzMatrix4_<T> GZ_UTM_2_UE(gzVec3_<T> trans=gzVec3_<T>(0,0,0),T scale=1)
+	{
+		// Map GZ(X=East,Y=Up,Z=South) to UE(X,Z,Y) because UE maps flat maps east X to UE X and north to UE -Y
+		return gzMatrix4_<T>(gzVec4_<T>(scale, 0, 0, 0), gzVec4_<T>(0, 0, scale, 0), gzVec4_<T>(0, scale, 0, 0), gzVec4_<T>(trans.x*scale, trans.z*scale, trans.y*scale, 1));
+	}
+
+	static gzMatrix4_<T> UE_2_GZ_UTM()
+	{
+		// Map UE(X=East,Y=South,Z=Up) to GZ(X,Z,Y)
 		return gzMatrix4_<T>(gzVec4_<T>(1, 0, 0, 0), gzVec4_<T>(0, 0, 1, 0), gzVec4_<T>(0, 1, 0, 0), gzVec4_<T>(0, 0, 0, 1));
 	}
 

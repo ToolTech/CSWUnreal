@@ -304,15 +304,36 @@ bool UCSWScene::processCameras(bool forceUpdate)
 
 	FMatrix rotation = FRotationMatrix::Make(CameraRotation).RemoveTranslation();
 
-	cswScreenMessage(gzString::formatString("rotation %s", toString(rotation.ToString())));
 
-	gzMatrix4D mat=cswMatrix4d::UE_2_GZ()*cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation())*cswMatrix4d::GZ_2_UE();
+	cswScreenMessage(gzString::formatString("East-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(1, 0, 0)).asString()), 0);
+	cswScreenMessage(gzString::formatString("Up-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(0, 1, 0)).asString()));
+	cswScreenMessage(gzString::formatString("South-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(0, 0, 1)).asString()));
+
+	/*gzMatrix4D unit = gzMatrix4D(gzVec4D(11, 21, 31, 41), gzVec4D(12, 22, 32, 42), gzVec4D(13, 23, 33, 43), gzVec4D(14, 24, 34, 44));
+
+	cswScreenMessage(gzString::formatString("CSW Matrix %s", unit.asString()));
+	cswScreenMessage(gzString::formatString("UE Matrix %s", toString(cswMatrix4d::UEMatrix4(unit).ToString() )));
+
+	cswScreenMessage(gzString::formatString("UE X Vector %s", toString(cswMatrix4d::UEMatrix4(unit).TransformPosition(FVector(1,0,0)).ToString())));*/
+
+
+
+
+	FVector res = FRotationMatrix::Make(CameraRotation).RemoveTranslation().TransformPosition(FVector(1, 0, 0));
+
+	cswScreenMessage(gzString::formatString("East Direction %s", toString(res.ToString())));
+
+
+
+	gzMatrix4D mat=cswMatrix4d::UE_2_GZ_UTM()*cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation())**cswMatrix4d::GZ_UTM_2_UE();
 
 	gzMatrix3D rot = mat.quaternion().rotationMatrix();
 
 	double h, p, r;
 
 	rot.decompose_euler_yxz(h, p, r);
+
+	cswScreenMessage(gzString::formatString("H:%.2f P:%.2f R:%.2f",h,p,r));
 
 	return true;
 }
@@ -936,18 +957,18 @@ void  UCSWScene::updateOriginTransform()
 		case CoordType::UTM:
 			origin = CenterOrigin ? globalToLocal(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType::UTM) : GZ_ZERO_VEC3D;
 			// Move children negative origin so our map origin ends up in 0,0,0
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE(-origin, scale)));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE(-origin, scale)));
 			break;
 
 		case CoordType::Geodetic:
 			break;
 
 		case CoordType::Geocentric:
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE()));
 			break;
 
 		case CoordType::FlatEarth:
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_2_UE()));
+			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE()));
 			break;
 	}
 
@@ -958,14 +979,14 @@ FVector3d UCSWScene::localToGlobal(const gzVec3D& local,enum CoordType type)
 {
 	double scale = getWorldScale();
 
-	return cswVector3d::UEVector3(scale * (gzVec3D)(cswMatrix4_<double>::GZ_2_UE() * local));
+	return cswVector3d::UEVector3(scale * (gzVec3D)(cswMatrix4_<double>::GZ_UTM_2_UE() * local));
 }
 
 gzVec3D UCSWScene::globalToLocal(const FVector3d& global, enum CoordType type)
 {
 	double scale = getWorldScale();
 
-	return  (gzVec3D) (cswMatrix4_<double>::UE_2_GZ() * cswVector3d::GZVector3(global)) / scale ;
+	return  (gzVec3D) (cswMatrix4_<double>::UE_2_GZ_UTM() * cswVector3d::GZVector3(global)) / scale ;
 }
 
 double UCSWScene::getWorldScale()

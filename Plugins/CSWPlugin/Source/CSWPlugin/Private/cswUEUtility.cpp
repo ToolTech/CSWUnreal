@@ -187,14 +187,17 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 	return newTexture;
 }
 
-void cswScreenMessage(const gzString& message, const FColor& color)
+void cswScreenMessage(const gzString& message, const gzInt32& line, const FColor& color)
 {
 	GZ_SYNCRONIZED;
 
-	static gzInt32 line = 0;
+	static gzInt32 currentLine = 0;
+
+	if (line >= 0)
+		currentLine = line;
 
 	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(line, 10.f, color, message.getWideString());
+		GEngine->AddOnScreenDebugMessage(currentLine, 10.f, color, message.getWideString());
 
-	line = (line + 1) % 40;
+	currentLine = (currentLine + 1) % 40;
 }
