@@ -325,7 +325,7 @@ bool UCSWScene::processCameras(bool forceUpdate)
 
 
 
-	gzMatrix4D mat=cswMatrix4d::UE_2_GZ_UTM()*cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation())**cswMatrix4d::GZ_UTM_2_UE();
+	gzMatrix4D mat=cswMatrix4d::UE_2_GZ_UTM()*cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation())*cswMatrix4d::GZ_UTM_2_UE();
 
 	gzMatrix3D rot = mat.quaternion().rotationMatrix();
 
