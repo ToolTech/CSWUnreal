@@ -156,9 +156,9 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	// Drive the scene from tick
 
-	processCameras(m_firstRun);
-
 	processFrames(m_firstRun);
+
+	processCameras(m_firstRun);
 	
 	m_firstRun = false;
 }

@@ -53,7 +53,7 @@ public class CSWDev : ModuleRules
             Target.Configuration == UnrealTargetConfiguration.DebugGame ||
             Target.Configuration == UnrealTargetConfiguration.Development)
         {
-            PrivateDefinitions.Add("GZ_DEBUG=1");
+            //PrivateDefinitions.Add("GZ_DEBUG=1");
         }
 
        

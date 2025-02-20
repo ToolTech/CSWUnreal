@@ -47,11 +47,12 @@ public class CSWPlugin : ModuleRules
 
         // Decide debug mode here ---------------------------------
 
-        if (Target.Configuration == UnrealTargetConfiguration.Debug ||
-            Target.Configuration == UnrealTargetConfiguration.DebugGame ||
-            Target.Configuration == UnrealTargetConfiguration.Development)
+        if (Target.Configuration == UnrealTargetConfiguration.Debug 
+            || Target.Configuration == UnrealTargetConfiguration.DebugGame 
+			//|| Target.Configuration == UnrealTargetConfiguration.Development
+			)
         {
-            PrivateDefinitions.Add("GZ_DEBUG");
+           // PrivateDefinitions.Add("GZ_DEBUG");
         }
 
 		// Performance instrumentation ?
