@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 //
 //			
@@ -1894,6 +1894,11 @@ public:
 		v12 = v13 = v14 = v21 = v23 = v24 = v31 = v32 = v34 = v41 = v42 = v43 = 0;
 
 		return *this;
+	}
+
+	gzMatrix3_<T> rotationMatrix() const
+	{
+		return quaternion().rotationMatrix();
 	}
 
 	static gzMatrix4_ identityMatrix()

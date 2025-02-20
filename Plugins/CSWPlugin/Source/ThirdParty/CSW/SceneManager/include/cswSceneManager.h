@@ -101,8 +101,8 @@ public:
 	//! Non bufferd commands
 	CSW_SM_EXPORT	gzVoid setRenderTime(const gzDouble& time, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid setOmniTraverse(const gzBool &omniTraverse, const gzUInt32 &refCommandID = 0);
-	CSW_SM_EXPORT	gzVoid setCamera(gzCamera *camera, const gzUInt32 &refCommandID = 0);
-	CSW_SM_EXPORT	gzVoid setCameraPosition(const gzVec3D &position, const gzVec3 &hpr=GZ_ZERO_VEC3, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid setCamera(gzPerspCamera *camera, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid setCameraPosition(const gzVec3D &position, const gzVec3 &hpr=GZ_ZERO_VEC3, const gzFloat& hfov=50, const gzFloat& vfov=50, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid refreshScene(const gzDouble& time, const gzUInt32 &size_x, const gzUInt32 &size_y, const gzUInt32 &screen_width, const gzUInt32 &refCommandID = 0);
 
 	CSW_SM_EXPORT	gzVoid addMap(const gzString & mapURL, const gzUInt32 &refCommandID = 0);
@@ -172,7 +172,7 @@ private:
 
 	gzReferencePtr				m_application;
 
-	gzCameraPtr					m_camera;
+	gzPerspCameraPtr			m_camera;
 
 	gzScenePtr					m_scene;
 

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 //
 //			
@@ -509,6 +509,7 @@ const gzString	GZ_STRING_BACKSLASH		= "\\";
 const gzString	GZ_STRING_DSLASH		= "//";
 const gzString	GZ_STRING_QUESTION_MARK	= "?";
 const gzString	GZ_STRING_AMPERSAND		= "&";
+const gzString	GZ_STRING_ESC_AMPERSAND = "&amp;";
 const gzString	GZ_STRING_LEFT_BRACKET	= "[";
 const gzString	GZ_STRING_RIGHT_BRACKET	= "]";
 const gzString	GZ_STRING_YES			= "yes";
@@ -526,6 +527,7 @@ const gzString	GZ_STRING_SGL_QUOTE		= "'";
 const gzString	GZ_STRING_NEWLINE		= "\n";
 const gzString	GZ_STRING_RETURN		= "\r";
 const gzString	GZ_STRING_STAR			= "*";
+const gzString	GZ_STRING_EQU			= "=";
 
 
 class GZ_BASE_EXPORT gzUniqueString : public gzString

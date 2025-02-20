@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic methods and vars
 // Author		: Anders Modén
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //
 //
 //
@@ -39,6 +39,7 @@
 // AMO	150923	Added dynamic cast for arrays of std data							(2.8.1)
 // AMO	210420	Added encoders/decoders for compressed streams						(2.10.23)
 // AMO	210429	Optimized serialisation ( Breaks compatibility with old version )	(2.11.1)
+// AMO	250218	Added clearRegisteredMethods to remove all methods in bulk			(2.12.222)
 //
 // ******************************************************************************
 
@@ -1837,10 +1838,16 @@ public:
 
 	gzDynamicMethodChain():m_methodDict(100),m_throwArgumentFailException(FALSE){}
 
-	virtual ~gzDynamicMethodChain()
+	//! Clear all methods in a bulc
+	gzVoid clearRegisteredMethods()
 	{
 		GZ_BODYGUARD(m_locker);
 		m_methodDict.clear();
+	}
+
+	virtual ~gzDynamicMethodChain()
+	{
+		clearRegisteredMethods();
 	}
 
 private:

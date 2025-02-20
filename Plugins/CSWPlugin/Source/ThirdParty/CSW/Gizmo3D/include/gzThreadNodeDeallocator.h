@@ -19,7 +19,7 @@
 // Module		: gzGraph
 // Description	: Class definition of the gzThreadNodeDeallocator that deallocates with write lock
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.220
+// Product		: Gizmo3D 2.12.222
 //		
 //
 //			

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzCompileGroup class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.220
+// Product		: Gizmo3D 2.12.222
 //		
 //
 //			

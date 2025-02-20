@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of hamming sort
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 // 	 
 //			

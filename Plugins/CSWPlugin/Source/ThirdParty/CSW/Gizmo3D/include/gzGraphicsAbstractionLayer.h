@@ -19,7 +19,7 @@
 // Module		: gzGraph
 // Description	: Class implementation of the GAL classes
 // Author		: Anders ModÈn		
-// Product		: Gizmo3D 2.12.220
+// Product		: Gizmo3D 2.12.222
 //		
 //
 //			

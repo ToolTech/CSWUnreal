@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Pipes classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 //
 //			
@@ -261,6 +261,8 @@ public:
 	// Custom information
 
 	GZ_BASE_EXPORT virtual gzString getCustomInfo();
+
+	GZ_BASE_EXPORT virtual	gzBool	useDeepCopy() override { return FALSE; }	// Default behaviour is to share pointers to pipes
 
 protected:
 

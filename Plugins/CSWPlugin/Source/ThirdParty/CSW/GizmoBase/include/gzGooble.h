@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of XX bit floating point type
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 //
 //			

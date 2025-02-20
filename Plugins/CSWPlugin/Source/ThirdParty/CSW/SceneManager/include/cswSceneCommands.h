@@ -153,9 +153,9 @@ class cswSceneCommandSetCamera : public cswSceneCommand
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandSetCamera(gzCamera *camera);
+	CSW_SM_EXPORT cswSceneCommandSetCamera(gzPerspCamera *camera);
 
-	GZ_PROPERTY_EXPORT(gzCameraPtr, Camera, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzPerspCameraPtr, Camera, CSW_SM_EXPORT);
 };
 
 // ------------------------ cswSceneCommandRefreshScene -------------------------------
@@ -319,11 +319,15 @@ class cswSceneCommandPositionCamera : public cswSceneCommand
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandPositionCamera(const gzVec3D &position , const gzVec3 &hpr = GZ_ZERO_VEC3);
+	CSW_SM_EXPORT cswSceneCommandPositionCamera(const gzVec3D &position , const gzVec3 &hpr = GZ_ZERO_VEC3 , const gzFloat &hfov=50,const gzFloat& vfov=50);
 
 	GZ_PROPERTY_EXPORT(gzVec3D, Position, CSW_SM_EXPORT);
 
 	GZ_PROPERTY_EXPORT(gzVec3, HPR, CSW_SM_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzFloat, HFOV, CSW_SM_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzFloat, VFOV, CSW_SM_EXPORT);
 
 };
 

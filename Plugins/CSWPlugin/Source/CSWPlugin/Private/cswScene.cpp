@@ -177,19 +177,16 @@ void UCSWScene::initSceneManager()
 		m_manager->addCommandReceiver(this);
 
 		// Commands
-		cswCommandBufferPtr buffer = new cswCommandBuffer;
+		cswCommandBuffer* buffer = new cswCommandBuffer;
 
 		// Initalize scenegraph
-		buffer->addCommand(new cswSceneCommandInitialize(TRUE));
+		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
 
 		// Set a property on culling
 		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
 
 		// Set number of loaders
 		//buffer->addCommand(new cswSceneCommandSetLoaders(4));
-
-		// Demo position for camera right now... Just to get data into frame
-		buffer->addCommand(new cswSceneCommandPositionCamera(gzVec3D(336424, 131, -6580704), gzVec3(0, -10, 0)));
 
 		m_manager->addCommandBuffer(buffer);
 	}
@@ -330,10 +327,10 @@ bool UCSWScene::processCameras(bool forceUpdate)
 	rot.decompose_euler_yxz(h, p, r);
 
 	// New Command buffer
-	cswCommandBufferPtr buffer = new cswCommandBuffer;
+	cswCommandBuffer *buffer = new cswCommandBuffer;
 
 	// Demo position for camera right now... Just to get data into frame
-	buffer->addCommand(new cswSceneCommandPositionCamera(pos, gzVec3(0, -10, 0)));
+	buffer->addCommand(new cswSceneCommandPositionCamera(pos, gzVec3(h, p, r)*GZ_RAD2DEG, CameraHFOV,CameraVFOV));
 
 	m_manager->addCommandBuffer(buffer);
 

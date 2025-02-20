@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.220
+// Product		: GizmoBase 2.12.222
 //		
 // 		
 //			
@@ -420,6 +420,7 @@ public:
 	*/
 	GZ_BASE_EXPORT static gzBool	getURLBaseEncoding(const gzString &url, gzString *_urlBase=nullptr,gzString * _urlPath=nullptr,gzString *_urlName=nullptr,gzString *_urlAttributes=nullptr,gzBool *_syntax_OK=nullptr,gzBool enablePathExtension=TRUE);
 	GZ_BASE_EXPORT static gzString	getURLAttributeValue(const gzString &attributeName,const gzString &urlAttributes,const gzString &defaultValue=GZ_EMPTY_STRING);
+	GZ_BASE_EXPORT static gzString	updateURLAttributeValue(const gzString& attributeName, const gzString& value, const gzString& urlAttributes, const gzString& amp=GZ_STRING_AMPERSAND);
 	GZ_BASE_EXPORT static gzBool	hasURLAttributeValue(const gzString &attributeName, const gzString &urlAttributes);
 
 	//! Blocking control , returns TRUE is state was changed
