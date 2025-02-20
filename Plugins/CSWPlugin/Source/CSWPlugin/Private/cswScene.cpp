@@ -1008,14 +1008,14 @@ FVector3d UCSWScene::GZ_2_UE(const gzVec3D& local,enum CoordType type)
 {
 	double scale = getWorldScale();
 
-	return cswVector3d::UEVector3(scale * (gzVec3D)(cswMatrix4_<double>::GZ_UTM_2_UE() * local));
+	return cswVector3d::UEVector3<double>(GZ_2_UE(type) * local);
 }
 
 gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type)
 {
 	double scale = getWorldScale();
 
-	return  (gzVec3D) (cswMatrix4_<double>::UE_2_GZ_UTM() * cswVector3d::GZVector3(global)) / scale ;
+	return  (gzVec3D) (UE_2_GZ(type) * cswVector3d::GZVector3<double>(global));
 }
 
 double UCSWScene::getWorldScale()
