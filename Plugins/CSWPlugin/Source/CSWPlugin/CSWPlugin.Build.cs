@@ -55,7 +55,7 @@ public class CSWPlugin : ModuleRules
         }
 
 		// Performance instrumentation ?
-        PrivateDefinitions.Add("GZ_INSTRUMENT_CODE");
+        //PrivateDefinitions.Add("GZ_INSTRUMENT_CODE");
 
         PublicIncludePaths.AddRange(
 			new string[] {
