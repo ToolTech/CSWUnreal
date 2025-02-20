@@ -180,7 +180,7 @@ void UCSWScene::initSceneManager()
 		cswCommandBufferPtr buffer = new cswCommandBuffer;
 
 		// Initalize scenegraph
-		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
+		buffer->addCommand(new cswSceneCommandInitialize(TRUE));
 
 		// Set a property on culling
 		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
@@ -220,6 +220,11 @@ bool UCSWScene::processCameras(bool forceUpdate)
 
 	float		CameraVFOV = 90.0f;
 	float		CameraHFOV = 90.0f;
+
+	// Check manager
+
+	if (!m_manager)
+		return false;
 
 #if WITH_EDITOR
 
@@ -297,41 +302,42 @@ bool UCSWScene::processCameras(bool forceUpdate)
 		CameraVFOV = atan(tan(CameraHFOV * GZ_DEG2RAD_F / 2) / aspectRatio) * GZ_RAD2DEG_F * 2;
 	}
 
+	// Add possible offset to Camera Location
+
 	if (CenterOrigin)
 		CameraLocation += FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ);
 
-	gzVec3D pos = UE_2_GZ(CameraLocation, CoordType);
+	// Get Large World position of camera 
+
+	gzVec3D pos = UE_2_GZ(CameraLocation, CoordType,getWorldScale());
+
+	// Get rotation matrix from camera
 
 	FMatrix rotation = FRotationMatrix::Make(CameraRotation).RemoveTranslation();
 
+	// Build camera matrix in GZ world
 
-	cswScreenMessage(gzString::formatString("East-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(1, 0, 0)).asString()), 0);
-	cswScreenMessage(gzString::formatString("Up-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(0, 1, 0)).asString()));
-	cswScreenMessage(gzString::formatString("South-Axis %s", gzVec3D(cswMatrix4d::GZ_UTM_2_UE() * gzVec3D(0, 0, 1)).asString()));
+	gzMatrix4D mat = UE_2_GZ(CoordType) * cswMatrix4d::GZMatrix4<double>(rotation) * cswMatrix4d::GZ_2_UE();
 
-	/*gzMatrix4D unit = gzMatrix4D(gzVec4D(11, 21, 31, 41), gzVec4D(12, 22, 32, 42), gzVec4D(13, 23, 33, 43), gzVec4D(14, 24, 34, 44));
-
-	cswScreenMessage(gzString::formatString("CSW Matrix %s", unit.asString()));
-	cswScreenMessage(gzString::formatString("UE Matrix %s", toString(cswMatrix4d::UEMatrix4(unit).ToString() )));
-
-	cswScreenMessage(gzString::formatString("UE X Vector %s", toString(cswMatrix4d::UEMatrix4(unit).TransformPosition(FVector(1,0,0)).ToString())));*/
-
-	gzMatrix4D camM = cswMatrix4d::GZMatrix4<double>(FRotationMatrix::Make(CameraRotation).RemoveTranslation());
-
-	cswScreenMessage(gzString::formatString("right point in GZ %s",gzVec3D(cswMatrix4d::UE_2_GZ_UTM() * camM * cswMatrix4d::GZ_2_UE() * gzVec3(1,0,0)).asString()));
-
-
-
-	gzMatrix4D mat = cswMatrix4d::UE_2_GZ_UTM() * camM * cswMatrix4d::GZ_2_UE();
-
+	// Get rotation indep of possiböle translation
 
 	gzMatrix3D rot = mat.quaternion().rotationMatrix();
+
+	// Decompose Camera HPR in GZ world
 
 	double h, p, r;
 
 	rot.decompose_euler_yxz(h, p, r);
 
-	cswScreenMessage(gzString::formatString("H:%.2f P:%.2f R:%.2f",h,p,r));
+	// New Command buffer
+	cswCommandBufferPtr buffer = new cswCommandBuffer;
+
+	// Demo position for camera right now... Just to get data into frame
+	buffer->addCommand(new cswSceneCommandPositionCamera(pos, gzVec3(0, -10, 0)));
+
+	m_manager->addCommandBuffer(buffer);
+
+	/*cswScreenMessage(gzString::formatString("H:%.2f P:%.2f R:%.2f Pos:%s",h,p,r,pos.asString()),0);*/
 
 	return true;
 }
@@ -752,7 +758,7 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 		// Empty. Plain Geometry
 		CoordType = CoordType::Geometry;
 		GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
-		UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geometry);
+		UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geometry,scale);
 	}
 	else
 	{
@@ -765,51 +771,46 @@ bool UCSWScene::processGeoInfo(cswSceneCommandGeoInfo* command)
 		{
 			CoordType = CoordType::Geometry;
 			GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
-			UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geometry);
+			UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geometry,scale);
 			GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to set interpret coordinate system %s", command->getCoordinateSystem());
 			
 		}
 		else
 		{
-
 			switch (system.type)
 			{
 				case gzCoordType::GZ_COORDTYPE_GEOCENTRIC:
 					CoordType = CoordType::Geocentric;
 					GeoOrigin = NewObject<UCSWGeoGeocentricComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geocentric);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_GEODETIC:
 					CoordType = CoordType::Geodetic;
 					GeoOrigin = NewObject<UCSWGeoGeodeticComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geodetic);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_PROJECTED:
 					CoordType = CoordType::Projected;
 					GeoOrigin = NewObject<UCSWGeoProjectedComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Projected);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_UTM:
 					CoordType = CoordType::UTM;
 					GeoOrigin = NewObject<UCSWGeoUTMComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::UTM);
 					break;
 
 				case gzCoordType::GZ_COORDTYPE_FLATEARTH:
 					CoordType = CoordType::FlatEarth;
 					GeoOrigin = NewObject<UCSWGeoFlatEarthComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::FlatEarth);
 					break;
 
 				default:
 					CoordType = CoordType::Geometry;
 					GeoOrigin = NewObject<UCSWGeoModelComponent>(this);
-					UEOrigin = GZ_2_UE(command->getOrigin(), CoordType::Geometry);
 					break;
 			}
+
+			UEOrigin = GZ_2_UE(command->getOrigin(), CoordType, scale);
 		}
 	}
 
@@ -942,42 +943,24 @@ void  UCSWScene::updateOriginTransform()
 {
 	FTransform m;
 
-	// map SCENE content in Gizmo World to UE world
+	// map SCENE content in Gizmo World to UE world with or without origin
 
-	gzVec3D origin;
+	gzVec3D origin = CenterOrigin ? UE_2_GZ(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType,getWorldScale()) : GZ_ZERO_VEC3D;
 
-	double scale = getWorldScale();
+	// Move children negative origin so our map origin ends up in 0,0,0
 
-	switch (CoordType)
-	{
-		case CoordType::Geometry:
-		case CoordType::Projected:
-		case CoordType::UTM:
-			origin = CenterOrigin ? UE_2_GZ(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType::UTM) : GZ_ZERO_VEC3D;
-			// Move children negative origin so our map origin ends up in 0,0,0
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE(-origin, scale)));
-			break;
+	m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(GZ_2_UE(CoordType,getWorldScale(),origin)));
 
-		case CoordType::Geodetic:
-			break;
-
-		case CoordType::Geocentric:
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE()));
-			break;
-
-		case CoordType::FlatEarth:
-			m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(cswMatrix4_<double>::GZ_UTM_2_UE()));
-			break;
-	}
-
+	// Apply Transform to root
+	
 	SetRelativeTransform(m);
 }
 
-gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const gzVec3D& offset)
+gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const double& scale, const gzVec3D& offset)
 {
 	gzMatrix4D mat;
 	
-	if(GZ_2_UE(type, offset).inverse(mat))
+	if(GZ_2_UE(type, scale, offset).inverse(mat))
 		return mat;
 
 	GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to invert local matrix to global");
@@ -985,16 +968,16 @@ gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const gzVec3D& offset)
 	return gzMatrix4D::identityMatrix();
 }
 
-gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const gzVec3D& offset)
+gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const double& scale, const gzVec3D& offset)
 {
 	switch (type)
 	{
 		case CoordType::Geometry:
-			return cswMatrix4d::GZ_2_UE(-offset, getWorldScale());
+			return cswMatrix4d::GZ_2_UE(-offset, scale);
 
 		case CoordType::Projected:
 		case CoordType::UTM:
-			return cswMatrix4d::GZ_UTM_2_UE(-offset, getWorldScale());
+			return cswMatrix4d::GZ_UTM_2_UE(-offset, scale);
 
 		default:
 			GZ_XXX;
@@ -1004,18 +987,14 @@ gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const gzVec3D& offset)
 }
 
 
-FVector3d UCSWScene::GZ_2_UE(const gzVec3D& local,enum CoordType type)
+FVector3d UCSWScene::GZ_2_UE(const gzVec3D& local,enum CoordType type, const double& scale , const gzVec3D& offset)
 {
-	double scale = getWorldScale();
-
-	return cswVector3d::UEVector3<double>(GZ_2_UE(type) * local);
+	return cswVector3d::UEVector3<double>(GZ_2_UE(type,scale,offset) * local);
 }
 
-gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type)
+gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type, const double& scale , const gzVec3D& offset)
 {
-	double scale = getWorldScale();
-
-	return  (gzVec3D) (UE_2_GZ(type) * cswVector3d::GZVector3<double>(global));
+	return  (gzVec3D) (UE_2_GZ(type,scale,offset) * cswVector3d::GZVector3<double>(global));
 }
 
 double UCSWScene::getWorldScale()
