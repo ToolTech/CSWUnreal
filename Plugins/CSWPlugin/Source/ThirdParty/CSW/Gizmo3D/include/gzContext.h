@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzContext class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.222
+// Product		: Gizmo3D 2.12.223
 //		
 //
 //			

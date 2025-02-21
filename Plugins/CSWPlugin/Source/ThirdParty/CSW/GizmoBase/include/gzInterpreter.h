@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of interpreter utilities
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.222
+// Product		: GizmoBase 2.12.223
 //		
 // 		
 //			

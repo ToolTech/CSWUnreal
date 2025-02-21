@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of spatial data storage templates
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.222
+// Product		: GizmoBase 2.12.223
 //		
 //
 //			

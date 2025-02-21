@@ -87,10 +87,10 @@ public:
 	CSW_SM_EXPORT	void shutdown();
 
 	// When buffer is added, it is owned by the manager
-	CSW_SM_EXPORT	gzVoid addCommandBuffer(cswCommandBuffer* buffer);
+	CSW_SM_EXPORT	gzVoid addCommandBuffer(cswCommandBuffer* buffer,gzBool fireProcess=TRUE);
 	CSW_SM_EXPORT	gzBool hasPendingCommands();
 
-	CSW_SM_EXPORT	gzVoid addSingleCommand(cswSceneCommand* command);
+	CSW_SM_EXPORT	gzVoid addSingleCommand(cswSceneCommand* command, gzBool fireProcess = TRUE, const cswCommandBufferType& type = CSW_BUFFER_TYPE_GENERIC);
 
 	CSW_SM_EXPORT	gzVoid addCommandReceiver(cswCommandReceiverInterface* receiver);
 	CSW_SM_EXPORT	gzVoid removeCommandReceiver(cswCommandReceiverInterface* receiver);

@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of coordinate transforms
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.222
+// Product		: GizmoBase 2.12.223
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			

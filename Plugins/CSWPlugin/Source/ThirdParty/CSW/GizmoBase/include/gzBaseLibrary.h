@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Management of the base library
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.222
+// Product		: GizmoBase 2.12.223
 //		
 //
 //			

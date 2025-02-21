@@ -156,10 +156,14 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	// Drive the scene from tick
 
-	processFrames(m_firstRun);
-
 	processCameras(m_firstRun);
-	
+
+	/*gzUInt32 frames=processFrames(m_firstRun, m_firstRun ? false : true,10000);
+
+	cswScreenMessage(gzString::formatString("processed frames:%d", frames));*/
+
+	processFrames(m_firstRun);
+		
 	m_firstRun = false;
 }
 
@@ -326,13 +330,9 @@ bool UCSWScene::processCameras(bool forceUpdate)
 
 	rot.decompose_euler_yxz(h, p, r);
 
-	// New Command buffer
-	cswCommandBuffer *buffer = new cswCommandBuffer;
+	// Send camera update without trigger buffer processing
 
-	// Demo position for camera right now... Just to get data into frame
-	buffer->addCommand(new cswSceneCommandPositionCamera(pos, gzVec3(h, p, r)*GZ_RAD2DEG, CameraHFOV,CameraVFOV));
-
-	m_manager->addCommandBuffer(buffer);
+	m_manager->addSingleCommand(new cswSceneCommandPositionCamera(pos, gzVec3(h, p, r) * GZ_RAD2DEG, CameraHFOV, CameraVFOV), FALSE);
 
 	/*cswScreenMessage(gzString::formatString("H:%.2f P:%.2f R:%.2f Pos:%s",h,p,r,pos.asString()),0);*/
 
@@ -345,14 +345,18 @@ gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt
 	bool isActive = m_manager && m_manager->isRunning();
 
 	// Transfer incoming to gamethread and don not wait for a frame
-	fetchBuffers(waitForFrame,timeOut);
+	bool fetchOk=fetchBuffers(waitForFrame,timeOut);
 
 	// Work on buffers, max 10 full frames, max primitives per frame
 	gzUInt32 frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
 	
-	// Trigger next frame
-	if (isActive && ((frames > 0) || forceNewFrame))
-		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()));
+	// -- Trigger next frame --
+	// If we are active AND
+	// We got a frame in process OR if we fetched a frame and waited OR if we want a forced new frame
+	// Trigger buffer processing
+
+	if (isActive && ((frames > 0) || (fetchOk & waitForFrame) || forceNewFrame))
+		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()),TRUE);
 
 	return frames;
 }

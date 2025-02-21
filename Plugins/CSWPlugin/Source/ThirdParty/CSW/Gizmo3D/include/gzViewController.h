@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of view controller classes
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.222
+// Product		: Gizmo3D 2.12.223
 //		
 //
 //			

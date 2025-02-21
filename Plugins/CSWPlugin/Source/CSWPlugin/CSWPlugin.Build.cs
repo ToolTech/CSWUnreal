@@ -52,7 +52,7 @@ public class CSWPlugin : ModuleRules
 			//|| Target.Configuration == UnrealTargetConfiguration.Development
 			)
         {
-           // PrivateDefinitions.Add("GZ_DEBUG");
+           PrivateDefinitions.Add("GZ_DEBUG");
         }
 
 		// Performance instrumentation ?

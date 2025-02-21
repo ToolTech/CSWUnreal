@@ -49,11 +49,13 @@ public class CSWDev : ModuleRules
 
         // Decide debug mode here ---------------------------------
 
-        if (Target.Configuration == UnrealTargetConfiguration.Debug ||
-            Target.Configuration == UnrealTargetConfiguration.DebugGame ||
-            Target.Configuration == UnrealTargetConfiguration.Development)
+        if (
+                Target.Configuration == UnrealTargetConfiguration.Debug
+                || Target.Configuration == UnrealTargetConfiguration.DebugGame 
+                //|| Target.Configuration == UnrealTargetConfiguration.Development
+            )
         {
-            //PrivateDefinitions.Add("GZ_DEBUG=1");
+            PrivateDefinitions.Add("GZ_DEBUG=1");
         }
 
        
