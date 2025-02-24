@@ -442,6 +442,9 @@ public:
 	GZ_GRAPH_EXPORT virtual gzVoid read(gzSerializeAdapter *adapter) override;
 	GZ_GRAPH_EXPORT virtual gzUInt32	getDataSize(gzSerializeAdapter *adapter) const override;
 
+	//! Release all external references
+	GZ_GRAPH_EXPORT virtual gzBool releaseRefs() override;
+
 	// ----------- Globals ----------------------------------------------------
 
 	static GZ_GRAPH_EXPORT gzParameterUpdateInfo & getGlobalUpdateInfo(gzUInt32 contextID,gzGFXProgramType type=GZ_GFX_GLOBAL);

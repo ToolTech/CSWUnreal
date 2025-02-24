@@ -367,9 +367,11 @@ gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt
 // lock and iterate over incoming commands and transfer them to game thread
 bool UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 {
-	gzPerformanceBody A("fetchBuffers");
+	GZ_INSTRUMENT_NAME("UCSWScene::fetchBuffers");
 
 	GZ_BODYGUARD(m_bufferInLock);
+
+	UETRACE(gzString::formatString("Buffers:%d", m_bufferIn.entries()));
 
 	while (true)
 	{
@@ -536,7 +538,6 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 		if (endFrame)
 		{
 			// Do stuff from end
-
 			--maxFrames;
 		}
 	
@@ -644,7 +645,6 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 	if (parentGroup)
 		gzDynamic_Cast(parentGroup->getAttribute("debug", "pathID"), debugParentPathID);*/
 
-
 	UCSWSceneComponent* parent = getComponent(parentGroup, parentPathID);
 
 	if (!parent)
@@ -698,7 +698,6 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 
 	gzNode* node = command->getNode();
 	gzUInt64 pathID = command->getPathID();
-
 
 	UCSWSceneComponent* component = getComponent(node, pathID);
 

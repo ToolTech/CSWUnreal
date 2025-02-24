@@ -50,5 +50,11 @@ CSWPLUGIN_API UTexture2D* cswUETexture2DFromImage(gzImage* image);
 
 CSWPLUGIN_API void cswScreenMessage(const gzString& message,const gzInt32 &line=-1,const FColor &color=FColor::Yellow);
 
+#ifdef GZ_DEBUG
+	#define UETRACE cswScreenMessage
+#else
+	#define UETRACE gzTrace::NoTraceMessage
+#endif
+
 // Utility classes
 

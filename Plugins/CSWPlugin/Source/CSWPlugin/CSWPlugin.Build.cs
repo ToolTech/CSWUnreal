@@ -45,6 +45,8 @@ public class CSWPlugin : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
+        bEnableExceptions = true;
+
         // Decide debug mode here ---------------------------------
 
         if (Target.Configuration == UnrealTargetConfiguration.Debug 
@@ -56,7 +58,7 @@ public class CSWPlugin : ModuleRules
         }
 
 		// Performance instrumentation ?
-        //PrivateDefinitions.Add("GZ_INSTRUMENT_CODE");
+        PrivateDefinitions.Add("GZ_INSTRUMENT_CODE");
 
         PublicIncludePaths.AddRange(
 			new string[] {
