@@ -156,8 +156,6 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 
 	// Drive the scene from tick
 
-	processCameras(m_firstRun);
-
 	/*gzUInt32 frames=processFrames(m_firstRun, m_firstRun ? false : true,10000);
 
 	cswScreenMessage(gzString::formatString("processed frames:%d", frames));*/
@@ -175,7 +173,7 @@ void UCSWScene::initSceneManager()
 		m_manager = new cswSceneManager();
 
 		// Do conversion in manager thread
-		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY|CSW_CAPABILITY_REBUILD_INDEX_GEOMETRY);
+		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY/*|CSW_CAPABILITY_REBUILD_INDEX_GEOMETRY*/);
 
 		// Register us as receiver of scene commands
 		m_manager->addCommandReceiver(this);
@@ -349,6 +347,7 @@ gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt
 
 	// Work on buffers, max 10 full frames, max primitives per frame
 	gzUInt32 frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
+
 	
 	// -- Trigger next frame --
 	// If we are active AND
@@ -356,8 +355,12 @@ gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt
 	// Trigger buffer processing
 
 	if (isActive && ((frames > 0) || (fetchOk & waitForFrame) || forceNewFrame))
-		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()),TRUE);
+	{
+		processCameras(forceNewFrame);
 
+		m_manager->addSingleCommand(new cswSceneCommandRefreshScene(gzTime::systemSeconds()), TRUE);
+	}
+		
 	return frames;
 }
 
@@ -503,7 +506,7 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processFrameBuffer");
 
-	if (!buffer->tryLockEdit())		// We failed to lock buffer
+	if (!buffer->tryLockEdit(FrameSkipLatency))		// We failed to lock buffer
 		return false;
 
 	while (buffer->hasCommands() && maxFrames)
@@ -524,16 +527,19 @@ bool UCSWScene::processFrameBuffer(cswCommandBuffer* buffer, gzUInt32& maxFrames
 
 		if (startFrame)
 		{
-			RenderTime = startFrame->getRenderTime();
+			// Do stuff from start
 			continue;
 		}
 
 		cswSceneCommandEndFrame* endFrame = gzDynamic_Cast<cswSceneCommandEndFrame>(command);
 
-		
-		--maxFrames;
-		continue;
+		if (endFrame)
+		{
+			// Do stuff from end
 
+			--maxFrames;
+		}
+	
 	}
 
 	buffer->unLock();				// finished
@@ -545,7 +551,7 @@ bool UCSWScene::processDeleteBuffer(cswCommandBuffer* buffer)
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processDeleteBuffer");
 
-	if (!buffer->tryLockEdit())		// We failed to lock buffer
+	if (!buffer->tryLockEdit(FrameSkipLatency))		// We failed to lock buffer  in edit mode
 		return false;
 
 	bool result(true);
@@ -584,7 +590,7 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds)
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processNewBuffer");
 
-	if (!buffer->tryLockEdit())		// We failed to lock buffer
+	if (!buffer->tryLockEdit(FrameSkipLatency))		// We failed to lock buffer
 		return false;
 
 	bool result(true);

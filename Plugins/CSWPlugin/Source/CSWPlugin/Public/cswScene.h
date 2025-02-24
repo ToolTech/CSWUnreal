@@ -91,12 +91,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	TEnumAsByte<CoordType> CoordType;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
-	double RenderTime;
+	
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	uint32 MaxPrimitivesPerFrame=5;
+
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	uint32 FrameSkipLatency = 10;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	UCSWGeoComponent* GeoOrigin;

@@ -78,11 +78,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	UCSWScene* Scene;
-
-
-	UPROPERTY(EditAnywhere,Category = "CSW")
-	UCSWCamera* DefaultCamera;
-
-
-
+	
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	uint8 LoaderThreads;
 };

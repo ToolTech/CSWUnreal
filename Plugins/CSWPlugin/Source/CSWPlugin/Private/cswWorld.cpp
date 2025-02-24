@@ -37,7 +37,7 @@
 #include "CSWWorld.h"
 
 #include "UEGlue/cswUEGlue.h"
-
+#include "gzDynamicLoader.h"
 
 ACSWWorld::ACSWWorld()
 {
@@ -50,7 +50,7 @@ ACSWWorld::ACSWWorld()
 
 	SetRootComponent(Scene);
 
-	DefaultCamera = CreateDefaultSubobject<UCSWCamera>(TEXT("Camera"));
+	LoaderThreads = gzDynamicLoaderManager::getNumberOfActiveLoaders();
 }
 
 ACSWWorld::~ACSWWorld()

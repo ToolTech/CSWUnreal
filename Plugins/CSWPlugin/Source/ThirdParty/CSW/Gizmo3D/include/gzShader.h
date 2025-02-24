@@ -152,7 +152,7 @@ public:
 
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_GRAPH_EXPORT);	// typed interface
 
-	GZ_GRAPH_EXPORT virtual				~gzGFXProgramManager(){};
+	GZ_GRAPH_EXPORT virtual				~gzGFXProgramManager();
 
 	GZ_GRAPH_EXPORT gzUInt32			getVersion()	{ return m_version;		}
 
@@ -599,7 +599,7 @@ public:
 
 	GZ_GRAPH_EXPORT					gzGFXProgramManager_GLSL_1();
 
-	GZ_GRAPH_EXPORT virtual			~gzGFXProgramManager_GLSL_1(){};
+	GZ_GRAPH_EXPORT virtual			~gzGFXProgramManager_GLSL_1();
 
 	GZ_GRAPH_EXPORT virtual gzBool	isManagerFor(gzGFXProgram *program) override;
 
