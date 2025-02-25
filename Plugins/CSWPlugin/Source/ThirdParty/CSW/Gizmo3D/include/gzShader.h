@@ -146,7 +146,7 @@ public:
 // AMO	030204	Created 
 //									
 //******************************************************************************
-class gzGFXProgramManager : public gzReference
+class gzGFXProgramManager : public gzThreadSafeReference
 {
 public:
 
@@ -176,7 +176,7 @@ public:
 
 	GZ_GRAPH_EXPORT static gzGFXProgramManager * getManagerForProgram(gzGFXProgram *program);
 
-	GZ_GRAPH_EXPORT static gzVoid		cleanUpGFXData(gzContext *context);
+	GZ_GRAPH_EXPORT static gzVoid		cleanUpGFXData(gzContext *context);			\
 
 protected:
 

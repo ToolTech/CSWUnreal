@@ -188,7 +188,10 @@ void UCSWScene::initSceneManager()
 		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
 
 		// Set number of loaders
-		//buffer->addCommand(new cswSceneCommandSetLoaders(4));
+		buffer->addCommand(new cswSceneCommandSetLoaders(4));
+
+		// Set camera setings
+		buffer->addCommand(new cswSceneCommandCameraSettings(50,10000,TRUE));
 
 		m_manager->addCommandBuffer(buffer);
 	}
@@ -196,6 +199,10 @@ void UCSWScene::initSceneManager()
 
 void UCSWScene::unInitSceneManager()
 {
+	// Empty graphics data
+
+	m_pendingBuffers.clear();
+
 	if (m_manager)
 	{
 		m_manager->shutdown();

@@ -331,6 +331,23 @@ public:
 
 };
 
+// ------------------------ cswSceneCommandCameraSettings -------------------------------
+
+class cswSceneCommandCameraSettings : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandCameraSettings(const gzFloat& nearDistance,const gzFloat &farDistance, const gzBool infiniteFar=FALSE);
+
+	GZ_PROPERTY_EXPORT(gzFloat, NearDistance, CSW_SM_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzFloat, FarDistance, CSW_SM_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzBool, InfiniteFar, CSW_SM_EXPORT);
+
+};
+
 // ------------------------ cswSceneCommandStartFrame -------------------------------
 
 class cswSceneCommandStartFrame : public cswSceneCommandPositionCamera

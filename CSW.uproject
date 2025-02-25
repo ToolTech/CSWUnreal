@@ -25,5 +25,8 @@
 			"Name": "GeoReferencing",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"Windows"
 	]
 }
