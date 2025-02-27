@@ -44,19 +44,24 @@ GZ_DECLARE_TYPE_CHILD(gzObject, cswResourceManager, "cswResourceManager");
 
 UMaterialInterface* cswResourceManager::initializeBaseMaterial()
 {
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/CSWPlugin/Materials/cswBaseMaterial.cswBaseMaterial"));
+	// Path to terrain base material
+	FSoftObjectPath MaterialPath(TEXT("/CSWPlugin/Materials/cswBaseMaterial.cswBaseMaterial"));
 
-	if (!MaterialFinder.Succeeded())
-		return nullptr;
+	m_baseMaterial = Cast<UMaterial>(MaterialPath.ResolveObject());
 
-	m_baseMaterial = MaterialFinder.Object;
-	
+	if (!m_baseMaterial)
+		m_baseMaterial = CastChecked<UMaterial>(MaterialPath.TryLoad());
+
+		
 	return m_baseMaterial;
 }
 
 UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gzState* state, cswMaterialType type)
 {
 	if (!state)
+		return nullptr;
+
+	if (!m_baseMaterial)
 		return nullptr;
 
 	if (type == CSW_MATERIAL_TYPE_BASE_MATERIAL)

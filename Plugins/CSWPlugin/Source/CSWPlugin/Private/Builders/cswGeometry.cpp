@@ -328,8 +328,14 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	// Get material array
 	TArray<FStaticMaterial>& materials = staticMesh->GetStaticMaterials();
 
-	// Add one material for current mesh
-	materials.Add(FStaticMaterial());
+	// Setup a static material
+	FStaticMaterial staticMaterial;
+
+	// Enable UVChannel data
+	staticMaterial.UVChannelData.bInitialized = true;
+
+	// Add the static material for current mesh
+	materials.Add(staticMaterial);
 
 	// Some extra build parmeters
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;

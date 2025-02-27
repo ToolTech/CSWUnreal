@@ -490,9 +490,14 @@ public:
 	};
 };
 
-template <class T, class Y> inline gzVec3_<T> operator * (const Y& val, const gzVec3_<T>& vector)
+template <class T> inline gzVec3_<T> operator * (const gzFloat& val, const gzVec3_<T>& vector)
 {
-	return gzVec3_<T>((T)val * vector.v1, (T)val * vector.v2, (T)val * vector.v3);
+	return gzVec3_<T>(val * vector.v1, val * vector.v2, val * vector.v3);
+}
+
+template <class T> inline gzVec3_<T> operator * (const gzDouble& val, const gzVec3_<T>& vector)
+{
+	return gzVec3_<T>(val * vector.v1, val * vector.v2, val * vector.v3);
 }
 
 typedef gzVec3_<gzFloat>	gzVec3;

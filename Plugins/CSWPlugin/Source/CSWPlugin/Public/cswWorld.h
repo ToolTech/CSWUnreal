@@ -41,7 +41,6 @@
 #include "UEGlue/cswUETemplates.h"
 
 #include "cswScene.h"
-#include "cswCamera.h"
 #include "cswGeoComponent.h"
 
 #include "cswWorld.generated.h"

@@ -47,6 +47,8 @@
 
 #else
 
+	#include "stdio.h"
+
 	// Fix this for other platforms and other test frameworks ... (amo 180425)
 	#define Assert_Fail(x) 
 	#define Logger(x) printf("%s\n",(const char *)x);

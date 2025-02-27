@@ -75,9 +75,6 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 
 		// Perform init of scenemanager 
 		initSceneManager();
-
-		// Perform init of resource manager 
-		initResourceManager();
 	}
 }
 
@@ -159,6 +156,12 @@ void UCSWScene::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorC
 	/*gzUInt32 frames=processFrames(m_firstRun, m_firstRun ? false : true,10000);
 
 	cswScreenMessage(gzString::formatString("processed frames:%d", frames));*/
+
+	if (m_firstRun)
+	{
+		// Perform init of resource manager 
+		initResourceManager();
+	}
 
 	processFrames(m_firstRun);
 		
@@ -378,7 +381,7 @@ bool UCSWScene::fetchBuffers(bool waitForFrame,gzUInt32 timeOut)
 
 	GZ_BODYGUARD(m_bufferInLock);
 
-	UETRACE(gzString::formatString("Buffers:%d", m_bufferIn.entries()));
+	//UETRACE(gzString::formatString("Buffers:%d", m_bufferIn.entries()));
 
 	while (true)
 	{
