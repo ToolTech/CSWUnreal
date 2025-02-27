@@ -38,6 +38,7 @@
 
 #include "UEGlue/cswUEGlue.h"
 #include "cswSceneManager.h"
+#include "UEGlue/cswUETemplates.h"
 
 //-------------------- cswToUnrealMessageReceiver --------------------------------------------
 
@@ -160,12 +161,27 @@ gzVoid cswInitializeUnrealGlue()
 
 	if (!_counter)
 	{
-		gzMessage::setMessageLevel(GZ_MESSAGE_DETAIL_DEBUG);
-
+		// Setup message receivers
+		
 		_GZ_Receiver = new cswToUnrealMessageReceiver;
 		_UE_Receiver = new cswFromUnrealMessageReceiver;
 
+		// Read configuration for {executable name}.xml
+
+		gzString basePath = toString(FPlatformProcess::BaseDir());
+
+		gzString registryError;
+		
+		if (!gzKeyDatabase::setLocalRegistry(gzString::formatString("%s%s.xml", basePath,toString(FPlatformProcess::ExecutableName(true))),GZ_EMPTY_STRING,&registryError ))
+		{
+			GZMESSAGE(GZ_MESSAGE_WARNING, registryError);
+		}
+
+		gzMessage::setMessageLevel(gzMessageLevel(gzKeyDatabase::getDefaultUserKey("CSW/MessageLevel", gzString(GZ_MESSAGE_NOTICE)).num32()));
+
 		cswSceneManager::initializeSceneSystem();
+
+
 	}
 
 	_counter++;

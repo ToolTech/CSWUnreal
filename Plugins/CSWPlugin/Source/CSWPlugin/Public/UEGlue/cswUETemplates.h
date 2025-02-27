@@ -13,6 +13,11 @@ inline gzString toString(const FString& string)
 	return gzString(*string);
 }
 
+inline gzString toString(const TCHAR *string)
+{
+	return gzString((gzWideChar *)string);
+}
+
 //******************************************************************************
 // Template	: cswHashInterface<T>
 //									

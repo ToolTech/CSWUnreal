@@ -50,8 +50,10 @@ UMaterialInterface* cswResourceManager::initializeBaseMaterial()
 	m_baseMaterial = Cast<UMaterial>(MaterialPath.ResolveObject());
 
 	if (!m_baseMaterial)
-		m_baseMaterial = CastChecked<UMaterial>(MaterialPath.TryLoad());
+		m_baseMaterial = Cast<UMaterial>(MaterialPath.TryLoad());
 
+	if (!m_baseMaterial)
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Couldn't find cswBaseMaterial");
 		
 	return m_baseMaterial;
 }
