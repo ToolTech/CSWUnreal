@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the graph library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.223
+// Product		: Gizmo3D 2.12.224
 //		
 //
 //			

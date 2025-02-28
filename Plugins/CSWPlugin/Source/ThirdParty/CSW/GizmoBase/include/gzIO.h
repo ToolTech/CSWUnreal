@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.223
+// Product		: GizmoBase 2.12.224
 //		
 //
 //			
@@ -34,6 +34,7 @@
 //									
 // AMO	060302	Created file 	
 // AMO	101202	Added a fast implementation of gzFileExist		(2.5.16)
+// AMO	250228	Added permission check in gzDirExist			(2.12.224)
 //
 //******************************************************************************
 
@@ -61,6 +62,8 @@
 	#define GZ_FILE_INVALID_HANDLE	NULL
 #endif
 
+// Offsets in seek e.g.
+
 enum gzOriginPos
 {
 	GZ_ORIGIN_SET,
@@ -68,6 +71,18 @@ enum gzOriginPos
 	GZ_ORIGIN_END,
 	GZ_ORIGIN_SIZE,
 };
+
+// Permission in io ops
+
+enum gzPermission
+{
+	GZ_PERMISSION_NO_ACCESS	= 0,
+	GZ_PERMISSION_READ		= 1<<0,
+	GZ_PERMISSION_WRITE		= 1<<1,
+	GZ_PERMISSION_EXECUTE	= 1<<2,
+};
+
+GZ_USE_BIT_LOGIC(gzPermission);
 
 GZ_BASE_EXPORT gzFileHandle gzFileOpenRead(const gzString &name,gzMemSize *filesize);
 GZ_BASE_EXPORT gzFileHandle gzFileOpenWrite(const gzString &name,gzBool append=FALSE);
@@ -85,8 +100,9 @@ GZ_BASE_EXPORT gzBool		gzFileExist(const gzString &name);
 GZ_BASE_EXPORT gzBool		gzFileDelete(const gzString &name);
 
 GZ_BASE_EXPORT gzBool		gzIsDirURL(const gzString &url);
-GZ_BASE_EXPORT gzBool		gzDirExist(const gzString &directory);
+GZ_BASE_EXPORT gzBool		gzDirExist(const gzString &directory, gzPermission* permission=NULL);
 GZ_BASE_EXPORT gzBool		gzMakeDir(const gzString &directory);
+GZ_BASE_EXPORT gzBool		gzRemoveDir(const gzString& directory);
 
 
 #endif	//__GZ_IO_H__ 

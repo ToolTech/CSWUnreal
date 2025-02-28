@@ -112,6 +112,9 @@ public:
 	double ModelOriginZ = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
+	bool AllowCustomOrigin = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
 	bool CenterOrigin = true;
 
 protected:

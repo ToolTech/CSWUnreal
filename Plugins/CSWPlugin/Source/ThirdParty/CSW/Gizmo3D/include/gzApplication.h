@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzApplication class
 // Author		: Anders ModÈn		
-// Product		: Gizmo3D 2.12.223
+// Product		: Gizmo3D 2.12.224
 //		
 //	
 //			

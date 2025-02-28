@@ -108,9 +108,12 @@ cswFromUnrealMessageReceiver::~cswFromUnrealMessageReceiver()
 
 void cswFromUnrealMessageReceiver::Serialize(const TCHAR* Message, ELogVerbosity::Type Verbosity, const class FName& Category)
 {
+#if !NO_LOGGING
+
 	// Skip route of our own messages
 	if (Category == CSW.GetCategoryName())
 		return;
+#endif
 
 	switch (Verbosity)
 	{

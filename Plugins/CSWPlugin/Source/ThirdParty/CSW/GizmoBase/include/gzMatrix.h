@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.223
+// Product		: GizmoBase 2.12.224
 //		
 //
 //			
@@ -237,9 +237,9 @@ public:
 	};
 };
 
-template <class T, class Y> inline gzVec2_<T> operator * (const Y& val, const gzVec2_<T>& vector)
+template <class T> inline gzVec2_<T> operator * (const T& val, const gzVec2_<T>& vector)
 {
-	return gzVec2_<T>((T)val * vector.v1, (T)val * vector.v2);
+	return gzVec2_<T>(val * vector.v1, val * vector.v2);
 }
 
 typedef gzVec2_<gzFloat>	gzVec2;
@@ -490,12 +490,7 @@ public:
 	};
 };
 
-template <class T> inline gzVec3_<T> operator * (const gzFloat& val, const gzVec3_<T>& vector)
-{
-	return gzVec3_<T>(val * vector.v1, val * vector.v2, val * vector.v3);
-}
-
-template <class T> inline gzVec3_<T> operator * (const gzDouble& val, const gzVec3_<T>& vector)
+template <class T> inline gzVec3_<T> operator * (const T& val, const gzVec3_<T>& vector)
 {
 	return gzVec3_<T>(val * vector.v1, val * vector.v2, val * vector.v3);
 }

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic plugin modules
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.223
+// Product		: GizmoBase 2.12.224
 //		
 //
 //			

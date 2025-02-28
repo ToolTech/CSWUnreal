@@ -70,6 +70,7 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 		registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
 		registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
 		registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
+		registerPropertyUpdate("AllowCustomOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
 
 		registerComponent(this, nullptr, 0);	// Register root
 
@@ -186,6 +187,9 @@ void UCSWScene::initSceneManager()
 
 		// Initalize scenegraph
 		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
+
+		// Initalize scenegraph omni rendering caps
+		buffer->addCommand(new cswSceneCommandSetOmniTraverse(TRUE));
 
 		// Set a property on culling
 		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
@@ -311,10 +315,14 @@ bool UCSWScene::processCameras(bool forceUpdate)
 		CameraVFOV = atan(tan(CameraHFOV * GZ_DEG2RAD_F / 2) / aspectRatio) * GZ_RAD2DEG_F * 2;
 	}
 
+	FVector position = GetRelativeLocation();
+
 	// Add possible offset to Camera Location
 
-	if (CenterOrigin)
-		CameraLocation += FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ);
+	/*if (CenterOrigin)
+		CameraLocation += FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ);*/
+
+	CameraLocation -= position;
 
 	// Get Large World position of camera 
 
@@ -957,19 +965,22 @@ bool UCSWScene::onCoordTypePropertyUpdate()
 
 void  UCSWScene::updateOriginTransform()
 {
-	FTransform m;
+	if (!AllowCustomOrigin)
+	{
+		FTransform m;
 
-	// map SCENE content in Gizmo World to UE world with or without origin
+		// map SCENE content in Gizmo World to UE world with or without origin
 
-	gzVec3D origin = CenterOrigin ? UE_2_GZ(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType,getWorldScale()) : GZ_ZERO_VEC3D;
+		gzVec3D origin = CenterOrigin ? UE_2_GZ(FVector3d(ModelOriginX, ModelOriginY, ModelOriginZ), CoordType, getWorldScale()) : GZ_ZERO_VEC3D;
 
-	// Move children negative origin so our map origin ends up in 0,0,0
+		// Move children negative origin so our map origin ends up in 0,0,0
 
-	m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(GZ_2_UE(CoordType,getWorldScale(),origin)));
+		m.SetFromMatrix(cswMatrix4_<double>::UEMatrix4(GZ_2_UE(CoordType, getWorldScale(), origin)));
 
-	// Apply Transform to root
-	
-	SetRelativeTransform(m);
+		// Apply Transform to root
+
+		SetRelativeTransform(m);
+	}
 }
 
 gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const double& scale, const gzVec3D& offset)

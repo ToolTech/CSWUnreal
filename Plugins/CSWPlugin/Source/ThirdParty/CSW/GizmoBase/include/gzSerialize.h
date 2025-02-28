@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.223
+// Product		: GizmoBase 2.12.224
 //		
 // 		
 //			
@@ -100,8 +100,8 @@ const gzString	GZ_URLBASE_REMOTE			= "remote:";// remote located
 
 // --------------- Defined Input Services --------------------
 
-// Directory listing (2.12.17)
-// URL="{base}{path}[dir:recursive=no&showpath=yes&showdir=yes&verbose=no&showsize=no&bnf=]");
+// (Input) Directory listing (2.12.17)
+// URL="{base}{path}[dir:recursive={yes/no}&showpath=yes&showdir=yes&verbose=no&showsize=no&bnf=]");
 // resursive	: traverses down
 // showpath		: show complete path
 // showdir		: includes dir as items
@@ -109,10 +109,14 @@ const gzString	GZ_URLBASE_REMOTE			= "remote:";// remote located
 // showsize		: shows filesize
 // bnf			: bnf to match items
 
-// CRC number of file content(2.12.117)
+// (Input) CRC number of file content(2.12.117)
 // URL="{base}{path}filename[crc:verbose=no&showsize=no]");
 // verbose		: a more verbose output
 // showsize		: shows filesize
+
+// (Output) Delete file or structure (2.12.224)
+// URL="{base}{path}filename[delete:recursive={yes/no}]");
+// recursive	: traverse down
 
 // --------------- Defined Output Services --------------------
 

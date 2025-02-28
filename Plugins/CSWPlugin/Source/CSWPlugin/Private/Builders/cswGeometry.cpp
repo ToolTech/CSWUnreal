@@ -97,9 +97,30 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	// New object
 	m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
 
-	// Settings specific
+	// Settings specific and optims for fast render
 	m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);
 	m_meshComponent->SetCollisionEnabled(buildProperties.collision);
+	
+	m_meshComponent->SetUsingAbsoluteLocation(false);
+	m_meshComponent->SetUsingAbsoluteRotation(false);
+	m_meshComponent->SetUsingAbsoluteScale(false);
+
+	m_meshComponent->ForcedLodModel = 1;	// Tvinga lägsta LOD
+
+	m_meshComponent->SetMobility(EComponentMobility::Stationary);
+
+	m_meshComponent->SetRenderCustomDepth(false); // stänger av outline effekter
+
+	//m_meshComponent->SetCastShadow(false); // Ingen skuggning
+
+	m_meshComponent->bAffectDistanceFieldLighting = false; // avståndsbaserad 
+
+	m_meshComponent->bAffectDynamicIndirectLighting = false;
+
+	m_meshComponent->bAlwaysCreatePhysicsState = false;
+
+	m_meshComponent->bReceivesDecals = false;
+
 
 	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
@@ -357,8 +378,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	if(material)
 		m_meshComponent->SetMaterial(0,material);
-
-	m_meshComponent->SetMobility(EComponentMobility::Stationary);
+		
 
 	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 

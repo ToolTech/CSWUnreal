@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzShader class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.223
+// Product		: Gizmo3D 2.12.224
 //		
 //
 //			
@@ -144,6 +144,7 @@ public:
 // Who	Date	Description						
 //									
 // AMO	030204	Created 
+// AMO	250227	Added thread safe reference so we can delete safely outside node lock (2.12.224)
 //									
 //******************************************************************************
 class gzGFXProgramManager : public gzThreadSafeReference

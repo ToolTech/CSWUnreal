@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.223
+// Product		: GizmoBase 2.12.224
 //		
 //
 //			
@@ -845,6 +845,9 @@ public:
 	
 	gzString getEntryName();
 
+	//! path + name
+	gzString getURL();
+
 private:
 
 	friend class gzDirectoryIterator;
@@ -867,6 +870,7 @@ private:
 // Who	Date	Description						
 //									
 // AMO	990602	Created 
+// AMO	250227	Added hasError and getError if directory iterator not ok (2.12.224)
 //									
 //******************************************************************************
 //! Iterator class for directory entries
@@ -878,6 +882,10 @@ public:
 	virtual ~gzDirectoryIterator();
 
 	gzBool 				foundEntry();
+
+	gzBool				hasError();
+
+	gzString			getError();
 	
 	gzDirectoryEntry 	getEntry();
 
@@ -888,6 +896,8 @@ public:
 	GZ_NO_IMPLICITS(gzDirectoryIterator);
 	
 private:
+
+	gzString			m_error;
 
 	gzDirHandle			m_dirp;
 	gzDirEntry			m_entry;
