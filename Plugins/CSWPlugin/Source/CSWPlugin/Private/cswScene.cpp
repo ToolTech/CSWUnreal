@@ -188,14 +188,8 @@ void UCSWScene::initSceneManager()
 		// Initalize scenegraph
 		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
 
-		// Initalize scenegraph omni rendering caps
-		buffer->addCommand(new cswSceneCommandSetOmniTraverse(TRUE));
-
 		// Set a property on culling
 		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
-
-		// Set number of loaders
-		buffer->addCommand(new cswSceneCommandSetLoaders(4));
 
 		// Set camera setings
 		buffer->addCommand(new cswSceneCommandCameraSettings(50,10000,TRUE));

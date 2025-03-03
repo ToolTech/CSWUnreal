@@ -79,5 +79,13 @@ public:
 	UCSWScene* Scene;
 	
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint8 LoaderThreads;
+	bool EnableLoaders=true;
+
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	uint8 LoaderThreads=4;
+
+protected:
+
+	// Property Update callbacks
+	bool onEnableLoadersPropertyUpdate();
 };

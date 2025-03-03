@@ -50,7 +50,9 @@ ACSWWorld::ACSWWorld()
 
 	SetRootComponent(Scene);
 
-	LoaderThreads = gzDynamicLoaderManager::getNumberOfActiveLoaders();
+	// Register callbacks
+	registerPropertyUpdate("EnableLoaders", &ACSWWorld::onEnableLoadersPropertyUpdate);
+	registerPropertyUpdate("LoaderThreads", &ACSWWorld::onEnableLoadersPropertyUpdate);
 }
 
 ACSWWorld::~ACSWWorld()
@@ -64,6 +66,24 @@ void ACSWWorld::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+bool ACSWWorld::onEnableLoadersPropertyUpdate()
+{
+	gzDynamicLoaderManager::setNumberOfActiveLoaders(LoaderThreads);
+
+	LoaderThreads = gzDynamicLoaderManager::getNumberOfActiveLoaders();
+
+	if (EnableLoaders)
+	{
+		gzDynamicLoaderManager::startManager();
+	}
+	else
+	{
+		gzDynamicLoaderManager::stopManager();
+	}
+
+	return true;
 }
 
 // Called every frame
