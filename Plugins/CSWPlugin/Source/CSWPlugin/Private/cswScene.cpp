@@ -55,8 +55,9 @@
 
 #include "gzCoordinate.h"
 
+#define LARGE_COMPONENT_COUNT 100000
 
-UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(1000),m_slots(GZ_QUEUE_LIFO,1000), m_components(1000)
+UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(LARGE_COMPONENT_COUNT),m_slots(GZ_QUEUE_LIFO, LARGE_COMPONENT_COUNT), m_components(LARGE_COMPONENT_COUNT)
 {
 	if (!IsTemplate())	// Avoid construction of threads and resources for CDO
 	{

@@ -360,8 +360,12 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	// Some extra build parmeters
 	UStaticMesh::FBuildMeshDescriptionsParams mdParams;
+
 	mdParams.bBuildSimpleCollision = buildProperties.buildSimpleCollision;
 	mdParams.bFastBuild = buildProperties.fastBuild;
+	mdParams.bCommitMeshDescription = false;
+	mdParams.bAllowCpuAccess = false;
+	mdParams.bMarkPackageDirty = false;
 
 
 	// Build static mesh ----------------------------------------------------------------------
@@ -394,10 +398,4 @@ bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 	m_meshComponent->DestroyComponent();
 
 	return Super::destroy(destroyItem, resources);
-}
-
-void UCSWGeometry::addRefToTexture(UTexture* texture, UMaterialInterface* material)
-{
-	m_texture = texture;
-	m_material = Cast<UMaterialInstanceDynamic>(material);
 }

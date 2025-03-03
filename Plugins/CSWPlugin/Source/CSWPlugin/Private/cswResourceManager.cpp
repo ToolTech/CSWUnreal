@@ -101,8 +101,6 @@ UMaterialInterface* cswResourceManager::getMaterial(UCSWSceneComponent* owner,gz
 
 		material->SetTextureParameterValue(FName("baseTexture"), ue_texture);
 
-		owner->addRefToTexture(ue_texture,material);
-
 		/*
 
 		material->BlendMode = EBlendMode::BLEND_Opaque;

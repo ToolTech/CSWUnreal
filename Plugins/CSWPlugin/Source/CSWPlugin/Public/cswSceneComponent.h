@@ -59,8 +59,6 @@ public:
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources);
 
 	virtual bool destroy(gzNode* destroyItem, cswResourceManager* resources) override;
-
-	virtual void addRefToTexture(UTexture* texture,UMaterialInterface *material);
 };
 
 
