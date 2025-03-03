@@ -41,7 +41,11 @@
 
 // Interfaces
 #include "Interfaces/cswBuildInterface.h"
-#include "UEGlue//cswUETypes.h"
+//#include "UEGlue//cswUETypes.h"
+
+// Common Scene Defines --------------------------------
+
+#define IN_MEM_RESOURCE_COUNT 100000
 
 #include "cswSceneComponent.generated.h"
 

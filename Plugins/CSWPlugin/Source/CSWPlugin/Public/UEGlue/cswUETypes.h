@@ -40,6 +40,8 @@
 #include "gzBaseLibrary.h"
 
 
+// Common Classes -------------------------------------
+
 class CSWPathIdentyIndex
 {
 public:
@@ -62,3 +64,4 @@ public:
 };
 
 typedef gzNode* InstanceAddress;
+
