@@ -121,10 +121,13 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	m_meshComponent->bReceivesDecals = false;
 
+	//m_meshComponent->bUseAttachParentBound = true;
+
 
 	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
 	FMeshDescription MeshDescription;
+
 	FStaticMeshAttributes Attributes(MeshDescription); Attributes.Register();
 
 
@@ -345,6 +348,9 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	TObjectPtr<UStaticMesh> staticMesh;
 
 	staticMesh = NewObject<UStaticMesh>(this);
+
+	staticMesh->bDoFastBuild = true;
+	staticMesh->bSupportRayTracing = false;
 
 	// Get material array
 	TArray<FStaticMaterial>& materials = staticMesh->GetStaticMaterials();

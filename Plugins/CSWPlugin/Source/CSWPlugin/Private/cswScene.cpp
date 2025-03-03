@@ -358,7 +358,7 @@ gzUInt32 UCSWScene::processFrames(bool forceNewFrame, bool waitForFrame , gzUInt
 	bool fetchOk=fetchBuffers(waitForFrame,timeOut);
 
 	// Work on buffers, max 10 full frames, max primitives per frame
-	gzUInt32 frames = processPendingBuffers(10, MaxPrimitivesPerFrame);
+	gzUInt32 frames = processPendingBuffers(1, MaxPrimitivesPerFrame);
 
 	
 	// -- Trigger next frame --
