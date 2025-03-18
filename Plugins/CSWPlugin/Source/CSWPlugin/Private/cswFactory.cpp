@@ -78,6 +78,57 @@ UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node, 
 	return nullptr;
 }
 
+gzReference* cswFactory::preBuildReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state)
+{
+	GZ_INSTRUMENT_NAME("cswFactory::preBuildReference");
+
+	gzType* type = node->getType();
+
+	cswFactory* factory;
+
+	while (type)
+	{
+		factory = getFactory(type->getName());
+
+		if (!factory)
+		{
+			type = type->getParent();
+			continue;
+		}
+
+		return factory->preBuildReferenceInstance(node,pathID,parent,parentPathID,state);
+	}
+
+	GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
+
+	return nullptr;
+}
+
+gzVoid cswFactory::preDestroyReference(gzNode* node, const gzUInt64& pathID, gzReference* userdata)
+{
+	GZ_INSTRUMENT_NAME("cswFactory::preDestroyReference");
+
+	gzType* type = node->getType();
+
+	cswFactory* factory;
+
+	while (type)
+	{
+		factory = getFactory(type->getName());
+
+		if (!factory)
+		{
+			type = type->getParent();
+			continue;
+		}
+
+		return factory->preDestroyReferenceInstance(node,pathID,userdata);
+	}
+
+	GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
+}
+
+
 gzBool cswFactory::registerFactory(const gzString& className, cswFactory* factory)
 {
 	GZ_BODYGUARD(s_factoryLock);
@@ -113,4 +164,15 @@ cswFactory * cswFactory::getFactory(const gzString& className)
 	GZ_BODYGUARD(s_factoryLock);
 
 	return s_factoryLookup.find(className);
+}
+
+gzReference* cswFactory::preBuildReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state)
+{
+	// Default do nothing
+	return nullptr;
+}
+
+gzVoid cswFactory::preDestroyReferenceInstance(gzNode* node, const gzUInt64& pathID, gzReference* userdata)
+{
+	// Default do nothing
 }

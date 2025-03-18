@@ -182,7 +182,7 @@ void UCSWScene::initSceneManager()
 {
 	if (!m_manager)
 	{
-		m_manager = new cswSceneManager();
+		m_manager = new cswUESceneManager();
 
 		// Do conversion in manager thread
 		m_manager->enableCapabilities(CSW_CAPABILITY_CONVERT_TO_TRIANGLE|CSW_CAPABILITY_INDEX_GEOMETRY/*|CSW_CAPABILITY_REBUILD_INDEX_GEOMETRY*/);

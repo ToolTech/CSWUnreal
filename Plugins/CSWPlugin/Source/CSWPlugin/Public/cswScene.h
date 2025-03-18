@@ -40,7 +40,7 @@
 #include "cswSceneComponent.h"
 #include "cswGeoComponent.h"
 
-#include "cswSceneManager.h"
+#include "cswUESceneManager.h"
 #include "cswCommandReceiver.h"
 #include "cswResourceManager.h"
 
@@ -195,7 +195,7 @@ protected:
 	UCSWSceneComponent* getComponent(gzNode* node, gzUInt64 pathID);
 
 	// the scene manager of components
-	cswSceneManagerPtr		m_manager;
+	cswUESceneManagerPtr		m_manager;
 
 	// the shared resources
 	cswResourceManagerPtr	m_resource;
