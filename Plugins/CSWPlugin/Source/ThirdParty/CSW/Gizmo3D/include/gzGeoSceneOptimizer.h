@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Global SceneGraph LOD Geometry Optimizer
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.224
+// Product		: Gizmo3D 2.12.231
 //		
 //
 //			

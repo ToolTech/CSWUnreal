@@ -94,44 +94,45 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 			return false;
 	}
 
-	// New object
-	m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
+	{
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::component setup");
 
-	// Settings specific and optims for fast render
-	m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);
-	m_meshComponent->SetCollisionEnabled(buildProperties.collision);
-	
-	m_meshComponent->SetUsingAbsoluteLocation(false);
-	m_meshComponent->SetUsingAbsoluteRotation(false);
-	m_meshComponent->SetUsingAbsoluteScale(false);
+		// New object
+		m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
 
-	m_meshComponent->ForcedLodModel = 1;	// Tvinga lägsta LOD
+		// Settings specific and optims for fast render
+		m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);
+		m_meshComponent->SetCollisionEnabled(buildProperties.collision);
 
-	m_meshComponent->SetMobility(EComponentMobility::Stationary);
+		m_meshComponent->SetUsingAbsoluteLocation(false);
+		m_meshComponent->SetUsingAbsoluteRotation(false);
+		m_meshComponent->SetUsingAbsoluteScale(false);
 
-	m_meshComponent->SetRenderCustomDepth(false); // stänger av outline effekter
+		m_meshComponent->ForcedLodModel = 1;	// Tvinga lägsta LOD
 
-	//m_meshComponent->SetCastShadow(false); // Ingen skuggning
+		m_meshComponent->SetMobility(EComponentMobility::Stationary);
 
-	m_meshComponent->bAffectDistanceFieldLighting = false; // avståndsbaserad 
+		m_meshComponent->SetRenderCustomDepth(false); // stänger av outline effekter
 
-	m_meshComponent->bAffectDynamicIndirectLighting = false;
+		//m_meshComponent->SetCastShadow(false); // Ingen skuggning
 
-	m_meshComponent->bAlwaysCreatePhysicsState = false;
+		m_meshComponent->bAffectDistanceFieldLighting = false; // avståndsbaserad 
 
-	m_meshComponent->bReceivesDecals = false;
+		m_meshComponent->bAffectDynamicIndirectLighting = false;
 
-	//m_meshComponent->bUseAttachParentBound = true;
+		m_meshComponent->bAlwaysCreatePhysicsState = false;
 
+		m_meshComponent->bReceivesDecals = false;
 
+		//m_meshComponent->bUseAttachParentBound = true;
+
+	}
 	
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
 	FMeshDescription MeshDescription;
 
 	FStaticMeshAttributes Attributes(MeshDescription); Attributes.Register();
-
-
-	
+		
 	// Registrera så många UV-lager du behöver (standard är 1) // Om du vill ha fler lager:
 	 Attributes.GetVertexInstanceUVs().SetNumChannels(geom->getTextureUnits());
 
@@ -143,19 +144,28 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	gzArray<gzVec3>& coordinates = geom->getCoordinateArray(FALSE);
 
-	MeshDescription.ReserveNewVertices(coordinates.getSize());
-	
-	TVertexAttributesRef<FVector3f> vertex = Attributes.GetVertexPositions();
-
-	for (gzUInt32 i = 0; i < coordinates.getSize(); i++)
 	{
-		MeshDescription.CreateVertex();
-		vertex[i] = cswVector3::UEVector3(coordinates[i]);
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::vertice setup");
+
+		// Reserve vertices in mesh description
+		MeshDescription.ReserveNewVertices(coordinates.getSize());
+
+		TVertexAttributesRef<FVector3f> vertex = Attributes.GetVertexPositions();
+
+		for (gzUInt32 i = 0; i < coordinates.getSize(); i++)
+		{
+			MeshDescription.CreateVertex();
+			vertex[i] = cswVector3::UEVector3(coordinates[i]);
+		}
 	}
 
 	// --------------- indices -------------------------------------
 
 	gzArray<gzUInt32>& indices = geom->getIndexArray(FALSE);
+
+	// Reserve indices in mesh description
+	MeshDescription.ReserveNewVertexInstances(indices.getSize());
+	MeshDescription.ReserveNewTriangles(indices.getSize() / 3);
 
 	TVertexInstanceAttributesRef<FVector3f> normal = Attributes.GetVertexInstanceNormals();
 	TVertexInstanceAttributesRef<FVector2f> texcoord = Attributes.GetVertexInstanceUVs();
@@ -171,178 +181,197 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	FVertexInstanceID ind;
 
-	if (indices.getSize())	// We have an indexed structure
 	{
-		for (gzUInt32 i = 0; i < indices.getSize(); i += 3)
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::attrib setup");
+
+		if (indices.getSize())	// We have an indexed structure
 		{
-			for (gzUInt32 j = 0; j < 3; j++)
+			for (gzUInt32 i = 0; i < indices.getSize(); i += 3)
 			{
-				gzUInt32 index = i + 2 - j;
-
-				id[j] = ind = MeshDescription.CreateVertexInstance(indices[index]);
-
-				
-				// Normal indexed -----------------------------------------------
-
-				switch (geom->getNormalBind())
+				for (gzUInt32 j = 0; j < 3; j++)
 				{
-					case GZ_BIND_OFF:
-						normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
-						break;
+					gzUInt32 index = i + 2 - j;
 
-					case GZ_BIND_OVERALL:
-						normal[ind] = cswVector3::UEVector3(normal_in[0]);
-						break;
+					{
+						GZ_INSTRUMENT_NAME("UCSWGeometry::build::create vertex instance");
+						id[j] = ind = MeshDescription.CreateVertexInstance(indices[index]);
+					}
 
-					case GZ_BIND_PER_PRIM:
-						normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
-						break;
 
-					case GZ_BIND_ON:
-						normal[ind] = cswVector3::UEVector3(normal_in[indices[index]]);
-						break;
+					{
+						GZ_INSTRUMENT_NAME("UCSWGeometry::build::normal");
+						// Normal indexed -----------------------------------------------
 
+						switch (geom->getNormalBind())
+						{
+							case GZ_BIND_OFF:
+								normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
+								break;
+
+							case GZ_BIND_OVERALL:
+								normal[ind] = cswVector3::UEVector3(normal_in[0]);
+								break;
+
+							case GZ_BIND_PER_PRIM:
+								normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
+								break;
+
+							case GZ_BIND_ON:
+								normal[ind] = cswVector3::UEVector3(normal_in[indices[index]]);
+								break;
+
+						}
+					}
+
+					{
+						GZ_INSTRUMENT_NAME("UCSWGeometry::build::tex");
+						// Tex indexed -----------------------------------------------
+
+						for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
+						{
+							switch (geom->getTexBind(layer))
+							{
+								case GZ_BIND_OFF:
+									break;
+
+								case GZ_BIND_OVERALL:
+									texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
+									break;
+
+								case GZ_BIND_PER_PRIM:
+									texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
+									break;
+
+
+								case GZ_BIND_ON:
+									texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][indices[index]]));
+									break;
+
+							}
+						}
+					}
+
+					{
+						GZ_INSTRUMENT_NAME("UCSWGeometry::build::color");
+
+						// Color indexed -----------------------------------------------
+
+						switch (geom->getColorBind())
+						{
+							case GZ_BIND_OFF:
+								break;
+
+							case GZ_BIND_OVERALL:
+								colors[ind] = cswVector4::UEVector4(colors_in[0]);
+								break;
+
+							case GZ_BIND_PER_PRIM:
+								colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
+								break;
+
+							case GZ_BIND_ON:
+								colors[ind] = cswVector4::UEVector4(colors_in[indices[index]]);
+								break;
+
+						}
+					}
 				}
 
-				// Tex indexed -----------------------------------------------
-
-				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
 				{
-					switch (geom->getTexBind(layer))
+					GZ_INSTRUMENT_NAME("UCSWGeometry::build::poly");
+					MeshDescription.CreatePolygon(PolygonGroupID, id);
+				}
+			}
+		}
+		else
+		{
+			// Non indexed. Not so optimal perhapsbut we dont take the penalty here to convert it
+
+			for (gzUInt32 i = 0; i < coordinates.getSize(); i += 3)
+			{
+				for (gzUInt32 j = 0; j < 3; j++)
+				{
+					gzUInt32 index = i + 2 - j;
+
+					id[j] = ind = MeshDescription.CreateVertexInstance(index);
+
+
+
+					// Normal -----------------------------------------------
+
+					switch (geom->getNormalBind())
+					{
+						case GZ_BIND_OFF:
+							normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
+							break;
+
+						case GZ_BIND_OVERALL:
+							normal[ind] = cswVector3::UEVector3(normal_in[0]);
+							break;
+
+						case GZ_BIND_PER_PRIM:
+							normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
+							break;
+
+						case GZ_BIND_ON:
+							normal[ind] = cswVector3::UEVector3(normal_in[index]);
+							break;
+
+					}
+
+
+					// Tex -----------------------------------------------
+
+					for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
+					{
+						switch (geom->getTexBind(layer))
+						{
+							case GZ_BIND_OFF:
+								break;
+
+							case GZ_BIND_OVERALL:
+								texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
+								break;
+
+							case GZ_BIND_PER_PRIM:
+								texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
+								break;
+
+
+							case GZ_BIND_ON:
+								texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][index]));
+								break;
+
+						}
+					}
+
+					// Color -----------------------------------------------
+
+					switch (geom->getColorBind())
 					{
 						case GZ_BIND_OFF:
 							break;
 
 						case GZ_BIND_OVERALL:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
+							colors[ind] = cswVector4::UEVector4(colors_in[0]);
 							break;
 
 						case GZ_BIND_PER_PRIM:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
+							colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
 							break;
 
-
 						case GZ_BIND_ON:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][indices[index]]));
+							colors[ind] = cswVector4::UEVector4(colors_in[index]);
 							break;
 
 					}
 				}
 
-				// Color indexed -----------------------------------------------
-
-				switch (geom->getColorBind())
-				{
-					case GZ_BIND_OFF:
-						break;
-
-					case GZ_BIND_OVERALL:
-						colors[ind] = cswVector4::UEVector4(colors_in[0]);
-						break;
-
-					case GZ_BIND_PER_PRIM:
-						colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
-						break;
-
-					case GZ_BIND_ON:
-						colors[ind] = cswVector4::UEVector4(colors_in[indices[index]]);
-						break;
-
-				}
+				MeshDescription.CreatePolygon(PolygonGroupID, id);
 			}
-
-			MeshDescription.CreatePolygon(PolygonGroupID, id);
 		}
+
 	}
-	else
-	{
-		// Non indexed. Not so optimal perhapsbut we dont take the penalty here to convert it
-
-		for (gzUInt32 i = 0; i < coordinates.getSize(); i += 3)
-		{
-			for (gzUInt32 j = 0; j < 3; j++)
-			{
-				gzUInt32 index = i + 2 - j;
-
-				id[j] = ind = MeshDescription.CreateVertexInstance(index);
-
-
-				
-				// Normal -----------------------------------------------
-
-				switch (geom->getNormalBind())
-				{
-					case GZ_BIND_OFF:
-						normal[ind] = cswVector3::UEVector3(gzVec3(0, 1, 0));
-						break;
-
-					case GZ_BIND_OVERALL:
-						normal[ind] = cswVector3::UEVector3(normal_in[0]);
-						break;
-
-					case GZ_BIND_PER_PRIM:
-						normal[ind] = cswVector3::UEVector3(normal_in[i / 3]);
-						break;
-
-					case GZ_BIND_ON:
-						normal[ind] = cswVector3::UEVector3(normal_in[index]);
-						break;
-
-				}
-				
-
-				// Tex -----------------------------------------------
-
-				for (gzUInt32 layer = 0; layer < geom->getTextureUnits(); layer++)
-				{
-					switch (geom->getTexBind(layer))
-					{
-						case GZ_BIND_OFF:
-							break;
-
-						case GZ_BIND_OVERALL:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][0]));
-							break;
-
-						case GZ_BIND_PER_PRIM:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][i / 3]));
-							break;
-
-
-						case GZ_BIND_ON:
-							texcoord.Set(ind, layer, cswVector2::UEVector2(texcoord_in[layer][index]));
-							break;
-
-					}
-				}
-
-				// Color -----------------------------------------------
-
-				switch (geom->getColorBind())
-				{
-					case GZ_BIND_OFF:
-						break;
-
-					case GZ_BIND_OVERALL:
-						colors[ind] = cswVector4::UEVector4(colors_in[0]);
-						break;
-
-					case GZ_BIND_PER_PRIM:
-						colors[ind] = cswVector4::UEVector4(colors_in[i / 3]);
-						break;
-
-					case GZ_BIND_ON:
-						colors[ind] = cswVector4::UEVector4(colors_in[index]);
-						break;
-
-				}
-			}
-
-			MeshDescription.CreatePolygon(PolygonGroupID, id);
-		}
-	}
-
-	
 
 	// At least one material must be added
 	TObjectPtr<UStaticMesh> staticMesh;
@@ -376,13 +405,20 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	// Build static mesh ----------------------------------------------------------------------
 
-	TArray<const FMeshDescription*> meshDescPtrs;
-	meshDescPtrs.Emplace(&MeshDescription);
-	staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
+	{
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::mesh build");
+
+		TArray<const FMeshDescription*> meshDescPtrs;
+		meshDescPtrs.Emplace(&MeshDescription);
+		staticMesh->BuildFromMeshDescriptions(meshDescPtrs, mdParams);
+	}
 
 	// Assign new static mesh to the static mesh component and finalize build ------------------
 
-	m_meshComponent->SetStaticMesh(staticMesh);
+	{
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::set mesh");
+		m_meshComponent->SetStaticMesh(staticMesh);
+	}
 
 	UMaterialInterface* material = resources->getMaterial(this, state, CSW_MATERIAL_TYPE_BASE_MATERIAL);
 
@@ -390,9 +426,13 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 		m_meshComponent->SetMaterial(0,material);
 		
 
-	m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	{
+		GZ_INSTRUMENT_NAME("UCSWGeometry::build::Attach & Register");
 
-	m_meshComponent->RegisterComponent();
+		m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+		m_meshComponent->RegisterComponent();
+	}
 
 	return true;
 }
@@ -400,6 +440,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
+
+	GZ_INSTRUMENT_NAME("UCSWGeometry::destroy");
 
 	m_meshComponent->DestroyComponent();
 

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.224
+// Product		: GizmoBase 2.12.231
 //		
 // 		
 //			
@@ -42,6 +42,7 @@
 // AMO	210820	Fixed conflict in compress dynamic flag for adapter		(2.11.22)
 // AMO	211117	Added reset of stream in adapter						(2.11.49)
 // AMO	230330	Added zip and service									(2.12.69)
+// AMO	250306	Added isService() to adapter to identify service()		(2.12.228)
 //
 // ******************************************************************************
 
@@ -323,6 +324,9 @@ public:
 	//! Use this to signal to check active stream.
 	GZ_BASE_EXPORT virtual gzBool isActive() const					{ return TRUE; }
 
+	//! Use this to to check if we are adapter service
+	GZ_BASE_EXPORT virtual gzBool isService() const					{ return m_isService; }
+
 	// ------------- Errors ------------------------------------------------------------------------------
 	
 	GZ_BASE_EXPORT virtual gzBool	hasError() const;
@@ -488,6 +492,7 @@ protected:
 	// Blocking state
 	gzBool										m_blocking;
 	gzBool										m_eof_state;		// True when read ahead of eof
+	mutable gzBool								m_isService;
 
 	static gzRefDict<gzString,gzSerializeURLManagerInterface>	s_urlManagers;
 };
@@ -3196,6 +3201,9 @@ public:
 	GZ_PROPERTY_EXPORT(gzUInt32,					ThreadID,		GZ_BASE_EXPORT);
 
 	GZ_BASE_EXPORT virtual	gzVoid flush() override;
+
+	GZ_BASE_EXPORT virtual gzBool isService() const override;
+
 
 	GZ_BASE_EXPORT gzVoid setAdapter(gzSerializeAdapter* sub);
 

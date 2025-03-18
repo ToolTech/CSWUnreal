@@ -63,13 +63,13 @@ protected:
 
 	CSWPLUGIN_API virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode *node, EObjectFlags Flags, UObject* Template, bool bCopyTransientsFromClassDefaults , FObjectInstancingGraph* InInstanceGraph ) = 0;
 
-private:
-
-	
-
-	static gzMutex s_factoryLock;
-
-	static gzRefDict< gzString, cswFactory>	s_factoryLookup;
+//private:
+//
+//	
+//
+//	static gzMutex s_factoryLock;
+//
+//	static gzRefDict< gzString, cswFactory>	s_factoryLookup;
 };
 
 GZ_DECLARE_REFPTR(cswFactory);

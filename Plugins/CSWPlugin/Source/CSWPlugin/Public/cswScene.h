@@ -92,12 +92,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	TEnumAsByte<CoordType> CoordType;
 	
+	UPROPERTY(EditAnywhere, Category = "CSW")
+	bool OmniView = true;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	uint32 MaxPrimitivesPerFrame=5;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
 	uint32 FrameSkipLatency = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
+	bool AllowCustomOrigin = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
+	bool CenterOrigin = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	UCSWGeoComponent* GeoOrigin;
@@ -110,12 +118,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CSW")
 	double ModelOriginZ = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
-	bool AllowCustomOrigin = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
-	bool CenterOrigin = true;
+		
 
 protected:
 
@@ -162,10 +165,13 @@ protected:
 	bool processActivation(cswSceneCommandActivation* command);
 
 
+	void registerPropertyCallbacks();
+
 	// Property Update callbacks
 	bool onMapUrlsPropertyUpdate();
 	bool onCoordTypePropertyUpdate();
 	bool onCenterOriginPropertyUpdate();
+	bool onOmniViewPropertyUpdate();
 
 	// Utilities
 	double getWorldScale();

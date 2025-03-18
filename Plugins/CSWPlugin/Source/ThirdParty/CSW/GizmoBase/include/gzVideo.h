@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzVideo class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.224
+// Product		: GizmoBase 2.12.231
 //		
 //
 //			

@@ -56,9 +56,7 @@ bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* sta
 
 	// gzGroup -----------------------------
 
-	GZ_ENTER_PERFORMANCE_SECTION("UE:AttachToComponent_y");
 	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
-	GZ_LEAVE_PERFORMANCE_SECTION;
 	
 	return true;
 }

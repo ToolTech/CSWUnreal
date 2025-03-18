@@ -35,12 +35,17 @@
 //
 //******************************************************************************
 #include "cswFactory.h"
+#include <gzPerformance.h>
 
 GZ_DECLARE_TYPE_CHILD(gzObject, cswFactory, "cswFactory");
 
-gzMutex cswFactory::s_factoryLock;
+//gzMutex cswFactory::s_factoryLock;
+//
+//gzRefDict< gzString, cswFactory > cswFactory::s_factoryLookup;
 
-gzRefDict< gzString, cswFactory > cswFactory::s_factoryLookup;
+gzMutex s_factoryLock;
+
+gzRefDict< gzString, cswFactory > s_factoryLookup;
 
 cswFactory::cswFactory()									// make sure its initialized
 {
@@ -49,6 +54,8 @@ cswFactory::cswFactory()									// make sure its initialized
 
 UCSWSceneComponent* cswFactory::newObject(USceneComponent* parent,gzNode* node, EObjectFlags Flags , UObject* Template , bool bCopyTransientsFromClassDefaults , FObjectInstancingGraph* InInstanceGraph )
 {
+	GZ_INSTRUMENT_NAME("cswFactory::newObject");
+
 	gzType* type = node->getType();
 
 	cswFactory* factory;

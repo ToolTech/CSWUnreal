@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.224
+// Product		: GizmoBase 2.12.231
 //		
 // 
 //			
@@ -362,6 +362,7 @@ private:
 	gzBool	m_threadAware:1;
 };
 
+
 /*! \brief Progress output notification messages
 
 The Gizmo3D system outputs information about progress of certain tasks. E.g loading a database
@@ -403,6 +404,39 @@ private:
 	static gzProgressInterface * s_defaultProgressInterface;
 
 };
+
+class gzProgressGuard
+{
+public:
+	gzProgressGuard(gzProgressInterface* current) { m_parent = gzProgress::setProgressInterface(current); }
+
+	virtual ~gzProgressGuard() { gzProgress::setProgressInterface(m_parent); }
+
+	GZ_NO_IMPLICITS(gzProgressGuard);
+
+private:
+
+	gzProgressInterface* m_parent;
+};
+
+//! Macro to rout current thread to progress
+#define GZ_PROGRESS	gzProgressGuard	CONCAT(_guard_,__LINE__)
+
+class gzProgressRouter
+{
+public:
+	gzProgressRouter(gzProgressInterface* current) : m_current(current) { m_current->activateProgressInterface(); }
+
+	virtual ~gzProgressRouter() { m_current->deactivateProgressInterface(); }
+
+	GZ_NO_IMPLICITS(gzProgressRouter);
+
+private:
+
+	gzProgressInterface* m_current;
+};
+
+#define GZ_PROGRESS_ROUTE	gzProgressRouter	CONCAT(_guard_,__LINE__)
 
 #if defined GZ_WINDOWS
 	#if _MSC_VER < 1300

@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of altitude management
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.224
+// Product		: GizmoBase 2.12.231
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			

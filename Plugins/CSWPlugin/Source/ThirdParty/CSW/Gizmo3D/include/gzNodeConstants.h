@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Constant and structures for node attributes and definitions
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.224
+// Product		: Gizmo3D 2.12.231
 //		
 //
 //			
@@ -38,6 +38,7 @@
 // AMO	230413	Added MapTypes										(2.12.72)
 // AMO	231019	Added Map Title as identifier for map in readable	(2.12.110)
 // AMO	250117	Added STATUS_MESSAGE with list of messages			(2.12.207)
+// AMO	250306	Added gzDbInfoOptimizeFlags for optim meta info		(2.12.228)
 //
 //******************************************************************************
 #ifndef __GZ_NODE_CONSTANTS_H__
@@ -85,6 +86,8 @@ const gzString	GZ_DB_INFO_MAP_TYPE			= "DbI-MapType";				// GZ_DB_INFO_MAP_TYPE_
 const gzString	GZ_DB_INFO_MAP_SEASON		= "DbI-MapSeason";				// GZ_DB_INFO_MAP_SEASON_xx
 
 const gzString	GZ_DB_INFO_FLAGS			= "DbI-Flags";					// Serialize Attribute flags
+
+const gzString	GZ_DB_INFO_OPTIMIZE_FLAGS	= "DbI-Optimize-Flags";			// gzDbInfoOptimizeFlags
 
 const gzString	GZ_DB_INFO_VERSION			= "DbI-Version";				// String value. On file level its the version of indata. On db level its tha db version
 
@@ -196,13 +199,26 @@ enum gzDbInfoContent
 GZ_USE_BIT_LOGIC(gzDbInfoContent);
 GZ_DECLARE_DYNAMIC_ENUM(gzDbInfoContent);
 
+// BIT values for GZ_DB_INFO_OPTIMIZE_FLAGS ---------------------------------------------------------------------------------------------
+
+enum gzDbInfoOptimizeFlags
+{
+	GZ_DB_INFO_OPTIMIZE_FLAG_UNOPTIMIZED	= 0,
+	GZ_DB_INFO_OPTIMIZE_FLAG_SHARED_NODES	= 1 << 0,	// Optimized with shared node referenced by NodeID
+	GZ_DB_INFO_OPTIMIZE_FLAG_SHARED_STATES	= 1 << 1,	// Optimized with shared states referenced by StateID
+	GZ_DB_INFO_OPTIMIZE_FLAG_REMOVED_META	= 1 << 2,	// Optimized where meta data is removed to gain speed
+};
+
+GZ_USE_BIT_LOGIC(gzDbInfoOptimizeFlags);
+GZ_DECLARE_DYNAMIC_ENUM(gzDbInfoOptimizeFlags);
+
 // BIT values for GZ_DBI_INFO_STATUS ---------------------------------------------------------------------------------------------
 
 enum gzDbInfoStatusBits
 {
-	GZ_DB_INFO_STATUS_OK				= 0,
-	GZ_DB_INFO_STATUS_UNKNOW_DATA		= 1<<0,
-	GZ_DB_INFO_STATUS_MISSING_TEXTURE	= 1<<1,
+	GZ_DB_INFO_STATUS_OK				= 0,			// Everything is fine
+	GZ_DB_INFO_STATUS_UNKNOW_DATA		= 1 << 0,
+	GZ_DB_INFO_STATUS_MISSING_TEXTURE	= 1 << 1,		// database or model is missing a texture. Look in GZ_DB_INFO_STATUS_MESSAGE
 };
 
 GZ_USE_BIT_LOGIC(gzDbInfoStatusBits);

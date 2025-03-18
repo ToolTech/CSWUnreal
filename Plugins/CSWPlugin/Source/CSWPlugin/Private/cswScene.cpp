@@ -65,14 +65,12 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 		bAutoActivate = true;
 		
 		SetMobility(EComponentMobility::Movable);
+				
+		// Register properties
+		registerPropertyCallbacks();
 
-		// Register callbacks
-		registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
-		registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
-		registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
-		registerPropertyUpdate("AllowCustomOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
-
-		registerComponent(this, nullptr, 0);	// Register root
+		// Register root component
+		registerComponent(this, nullptr, 0);
 
 		// Perform init of scenemanager 
 		initSceneManager();
@@ -82,6 +80,16 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 UCSWScene::~UCSWScene()
 {
 	unInitSceneManager();
+}
+
+void UCSWScene::registerPropertyCallbacks()
+{
+	// Register callbacks
+	registerPropertyUpdate("MapUrls", &UCSWScene::onMapUrlsPropertyUpdate);
+	registerPropertyUpdate("CoordType", &UCSWScene::onCoordTypePropertyUpdate);
+	registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
+	registerPropertyUpdate("AllowCustomOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
+	registerPropertyUpdate("OmniView", &UCSWScene::onOmniViewPropertyUpdate);
 }
 
 bool UCSWScene::isEditorComponent()
@@ -189,7 +197,7 @@ void UCSWScene::initSceneManager()
 		buffer->addCommand(new cswSceneCommandInitialize(FALSE));
 
 		// Set a property on culling
-		buffer->addCommand(new cswSceneCommandSetOmniTraverse(FALSE));
+		buffer->addCommand(new cswSceneCommandSetOmniTraverse(OmniView));
 
 		// Set camera setings
 		buffer->addCommand(new cswSceneCommandCameraSettings(50,10000,TRUE));
@@ -232,6 +240,8 @@ bool UCSWScene::processCameras(bool forceUpdate)
 
 	if (!m_manager)
 		return false;
+
+	GZ_INSTRUMENT_NAME("UCSWScene::processCameras");
 
 #if WITH_EDITOR
 
@@ -936,6 +946,16 @@ bool UCSWScene::onMapUrlsPropertyUpdate()
 		m_manager->addSingleCommand(new cswSceneCommandClearMaps());
 	}
 		
+	return true;
+}
+
+bool UCSWScene::onOmniViewPropertyUpdate()
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::onOmniViewPropertyUpdate");
+
+	if (m_manager)
+		m_manager->addSingleCommand(new cswSceneCommandSetOmniTraverse(OmniView), FALSE);
+
 	return true;
 }
 

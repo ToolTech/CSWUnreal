@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of GUID types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.224
+// Product		: GizmoBase 2.12.231
 //		
 //
 //			
@@ -32,7 +32,8 @@
 // Who	Date	Description						
 //									
 // AMO	980819	Created file 	
-// AMO	250213	Added isValid as !isNULL		(2.12.217)
+// AMO	250213	Added isValid as !isNULL							(2.12.217)
+// AMO	250311	Added extra parameter to disbale format warning		(2.12.2230) 
 //
 //******************************************************************************
 
@@ -77,9 +78,9 @@ public:
 	gzGUID();
 	gzGUID(const GUID & guid);
 	gzGUID(const gzUInt32 data1, const gzUInt16 data2 = 0, const gzUInt16 data3 = 0, const gzGUIDBytes & data4 = 0);
-	gzGUID(const gzString &format);
-	gzGUID(const gzWideChar *ustring, gzUInt32 len=0);
-	gzGUID(const gzChar *cstring, gzUInt32 len=0);
+	gzGUID(const gzString &format, gzBool useFormatWarning = TRUE);
+	gzGUID(const gzWideChar* ustring, gzUInt32 len = 0, gzBool useFormatWarning = TRUE);
+	gzGUID(const gzChar *cstring, gzUInt32 len=0, gzBool useFormatWarning = TRUE);
 	gzGUID(const gzUInt64& val1, const gzUInt64& val2);
 
 
