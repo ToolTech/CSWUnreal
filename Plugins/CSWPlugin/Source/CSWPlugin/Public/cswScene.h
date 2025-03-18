@@ -96,10 +96,10 @@ public:
 	bool OmniView = true;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint32 MaxPrimitivesPerFrame=5;
+	uint32 MaxPrimitivesPerFrame=1000;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint32 FrameSkipLatency = 10;
+	uint32 FrameSkipLatency = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CSW")
 	bool AllowCustomOrigin = false;

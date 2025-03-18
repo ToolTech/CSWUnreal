@@ -82,7 +82,7 @@ public:
 	bool EnableLoaders=true;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
-	uint8 LoaderThreads=4;
+	uint8 LoaderThreads=6;
 
 protected:
 
