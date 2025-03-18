@@ -56,6 +56,14 @@ public:
 protected:
 
 	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent>	m_meshComponent;;
+	TObjectPtr<UStaticMeshComponent>	m_meshComponent;
 
+};
+
+class cswGeometryBuild : public gzReference
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE;
+
+	TObjectPtr<UStaticMesh> staticMesh;
 };
