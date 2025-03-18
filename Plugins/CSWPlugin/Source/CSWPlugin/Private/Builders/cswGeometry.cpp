@@ -131,10 +131,14 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	// Mesh description will hold all the geometry, uv, normals going into the static mesh
 	FMeshDescription MeshDescription;
 
-	FStaticMeshAttributes Attributes(MeshDescription); Attributes.Register();
-		
 	// Registrera så många UV-lager du behöver (standard är 1) // Om du vill ha fler lager:
-	 Attributes.GetVertexInstanceUVs().SetNumChannels(geom->getTextureUnits());
+	const int32 NumUVChannels = geom->getTextureUnits();
+
+	MeshDescription.SetNumUVChannels(NumUVChannels);
+			
+	FStaticMeshAttributes Attributes(MeshDescription); 
+	
+	Attributes.Register();
 
 	// Skapa en PolygonGroup (en grupp för polygoner, oftast en grupp = ett material) 
 	FPolygonGroupID PolygonGroupID = MeshDescription.CreatePolygonGroup();
@@ -163,9 +167,11 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 
 	gzArray<gzUInt32>& indices = geom->getIndexArray(FALSE);
 
+	gzUInt32 icount = indices.getSize();
+
 	// Reserve indices in mesh description
-	MeshDescription.ReserveNewVertexInstances(indices.getSize());
-	MeshDescription.ReserveNewTriangles(indices.getSize() / 3);
+	MeshDescription.ReserveNewVertexInstances(icount);
+	MeshDescription.ReserveNewTriangles(icount / 3);
 
 	TVertexInstanceAttributesRef<FVector3f> normal = Attributes.GetVertexInstanceNormals();
 	TVertexInstanceAttributesRef<FVector2f> texcoord = Attributes.GetVertexInstanceUVs();
@@ -184,9 +190,9 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	{
 		GZ_INSTRUMENT_NAME("UCSWGeometry::build::attrib setup");
 
-		if (indices.getSize())	// We have an indexed structure
+		if (icount)	// We have an indexed structure
 		{
-			for (gzUInt32 i = 0; i < indices.getSize(); i += 3)
+			for (gzUInt32 i = 0; i < icount; i += 3)
 			{
 				for (gzUInt32 j = 0; j < 3; j++)
 				{
@@ -400,7 +406,8 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	mdParams.bFastBuild = buildProperties.fastBuild;
 	mdParams.bCommitMeshDescription = false;
 	mdParams.bAllowCpuAccess = false;
-	mdParams.bMarkPackageDirty = false;
+	//mdParams.bMarkPackageDirty = false;
+
 
 
 	// Build static mesh ----------------------------------------------------------------------
