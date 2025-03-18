@@ -115,7 +115,10 @@ public:
 	CSW_SM_EXPORT	gzVoid enableCapabilities(cswCapability caps);
 	CSW_SM_EXPORT	gzVoid disableCapabilities(cswCapability caps);
 
-	CSW_SM_EXPORT	virtual gzVoid checkCapability(gzNode* node, gzState* state);
+	// Virtual construction helpers
+	CSW_SM_EXPORT	virtual gzVoid			checkCapability(gzNode* node, gzState* state);
+	CSW_SM_EXPORT	virtual gzReference*	preBuildReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state);
+	CSW_SM_EXPORT	virtual gzVoid			preDestroyReference(gzNode* node, const gzUInt64& pathID,gzReference *userdata);
 
 	GZ_PROPERTY_GET_EXPORT(gzString,		CoordinateSystem,	CSW_SM_EXPORT);
 	GZ_PROPERTY_GET_EXPORT(gzUInt32,		TopBits,			CSW_SM_EXPORT);

@@ -107,3 +107,7 @@ public:
 	GZ_PROPERTY_EXPORT(Activation, Activation, CSW_SM_EXPORT);
 };
 
+// Constants --------------------------------------
+
+const gzString CSW_META = "CSW";
+const gzString BUILD_DATA = "build";
