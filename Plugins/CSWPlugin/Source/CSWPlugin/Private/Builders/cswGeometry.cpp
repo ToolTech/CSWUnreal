@@ -69,20 +69,12 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	if (!buildData)
 		return false;
 
-	// Get Handle to geometry
-	gzGeometry* geom = gzDynamic_Cast<gzGeometry>(buildItem);
-
-	if (!geom)
-		return false;
-
-	// Check supported primitives right now
-		
 
 	{
 		GZ_INSTRUMENT_NAME("UCSWGeometry::build::component setup");
 
 		// New object
-		m_meshComponent = NewObject<UStaticMeshComponent>(this, geom->getName().getWideString());
+		m_meshComponent = NewObject<UStaticMeshComponent>(this, buildItem->getName().getWideString());
 
 		// Settings specific and optims for fast render
 		m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);

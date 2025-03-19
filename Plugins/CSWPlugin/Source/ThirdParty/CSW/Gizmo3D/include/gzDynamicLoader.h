@@ -49,13 +49,14 @@
 
 enum gzDynamicLoadingState
 { 
-	GZ_DYNAMIC_LOADER_UNLOADED ,				// SYNC in NodeLock			loader has unloaded node in nodelock
-	GZ_DYNAMIC_LOADER_DROPPED,					// SYNC in NodeLock			loader has been dropped (zero ref) during load
-	GZ_DYNAMIC_LOADER_LOADED ,					// SYNC in NodeLock			loader has loaded node in nodelock
+	GZ_DYNAMIC_LOADER_UNLOADED ,				// SYNC in Node EditLock	loader has unloaded node in nodelock
+	GZ_DYNAMIC_LOADER_DROPPED,					// SYNC in Node EditLock	loader has been dropped (zero ref) during load
+	GZ_DYNAMIC_LOADER_PRE_LOADED,				// SYNC in Node EditLock	loader has not loaded node but still in nodelock just before LOADED
+	GZ_DYNAMIC_LOADER_LOADED ,					// SYNC in Node EditLock	loader has loaded node in nodelock
 	GZ_DYNAMIC_LOADER_REQUEST_LOAD,				// SYNC from thread			loader is requested to load
 	GZ_DYNAMIC_LOADER_REQUEST_LOAD_CANCEL,		// SYNC from thread			loader is requested to unload
 	GZ_DYNAMIC_LOADER_IN_LOADING,				// ASYNC					loader in progress (async)
-	GZ_DYNAMIC_LOADER_IN_DESTROY,				// SYNC in NodeLock			loader is deleted with childs
+	GZ_DYNAMIC_LOADER_IN_DESTROY,				// SYNC in Node EditLock	loader is deleted with childs
 	GZ_DYNAMIC_LOADER_IN_TRAVERSAL,				// No callback
 	GZ_DYNAMIC_LOADER_NOT_FOUND,				// ASYNC
 

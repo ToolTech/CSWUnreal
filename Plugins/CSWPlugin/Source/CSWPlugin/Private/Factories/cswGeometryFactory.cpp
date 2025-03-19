@@ -120,6 +120,11 @@ gzCleanupReference cleanUpGeometryFactory(new cswGeometryFactoryRegistrar, GZ_CL
 
 gzReference* cswGeometryFactory::preBuildReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state)
 {
+	// Assume we are called in dynamic load
+	// We can then exit edit lock mode
+	
+	GZ_EDIT_GUARD_PAUSE;
+
 	// Get Handle to geometry
 	gzGeometry* geom = gzDynamic_Cast<gzGeometry>(node);
 
@@ -404,7 +409,7 @@ gzReference* cswGeometryFactory::preBuildReferenceInstance(gzNode* node, const g
 		}
 
 	}
-	
+		
 	build->staticMesh = NewObject<UStaticMesh>();
 
 	// Get material array
