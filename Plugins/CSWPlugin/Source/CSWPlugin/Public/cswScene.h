@@ -96,6 +96,9 @@ public:
 	bool OmniView = true;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
+	float LodFactor = 1.0;
+
+	UPROPERTY(EditAnywhere, Category = "CSW")
 	uint32 MaxPrimitivesPerFrame=1000;
 
 	UPROPERTY(EditAnywhere, Category = "CSW")
@@ -172,6 +175,7 @@ protected:
 	bool onCoordTypePropertyUpdate();
 	bool onCenterOriginPropertyUpdate();
 	bool onOmniViewPropertyUpdate();
+	bool onLodFactorPropertyUpdate();
 
 	// Utilities
 	double getWorldScale();

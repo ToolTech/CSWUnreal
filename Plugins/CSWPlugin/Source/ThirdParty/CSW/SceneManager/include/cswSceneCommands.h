@@ -201,6 +201,19 @@ public:
 	GZ_PROPERTY_EXPORT(gzBool, PreCacheTextures, CSW_SM_EXPORT);
 };
 
+// ------------------------ cswSceneCommandSetLodFactor -------------------------------
+
+class cswSceneCommandSetLodFactor : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandSetLodFactor(const gzFloat& lodFactor);
+
+	GZ_PROPERTY_EXPORT(gzFloat, LodFactor, CSW_SM_EXPORT);
+};
+
+
 // ------------------------ cswSceneCommandError -------------------------------
 
 class cswSceneCommandErrorMessage : public cswSceneCommand

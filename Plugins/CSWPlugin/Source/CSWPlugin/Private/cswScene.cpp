@@ -90,6 +90,7 @@ void UCSWScene::registerPropertyCallbacks()
 	registerPropertyUpdate("CenterOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
 	registerPropertyUpdate("AllowCustomOrigin", &UCSWScene::onCenterOriginPropertyUpdate);
 	registerPropertyUpdate("OmniView", &UCSWScene::onOmniViewPropertyUpdate);
+	registerPropertyUpdate("LodFactor", &UCSWScene::onLodFactorPropertyUpdate);
 }
 
 bool UCSWScene::isEditorComponent()
@@ -671,7 +672,7 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 
 	if (!parent)
 	{
-		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get registered parent");
+		GZMESSAGE(GZ_MESSAGE_DEBUG, "Failed to get registered parent. Probably destroyed");
 		return false;
 	}
 		
@@ -725,7 +726,7 @@ bool UCSWScene::processDeleteNode(cswSceneCommandDeleteNode* command)
 
 	if (!component)
 	{
-		GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to get component for deletion");
+		GZMESSAGE(GZ_MESSAGE_DEBUG, "Failed to get component for deletion. Probably removed");
 		return false;
 	}
 
@@ -955,6 +956,16 @@ bool UCSWScene::onOmniViewPropertyUpdate()
 
 	if (m_manager)
 		m_manager->addSingleCommand(new cswSceneCommandSetOmniTraverse(OmniView), FALSE);
+
+	return true;
+}
+
+bool UCSWScene::onLodFactorPropertyUpdate()
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::onLodFactorPropertyUpdate");
+
+	if (m_manager)
+		m_manager->addSingleCommand(new cswSceneCommandSetLodFactor(LodFactor), FALSE);
 
 	return true;
 }

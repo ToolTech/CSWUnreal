@@ -409,8 +409,12 @@ gzReference* cswGeometryFactory::preBuildReferenceInstance(gzNode* node, const g
 		}
 
 	}
-		
-	build->staticMesh = NewObject<UStaticMesh>();
+
+	{
+		FGCScopeGuard guard;
+
+		build->staticMesh = NewObject<UStaticMesh>();
+	}
 
 	// Get material array
 	TArray<FStaticMaterial>& materials = build->staticMesh->GetStaticMaterials();

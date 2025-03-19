@@ -129,6 +129,7 @@ public:
 	GZ_GRAPH_EXPORT gzVoid lockSubscriptions();
 	GZ_GRAPH_EXPORT gzVoid unLockSubscriptions();
 	GZ_GRAPH_EXPORT gzVoid dropSubscriptions();
+	GZ_GRAPH_EXPORT gzBool tryDropSubscriptions();
 
 	// ---------- Serializing -------------------------------------------
 
@@ -231,6 +232,7 @@ public:
 
 	GZ_GRAPH_EXPORT gzVoid addSubscriber(gzDynamicLoaderInfoInterface *subscriber);
 	GZ_GRAPH_EXPORT gzVoid removeSubscriber(gzDynamicLoaderInfoInterface *subscriber);
+	GZ_GRAPH_EXPORT gzBool tryRemoveSubscriber(gzDynamicLoaderInfoInterface* subscriber);
 	
 	// ---------- Debug function ----------------------------------------
 	GZ_GRAPH_EXPORT virtual	gzVoid	debugOutput(gzString base , gzString anchor , gzDebugFlags features) override;
