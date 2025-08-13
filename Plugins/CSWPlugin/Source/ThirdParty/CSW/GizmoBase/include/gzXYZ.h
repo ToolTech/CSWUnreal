@@ -19,7 +19,7 @@
 // Module		: gzXYZ
 // Description	: Class definition of XYZ templates
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -32,6 +32,7 @@
 // Who	Date	Description						
 //									
 // AMO	020322	Created file 
+// AMO	250331	Added min max function for pair templates gzMinXY etc.	(2.12.236)
 //
 // ******************************************************************************
 
@@ -125,7 +126,19 @@ template <> inline gzUInt32 gzXY<gzFloat>::hash() const
 	return (xi<<1)+yi;
 }
 
+// ------------------ gzMaxXY pair max ----------------------------------
 
+template <class T> gzXY<T> gzMaxXY(const gzXY<T>& x, const gzXY<T>& y)
+{
+	return gzXY<T>(gzMax<T>(x.x, y.x), gzMax<T>(x.y, y.y));
+}
+
+// ------------------ gzMinXY pair min ----------------------------------
+
+template <class T> gzXY<T> gzMinXY(const gzXY<T>& x, const gzXY<T>& y)
+{
+	return gzXY<T>(gzMin<T>(x.x, y.x), gzMin<T>(x.y, y.y));
+}
 
 //******************************************************************************
 // Class	: gzXYZ
@@ -175,6 +188,20 @@ template <> inline gzUInt32 gzXYZ<gzUInt32>::hash() const
 template <> inline gzUInt32 gzXYZ<gzInt32>::hash() const
 {
 	return (((gzUInt32)x) << 8) + (((gzUInt32)y) << 16) + ((gzUInt32)z);
+}
+
+// ------------------ gzMaxXYZ pair max ----------------------------------
+
+template <class T> gzXYZ<T> gzMaxXYZ(const gzXYZ<T>& x, const gzXYZ<T>& y)
+{
+	return gzXYZ<T>(gzMax<T>(x.x, y.x), gzMax<T>(x.y, y.y), gzMax<T>(x.z, y.z));
+}
+
+// ------------------ gzMinXYZ pair min ----------------------------------
+
+template <class T> gzXYZ<T> gzMinXY(const gzXYZ<T>& x, const gzXYZ<T>& y)
+{
+	return gzXYZ<T>(gzMin<T>(x.x, y.x), gzMin<T>(x.y, y.y), gzMin<T>(x.z, y.z));
 }
 
 

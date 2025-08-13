@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of iterator utilities
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 // 	 
 //			
@@ -63,31 +63,33 @@
 
 // --------------------- Copy Instances of data from to ---------------------------
 
-template <class T> inline gzVoid copyInstances(T *to, T *from, gzUInt32 count,gzBool clearSource=FALSE)
+template <class T> inline gzVoid copyInstances(T *to, T *from, const gzUInt64& count,gzBool clearSource=FALSE)
 {
+	gzUInt64 _count(count);
+
 	if (!clearSource)
 	{
 		if (to < from)
 		{
-			while (count)
+			while (_count)
 			{
 				*to = *from;
 				++to;
 				++from;
-				--count;
+				--_count;
 			}
 		}
 		else if (to > from)
 		{
-			to += count;
-			from += count;
+			to += _count;
+			from += _count;
 
-			while (count)
+			while (_count)
 			{
 				--to;
 				--from;
 				*to = *from;
-				--count;
+				--_count;
 			}
 		}
 	}
@@ -95,89 +97,89 @@ template <class T> inline gzVoid copyInstances(T *to, T *from, gzUInt32 count,gz
 	{
 		if (to < from)
 		{
-			while (count)
+			while (_count)
 			{
 				*to = *from;
 				*from = T();
 				++to;
 				++from;
-				--count;
+				--_count;
 			}
 		}
 		else if (to > from)
 		{
-			to += count;
-			from += count;
+			to += _count;
+			from += _count;
 
-			while (count)
+			while (_count)
 			{
 				--to;
 				--from;
 				*to = *from;
 				*from = T();
-				--count;
+				--_count;
 			}
 		}
 	}
 
 }
 
-template <> inline gzVoid copyInstances(gzUInt32 *to, gzUInt32 *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzUInt32 *to, gzUInt32 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if(count && to && from)
 		memmove(to, from, count * sizeof(gzUInt32));
 }
 
-template <> inline gzVoid copyInstances(gzWideChar* to, gzWideChar* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzWideChar* to, gzWideChar* from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(to, from, count * sizeof(gzWideChar));
 }
 
 
-template <> inline gzVoid copyInstances(gzInt32 *to, gzInt32 *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzInt32 *to, gzInt32 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(to, from, count * sizeof(gzInt32));
 }
 
-template <> inline gzVoid copyInstances(gzUByte *to, gzUByte *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzUByte *to, gzUByte *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(to, from, count * sizeof(gzUByte));
 }
 
-template <> inline gzVoid copyInstances(gzFloat *to, gzFloat *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzFloat *to, gzFloat *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(to, from, count * sizeof(gzFloat));
 }
 
-template <> inline gzVoid copyInstances(gzDouble *to, gzDouble *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzDouble *to, gzDouble *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(to, from, count * sizeof(gzDouble));
 }
 
-template <> inline gzVoid copyInstances(gzQWA_UByte *to, gzQWA_UByte *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzQWA_UByte *to, gzQWA_UByte *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(&to->data, &from->data, count * sizeof(gzQWA_UByte));
 }
 
-template <> inline gzVoid copyInstances(gzQWA_Byte *to, gzQWA_Byte *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzQWA_Byte *to, gzQWA_Byte *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(&to->data, &from->data, count * sizeof(gzQWA_Byte));
 }
 
-template <> inline gzVoid copyInstances(gzQWA_UInt16 *to, gzQWA_UInt16 *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzQWA_UInt16 *to, gzQWA_UInt16 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(&to->data, &from->data, count * sizeof(gzQWA_UInt16));
 }
 
-template <> inline gzVoid copyInstances(gzQWA_Int16 *to, gzQWA_Int16 *from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzQWA_Int16 *to, gzQWA_Int16 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
 		memmove(&to->data, &from->data, count * sizeof(gzQWA_Int16));
@@ -2358,12 +2360,9 @@ template <class T> inline gzVoid gzArray<T>::resize(gzUInt32 size,const T& defau
 		{
 			T *newData=new T[size];
 
-			gzUInt32 i;
+			copyInstances<T>(newData, m_data, m_size);
 
-			for(i=0;i<m_size;i++)
-				newData[i]=m_data[i];
-
-			for(i=m_size;i<size;i++)
+			for(gzUInt32 i=m_size;i<size;i++)
 				newData[i]=defaultValue;
 
 			delete [] m_data;
@@ -2404,8 +2403,7 @@ template <class T> inline gzVoid gzArray<T>::resize(gzUInt32 size)
 		{
 			T *newData=new T[size];
 
-			for(gzUInt32 i=0;i<m_size;i++)
-				newData[i]=m_data[i];
+			copyInstances<T>(newData, m_data, m_size);
 
 			delete [] m_data;
 
@@ -3116,7 +3114,7 @@ template <class T> inline gzVoid  gzDynamicArray<T>::setSize( const gzUInt32 new
 	if (newsize > m_size)
 	{
 		if (newsize % m_chunksize)
-			setRealSize(((gzUInt32)(newsize / m_chunksize) + 1) * m_chunksize, copy_offset);
+			setRealSize((newsize < GZ_MAX_UINT32 - m_chunksize) ? (gzUInt32(newsize / m_chunksize) + 1) * m_chunksize : newsize, copy_offset);
 		else
 			setRealSize(newsize, copy_offset);
 	}
@@ -3139,7 +3137,9 @@ template <class T> inline gzUInt32 gzDynamicArray<T>::getRealSize() const
 
 template <class T> inline gzVoid gzDynamicArray<T>::setRealSize(const gzUInt32 size,gzInt32 copy_offset)
 {
-	
+	if ((size == m_size) && (copy_offset==0))
+		return;
+
 	T* from = m_data;
 	T* to = NULL;
 
@@ -8141,6 +8141,1486 @@ template <> inline gzInt8 gzBitCount(gzInt8 v)
 {
 	return gzBitCount<gzUInt8>(v);
 }
+
+
+// ----------------------------------------- gzLargeArray -------------------------------------------------------------------
+
+template <class T> class gzDynamicLargeArray;
+
+//******************************************************************************
+// Template	: gzLargeArray
+//									
+// Purpose  : LARGE data Array template
+//									
+// Notes	: gzLargeArray uses storage by value, not by reference
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	250324	Created 
+//									
+//******************************************************************************
+/*! \brief Template class for arrays
+
+The gzArray is a template class that contains an array with fast access to retreive
+and store items in the array.
+
+*/
+
+template <class T> class gzLargeArray
+{
+public:
+	gzLargeArray(const gzUInt64& size = 0);
+	virtual ~gzLargeArray();
+
+	gzLargeArray(const gzLargeArray& copy);
+
+	const gzUInt64& getSize() const;
+
+	//! Sets size and discards old data
+	gzVoid		setSize(const gzUInt64& size);
+
+	gzVoid		setPOTSize(const gzUInt64& pot_size);
+
+	T& operator [](const gzUInt64& index);
+
+	const T& get(const gzUInt64& index) const;
+
+	const T& operator +=(const T& value);
+
+	gzLargeArray& operator +=(const gzLargeArray& copy);
+
+	gzLargeArray		operator +(const gzLargeArray& add);
+
+	gzLargeArray& operator=(const gzLargeArray& copy);
+
+	gzBool		operator==(const gzLargeArray& compare) const;
+
+	gzBool		operator!=(const gzLargeArray& compare) const;
+
+	T* getAddress();
+
+	const T* getConstAddress() const { return m_data; };
+
+	//! resizes data and keeps old
+	gzVoid		resize(const gzUInt64& newSize);
+
+	//! resizes data and keeps old and runs specific default constructor
+	gzVoid		resize(const gzUInt64& newSize, const T& defaultValue);
+
+	gzVoid		remove(const gzUInt64& index);
+
+	gzBool		contains(const T& item) const;
+
+	//! Utility to swap the contents of two instanses by exchanging data poiners
+	gzVoid		swapArrayData(gzLargeArray& swapper);
+
+	//! Set the whole array to one value
+	gzVoid		setAll(const T& data);
+
+	//! Set some part of the array to one value
+	gzVoid		setSome(const gzUInt64& index, const gzUInt64& size, const T& data);
+
+	//! Multiply the whole array with one value
+	gzVoid		itemMultiply(const T& data);
+
+	//! Multiply some of the array with one value
+	gzVoid		itemMultiply(const gzUInt64& index, const gzUInt64& size, const T& data);
+
+	//! Utility to set size and data at once
+	gzVoid		setArrayData(const T* data, const gzUInt64& length);
+
+	gzVoid		setUntouched() { m_untouched = TRUE; }
+	gzVoid		setTouched() { m_untouched = FALSE; }
+	gzBool		isUntouched()	const { return m_untouched; }
+
+protected:
+
+	friend class gzDynamicArray<T>;
+
+	// Access without boundary check
+	const T& getItemInternal(const gzUInt64& index) const;
+	gzVoid		setItemInternal(const gzUInt64& index, const T& val);
+
+	T* m_data;
+
+	gzUInt64	m_size;
+
+	gzBool		m_untouched;	// Indicates that data has not been changed since last untouch
+};
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::swapArrayData(gzLargeArray<T>& swapper)
+{
+	T* data(m_data);
+	gzUInt64	size(m_size);
+
+	m_data = swapper.m_data;
+	m_size = swapper.m_size;
+
+	swapper.m_data = data;
+	swapper.m_size = size;
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::setArrayData(const T* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	T* to = m_data;
+
+	gzUInt64 len(length);
+
+	while (len)
+	{
+		*to = *data;
+		++to;
+		++data;
+		--len;
+	}
+
+	m_untouched = FALSE;
+}
+
+//**********************************************************************
+
+template <> inline gzVoid gzLargeArray<gzUByte>::setArrayData(const gzUByte* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(m_data, data, length);
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzQWA_UByte>::setArrayData(const gzQWA_UByte* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(&m_data->data, &data->data, length);
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzQWA_Byte>::setArrayData(const gzQWA_Byte* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(&m_data->data, &data->data, length);
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzQWA_UInt16>::setArrayData(const gzQWA_UInt16* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(&m_data->data, &data->data, length * sizeof(gzQWA_UInt16));
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzQWA_Int16>::setArrayData(const gzQWA_Int16* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(&m_data->data, &data->data, length * sizeof(gzQWA_Int16));
+
+	m_untouched = FALSE;
+}
+
+template <class T> inline gzVoid gzLargeArray<T>::setAll(const T& data)
+{
+	T* pek = m_data;
+
+	gzUInt64 size(m_size);
+
+	while (size--)
+	{
+		*pek = data;
+		++pek;
+	}
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzDouble>::setAll(const gzDouble& data)
+{
+	if (data == 0.0)
+	{
+		memset(m_data, 0, m_size * sizeof(gzDouble));
+	}
+	else
+	{
+		gzDouble* pek = m_data;
+
+		gzUInt64 size(m_size);
+
+		while (size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzFloat>::setAll(const gzFloat& data)
+{
+	if (data == 0.0)
+	{
+		memset(m_data, 0, m_size * sizeof(gzFloat));
+	}
+	else
+	{
+		gzFloat* pek = m_data;
+
+		gzUInt64 size(m_size);
+
+		while (size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+
+	m_untouched = FALSE;
+}
+
+template <class T> inline gzVoid gzLargeArray<T>::setSome(const gzUInt64& index, const gzUInt64& size, const T& data)
+{
+	if ((size + index) > m_size)
+		throwFatalTemplateError("gzArray::setSome() index out of bounds");
+
+	T* pek = m_data + index;
+
+	gzUInt64 _size(size);
+
+	while (_size--)
+	{
+		*pek = data;
+		++pek;
+	}
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzDouble>::setSome(const gzUInt64& index, const gzUInt64& size, const gzDouble& data)
+{
+	if ((size + index) > m_size)
+		throwFatalTemplateError("gzArray::setSome() index out of bounds");
+
+	if (data == 0.0)
+	{
+		memset(m_data + index, 0, size * sizeof(gzDouble));
+	}
+	else
+	{
+		gzDouble* pek = m_data + index;
+
+		gzUInt64 _size(size);
+
+		while (_size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+
+	m_untouched = FALSE;
+}
+
+template <> inline gzVoid gzLargeArray<gzFloat>::setSome(const gzUInt64& index, const gzUInt64& size, const gzFloat& data)
+{
+	if ((size + index) > m_size)
+		throwFatalTemplateError("gzArray::setSome() index out of bounds");
+
+	if (data == 0.0f)
+	{
+		memset(m_data + index, 0, size * sizeof(gzFloat));
+	}
+	else
+	{
+		gzFloat* pek = m_data + index;
+
+		gzUInt64 _size(size);
+
+		while (_size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+
+	m_untouched = FALSE;
+}
+
+template <class T> inline gzVoid gzLargeArray<T>::itemMultiply(const T& data)
+{
+	T* pek = m_data;
+
+	gzUInt64 size(m_size);
+
+	while (size)
+	{
+		*pek = *pek * data;
+		++pek;
+		--size;
+	}
+
+	m_untouched = FALSE;
+}
+
+template <class T> inline gzVoid gzLargeArray<T>::itemMultiply(const gzUInt64& index, const gzUInt64& size, const T& data)
+{
+	if ((size + index) > m_size)
+		throwFatalTemplateError("gzArray::itemMultiply() index out of bounds");
+
+	T* pek = m_data + index;
+
+	gzUInt64 _size(size);
+
+	while (_size)
+	{
+		*pek = *pek * data;
+		++pek;
+		--_size;
+	}
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline T * gzLargeArray<T>::getAddress()
+{
+	m_untouched = FALSE;
+
+	return m_data;
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T>::gzLargeArray(const gzUInt64& size)
+{
+	if (size)
+		m_data = new T[size];
+	else
+		m_data = nullptr;
+
+	m_size = size;
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T>::~gzLargeArray()
+{
+	if (m_data)
+		delete[] m_data;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::remove(const gzUInt64& index)
+{
+	if (m_size)
+	{
+		for (gzUInt64 i = index; i < m_size - 1; i++)
+			m_data[i] = m_data[i + 1];
+
+		m_size--;
+	}
+}
+
+//***********************************************************************
+
+template <class T> inline gzBool gzLargeArray<T>::contains(const T& item) const
+{
+	for (gzUInt64 i = 0; i < m_size; i++)
+		if (m_data[i] == item)
+			return TRUE;
+
+	return FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzBool gzLargeArray<T>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	for (gzUInt64 i = 0; i < m_size; ++i)
+		if (m_data[i] != compare.m_data[i])
+			return FALSE;
+
+	return TRUE;
+}
+
+template <> inline gzBool gzLargeArray<gzUByte>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size);
+}
+
+template <> inline gzBool gzLargeArray<gzQWA_UByte>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzQWA_UByte));
+}
+
+template <> inline gzBool gzLargeArray<gzQWA_Byte>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzQWA_Byte));
+}
+
+template <> inline gzBool gzLargeArray<gzQWA_UInt16>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzQWA_UInt16));
+}
+
+template <> inline gzBool gzLargeArray<gzQWA_Int16>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzQWA_Int16));
+}
+
+template <> inline gzBool gzLargeArray<gzFloat>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzFloat));
+}
+
+template <> inline gzBool gzLargeArray<gzDouble>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzDouble));
+}
+
+template <> inline gzBool gzLargeArray<gzUInt32>::operator==(const gzLargeArray& compare) const
+{
+	if (m_size != compare.m_size)
+		return FALSE;
+
+	return !memcmp(m_data, compare.m_data, m_size * sizeof(gzUInt32));
+}
+//***********************************************************************
+
+template <class T> inline gzBool gzLargeArray<T>::operator!=(const gzLargeArray& compare) const
+{
+	return !operator==(compare);
+}
+
+//***********************************************************************
+
+template <class T> inline const T& gzLargeArray<T>::operator +=(const T& value)
+{
+	T* m_new_data = new T[m_size + 1];
+
+	copyInstances<T>(m_new_data, m_data, m_size);
+
+	m_new_data[m_size] = value;
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = m_new_data;
+
+	++m_size;
+
+	m_untouched = FALSE;
+
+	return m_new_data[m_size - 1];
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T>& gzLargeArray<T>::operator=(const gzLargeArray& copy)
+{
+	if (&copy == this)
+		return *this;
+
+	if (m_size < copy.m_size)	// Allow shrink
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_size = copy.m_size;
+
+		if (copy.m_size)
+		{
+			m_data = new T[copy.m_size];
+		}
+		else
+			m_data = nullptr;
+	}
+	else
+		m_size = copy.m_size;
+
+	copyInstances<T>(m_data, copy.m_data, m_size);
+
+	m_untouched = copy.m_untouched;
+
+	return *this;
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T>::gzLargeArray(const gzLargeArray& copy)
+{
+	m_size = copy.m_size;
+
+	if (m_size)
+	{
+		m_data = new T[m_size];
+
+		copyInstances<T>(m_data, copy.m_data, m_size);
+	}
+	else
+		m_data = nullptr;
+
+	m_untouched = copy.m_untouched;
+}
+
+//***********************************************************************
+
+template <class T> inline T& gzLargeArray<T>::operator [](const gzUInt64& index)
+{
+	if (index >= m_size)
+		throwFatalTemplateError("gzArray [] index out of bounds");
+
+	m_untouched = FALSE;
+
+	return m_data[index];
+}
+
+//***********************************************************************
+
+template <class T> inline const T& gzLargeArray<T>::get(const gzUInt64& index) const
+{
+	if (index >= m_size)
+		throwFatalTemplateError("gzArray get() index out of bounds");
+
+	return m_data[index];
+}
+
+//***********************************************************************
+
+// Access without boundary check
+
+template <class T> inline const T& gzLargeArray<T>::getItemInternal(const gzUInt64& index) const
+{
+	return m_data[index];
+}
+
+//***********************************************************************
+
+// Access without boundary check
+
+template <class T> inline gzVoid gzLargeArray<T>::setItemInternal(const gzUInt64& index, const T& val)
+{
+	m_untouched = FALSE;
+	m_data[index] = val;
+}
+
+
+//***********************************************************************
+
+template <class T> inline const gzUInt64& gzLargeArray<T>::getSize() const
+{
+	return m_size;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::setSize(const gzUInt64& size)
+{
+	if (size == m_size)
+		return;
+
+	if (size > m_size)
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_data = new T[size];
+	}
+	else if (!size)
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_data = nullptr;
+	}
+
+	m_size = size;
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::setPOTSize(const gzUInt64& pot_size)
+{
+	gzLargeArray<T>::setSize(LLU(1) << pot_size);
+}
+
+//***********************************************************************
+template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64& size, const T& defaultValue)
+{
+	if (size == m_size)
+		return;
+
+	if (size > m_size)
+	{
+		if (m_data)
+		{
+			T* newData = new T[size];
+
+			copyInstances<T>(newData, m_data, m_size);
+
+			for (gzUInt64 i = m_size; i < size; i++)
+				newData[i] = defaultValue;
+
+			delete[] m_data;
+
+			m_data = newData;
+		}
+		else
+		{
+			m_data = new T[size];
+
+			for (gzUInt64 i = 0; i < size; i++)
+				m_data[i] = defaultValue;
+		}
+	}
+	else if (!size)
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_data = nullptr;
+	}
+
+	m_size = size;
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64& size)
+{
+	if (size == m_size)
+		return;
+
+	if (size > m_size)
+	{
+		if (m_data)
+		{
+			T* newData = new T[size];
+
+			copyInstances<T>(newData, m_data, m_size);
+
+			delete[] m_data;
+
+			m_data = newData;
+		}
+		else
+			m_data = new T[size];
+	}
+	else if (!size)
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_data = nullptr;
+	}
+
+	m_size = size;
+
+	m_untouched = FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T> gzLargeArray<T>::operator +(const gzLargeArray& add)
+{
+	gzUInt64 i;
+
+	gzLargeArray<T> array(m_size + add.m_size);
+
+	for (i = 0; i < m_size; ++i)
+		array.m_data[i] = m_data[i];
+
+	for (i = 0; i < add.m_size; ++i)
+		array.m_data[i + m_size] = add.m_data[i];
+
+	return array;
+}
+
+//***********************************************************************
+
+template <class T> inline gzLargeArray<T>& gzLargeArray<T>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	T* to, * from, * data = new T[newSize];
+
+	gzUInt64 i;
+
+	to = data;
+
+	from = m_data;
+
+	for (i = 0; i < m_size; ++i)
+	{
+		*to = *from;
+		++to; ++from;
+	}
+
+	from = add.m_data;
+
+	for (i = 0; i < add.m_size; ++i)
+	{
+		*to = *from;
+		++to; ++from;
+	}
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size = newSize;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+template <> inline gzLargeArray<gzUByte>& gzLargeArray<gzUByte>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	gzUByte* data = new gzUByte[newSize];
+
+	memcpy(data, m_data, m_size);
+
+	memcpy(data + m_size, add.m_data, add.m_size);
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size += add.m_size;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+template <> inline gzLargeArray<gzQWA_UByte>& gzLargeArray<gzQWA_UByte>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	gzQWA_UByte* data = new gzQWA_UByte[newSize];
+
+	memcpy(&data->data, &m_data->data, m_size);
+
+	memcpy(&data->data + m_size, &add.m_data->data, add.m_size);
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size += add.m_size;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+template <> inline gzLargeArray<gzQWA_Byte>& gzLargeArray<gzQWA_Byte>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	gzQWA_Byte* data = new gzQWA_Byte[newSize];
+
+	memcpy(&data->data, &m_data->data, m_size);
+
+	memcpy(&data->data + m_size, &add.m_data->data, add.m_size);
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size += add.m_size;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+template <> inline gzLargeArray<gzQWA_UInt16>& gzLargeArray<gzQWA_UInt16>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	gzQWA_UInt16* data = new gzQWA_UInt16[newSize];
+
+	memcpy(&data->data, &m_data->data, m_size);
+
+	memcpy(&data->data + m_size, &add.m_data->data, add.m_size);
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size += add.m_size;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+template <> inline gzLargeArray<gzQWA_Int16>& gzLargeArray<gzQWA_Int16>::operator +=(const gzLargeArray& add)
+{
+	if (!add.m_size)
+		return *this;
+
+	gzUInt64 newSize(m_size + add.m_size);
+
+	gzQWA_Int16* data = new gzQWA_Int16[newSize];
+
+	memcpy(&data->data, &m_data->data, m_size);
+
+	memcpy(&data->data + m_size, &add.m_data->data, add.m_size);
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = data;
+
+	m_size += add.m_size;
+
+	m_untouched = FALSE;
+
+	return *this;
+}
+
+// ----------------------------------------- gzDynamicLargeArray -------------------------------------------------------------------
+
+//******************************************************************************
+// Template	: gzDynamicLargeArray
+//									
+// Purpose  : Fast allocation of LARGE Array template
+//									
+// Notes	: gzDynamicLargeArray uses storage by value, not by reference
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	250324	Created 
+//									
+//******************************************************************************
+/*! \brief Template class for dynamic arrays
+
+The gzDynamicLargeArray is a template class that contains a dynamic sizeable array with fast access to retreive
+and store items in the array. If your index is larger than the size of the array, it automatically resizes
+the array to hold the new indexed item.
+The array supports large size data up to gzUInt64 size
+
+*/
+
+template <class T> class gzDynamicLargeArray
+{
+public:
+	gzDynamicLargeArray(const gzUInt64& chunkSize = 100, const gzUInt64& realSize = 0);
+	~gzDynamicLargeArray();
+
+	gzDynamicLargeArray(const gzDynamicLargeArray& copy);
+
+	//! Create from LargeArray
+	gzDynamicLargeArray(const gzLargeArray<T>& copy);
+
+	gzUInt64	getSize() const;
+
+	gzVoid		setSize(const gzUInt64& newsize, const gzInt64& copy_offset = 0);
+
+	gzUInt64	getRealSize() const;
+
+	gzVoid		setRealSize(const gzUInt64& size, const gzInt64& copy_offset = 0);
+
+	gzVoid		setChunkSize(const gzUInt64& i) { if (i)m_chunksize = i; else m_chunksize = 1; }
+
+	gzUInt64	getChunkSize() const { return m_chunksize; }
+
+	T& operator [](const gzUInt64& index);
+
+	const T& operator [](const gzUInt64& index) const;
+
+	const T& get(const gzUInt64& index) const;
+
+	gzVoid		operator +=(const T& value);
+
+	gzVoid		append(const gzDynamicLargeArray& add);
+
+	gzVoid		append(const T* data, const gzUInt64 len);
+
+	operator gzLargeArray<T>() const;
+
+	gzBool		operator==(const gzDynamicLargeArray& compare) const;
+
+	gzBool		operator!=(const gzDynamicLargeArray& compare) const;
+
+	gzDynamicLargeArray operator +(const gzDynamicLargeArray& add);
+
+	gzDynamicLargeArray& operator=(const gzDynamicLargeArray& copy);
+
+	T* getAddress() { return m_data; }
+
+	const T* getConstAddress() const { return m_data; };
+
+	gzVoid		transferToArray(gzLargeArray<T>& array) const;
+
+	//! Set the whole array to one value
+	gzVoid		setAll(const T& data);
+
+	//! Utility to swap the contents of two instanses by exchanging data poiners
+	gzVoid		swapArrayData(gzDynamicLargeArray& swapper);
+
+	//! Utility to swap the contents of two instanses by exchanging data poiners
+	gzVoid		swapArrayData(gzLargeArray<T>& swapper);
+
+	//! Set size and data in array
+	gzVoid		setArrayData(const T* data, const gzUInt64& length);
+
+	T& last();
+
+	gzVoid		removeLast();
+
+	gzVoid		remove(const gzUInt64& index);
+
+	gzVoid		insertAt(const gzUInt64& index, const T& value);
+
+	gzBool		contains(const T& item) const;
+
+private:
+
+	T* m_data;
+	gzUInt64	m_size;
+	gzUInt64	m_currentSize;
+	gzUInt64	m_chunksize;
+};
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::swapArrayData(gzDynamicLargeArray<T>& swapper)
+{
+	T* data(m_data);
+	gzUInt64	size(m_size);
+	gzUInt64	currentSize(m_currentSize);
+
+	m_data = swapper.m_data;
+	m_size = swapper.m_size;
+	m_currentSize = swapper.m_currentSize;
+
+	swapper.m_data = data;
+	swapper.m_size = size;
+	swapper.m_currentSize = currentSize;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::swapArrayData(gzLargeArray<T>& swapper)
+{
+	T* data(m_data);
+	gzUInt64	currentSize(m_currentSize);
+
+	m_data = swapper.m_data;
+	m_size = swapper.m_size;
+	m_currentSize = swapper.m_size;
+
+	swapper.m_data = data;
+	swapper.m_size = currentSize;
+}
+
+//**********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::setArrayData(const T* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	T* to = m_data;
+
+	gzUInt64 len(length);
+
+	while (len)
+	{
+		*to = *data;
+		++to;
+		++data;
+		--len;
+	}
+}
+
+//**********************************************************************
+
+template <> inline gzVoid gzDynamicLargeArray<gzUByte>::setArrayData(const gzUByte* data, const gzUInt64& length)
+{
+	setSize(length);
+
+	memcpy(m_data, data, length);
+}
+
+//**********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::setAll(const T& data)
+{
+	T* pek = m_data;
+
+	gzUInt32 size(m_currentSize);
+
+	while (size--)
+	{
+		*pek = data;
+		++pek;
+	}
+}
+
+template <> inline gzVoid gzDynamicLargeArray<gzDouble>::setAll(const gzDouble& data)
+{
+	if (data == 0.0)
+	{
+		memset(m_data, 0, m_currentSize * sizeof(gzDouble));
+	}
+	else
+	{
+		gzDouble* pek = m_data;
+
+		gzUInt64 size(m_currentSize);
+
+		while (size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+}
+
+//*********************************************************************
+
+template <> inline gzVoid gzDynamicLargeArray<gzFloat>::setAll(const gzFloat& data)
+{
+	if (data == 0.0)
+	{
+		memset(m_data, 0, m_currentSize * sizeof(gzFloat));
+	}
+	else
+	{
+		gzFloat* pek = m_data;
+
+		gzUInt64 size(m_currentSize);
+
+		while (size--)
+		{
+			*pek = data;
+			++pek;
+		}
+	}
+}
+
+//*********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>::gzDynamicLargeArray(const gzUInt64& chunkSize, const gzUInt64& realSize)
+{
+	if (chunkSize)
+		m_chunksize = chunkSize;
+	else
+		m_chunksize = 1;
+
+	m_data = nullptr;
+
+	m_size = 0;
+	m_currentSize = 0;
+
+	if (realSize)
+		setRealSize(realSize);
+}
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>::~gzDynamicLargeArray()
+{
+	if (m_data)
+		delete[] m_data;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::transferToArray(gzLargeArray<T>& array) const
+{
+	array.setSize(m_currentSize);
+
+	if (m_currentSize)
+		copyInstances<T>(array.getAddress(), m_data, m_currentSize);
+}
+
+//***********************************************************************
+
+template <class T> inline gzBool gzDynamicLargeArray<T>::contains(const T& item) const
+{
+	for (gzUInt64 i = 0; i < m_currentSize; i++)
+		if (m_data[i] == item)
+			return TRUE;
+
+	return FALSE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>::operator gzLargeArray<T>() const
+{
+	gzLargeArray<T> array;
+
+	transferToArray(array);
+
+	return array;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::operator +=(const T& value)
+{
+	(operator [](m_currentSize)) = value;
+}
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::append(const T* data, const gzUInt64 len)
+{
+	gzUInt64 oldlen(m_currentSize);
+
+	// Copies old data
+	setSize(oldlen + len);
+
+	// Copy new data
+	copyInstances<T>(m_data + oldlen, data, len);
+}
+
+template <> inline gzVoid gzDynamicLargeArray<gzUByte>::append(const gzUByte* data, const gzUInt64 len)
+{
+	gzUInt64 oldlen(m_currentSize);
+	setSize(oldlen + len);
+
+	if (m_data && m_size)
+		memcpy(m_data + oldlen, data, len);
+}
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>& gzDynamicLargeArray<T>::operator=(const gzDynamicLargeArray& copy)
+{
+	if (&copy == this)
+		return *this;
+
+	m_currentSize = copy.m_currentSize;
+
+	if (m_currentSize > m_size)
+	{
+		if (m_data)
+			delete[] m_data;
+
+		m_data = new T[m_currentSize];
+
+		m_size = m_currentSize;
+	}
+
+	copyInstances<T>(m_data, copy.m_data, m_currentSize);
+
+	m_chunksize = copy.m_chunksize;
+
+	return *this;
+}
+
+//***********************************************************************
+
+template <class T> inline gzBool gzDynamicLargeArray<T>::operator==(const gzDynamicLargeArray& compare) const
+{
+	if (m_currentSize != compare.m_currentSize)
+		return FALSE;
+
+	for (gzUInt64 i = 0; i < m_currentSize; ++i)
+		if (m_data[i] != compare.m_data[i])
+			return FALSE;
+
+	return TRUE;
+}
+
+//***********************************************************************
+
+template <class T> inline gzBool gzDynamicLargeArray<T>::operator!=(const gzDynamicLargeArray& compare) const
+{
+	return !operator==(compare);
+}
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>::gzDynamicLargeArray(const gzLargeArray<T>& copy)
+{
+	if (copy.getSize())
+		m_data = new T[copy.getSize()];
+	else
+		m_data = nullptr;
+
+	m_size = copy.getSize();
+	m_currentSize = m_size;
+	m_chunksize = 100;
+
+	copyInstances<T>(m_data, copy.m_data, m_currentSize);
+}
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T>::gzDynamicLargeArray(const gzDynamicLargeArray& copy)
+{
+	if (copy.m_size)
+	{
+		m_data = new T[copy.m_size];
+		m_size = copy.m_size;
+		m_currentSize = copy.m_currentSize;
+
+		copyInstances<T>(m_data, copy.m_data, m_currentSize);
+	}
+	else
+	{
+		m_data = nullptr;
+		m_size = 0;
+		m_currentSize = 0;
+	}
+
+	m_chunksize = copy.m_chunksize;
+}
+
+//***********************************************************************
+
+template <class T> inline T& gzDynamicLargeArray<T>::last()
+{
+	if (m_currentSize)
+		return  *(m_data + m_currentSize - 1);
+	else
+	{
+		throwFatalTemplateError("no last() item in gzDynamicLargeArray");
+		return *m_data; // to avoid warning
+	}
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::removeLast()
+{
+	if (m_currentSize)
+		--m_currentSize;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::remove(const gzUInt64& index)
+{
+	if (index < m_currentSize)
+	{
+		--m_currentSize;
+		for (gzUInt64 i = index; i < m_currentSize; i++)
+			m_data[i] = m_data[i + 1];
+	}
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::insertAt(const gzUInt64& index, const T& value)
+{
+	if (index < m_currentSize)
+	{
+		setSize(m_currentSize + 1);
+
+		for (gzUInt64 i = m_currentSize - 1; i > index; i--)
+			m_data[i] = m_data[i - 1];
+
+		m_data[index] = value;
+	}
+	else
+		operator[](index) = value;
+}
+
+//***********************************************************************
+
+template <class T> inline T& gzDynamicLargeArray<T>::operator [](const gzUInt64& index)
+{
+	if (index >= m_currentSize)
+	{
+		if (index >= m_size)
+		{
+			setRealSize(((gzUInt64)(index / m_chunksize) + 1) * m_chunksize);
+		}
+		m_currentSize = index + 1;
+	}
+
+	if (!m_data || index >= m_size)
+		throwFatalTemplateError("const gzDynamicArray::[] index out of bounds");
+
+	return  *(m_data + index);
+}
+
+//***********************************************************************
+
+template <class T> inline const T& gzDynamicLargeArray<T>::operator [](const gzUInt64& index) const
+{
+	if (index >= m_currentSize)
+	{
+		throwFatalTemplateError("const gzDynamicArray::[] index out of bounds");
+	}
+
+	return  *(m_data + index);
+}
+
+//***********************************************************************
+
+template <class T> inline const T& gzDynamicLargeArray<T>::get(const gzUInt64& index) const
+{
+	if (index >= m_currentSize)
+	{
+		throwFatalTemplateError("const gzDynamicArray::get() index out of bounds");
+	}
+
+	return  *(m_data + index);
+}
+
+//***********************************************************************
+
+template <class T> inline gzUInt64 gzDynamicLargeArray<T>::getSize() const
+{
+	return m_currentSize;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid  gzDynamicLargeArray<T>::setSize(const gzUInt64& newsize, const gzInt64& copy_offset)
+{
+	if (newsize > m_size)
+	{
+		if (newsize % m_chunksize)
+			setRealSize((newsize < GZ_MAX_UINT64 - m_chunksize) ? (gzUInt64(newsize / m_chunksize) + 1) * m_chunksize : newsize, copy_offset);
+		else
+			setRealSize(newsize, copy_offset);
+	}
+	else if (copy_offset > 0)	// Or offset moves within same allocation up
+		copyInstances<T>(m_data + copy_offset, m_data, gzMax<gzInt64>(0, gzMax<gzInt64>(newsize, m_currentSize) - copy_offset), TRUE);
+	else if (copy_offset < 0)	// move down
+		copyInstances<T>(m_data, m_data - copy_offset, gzMax<gzInt64>(0, gzMax<gzInt64>(newsize, m_currentSize) + copy_offset), TRUE);
+
+	m_currentSize = newsize;
+}
+
+//***********************************************************************
+
+template <class T> inline gzUInt64 gzDynamicLargeArray<T>::getRealSize() const
+{
+	return m_size;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::setRealSize(const gzUInt64& size, const gzInt64& copy_offset)
+{
+	if ((size == m_size) && (copy_offset == 0))
+		return;
+
+	T* from = m_data;
+	T* to = NULL;
+
+	if (size)	// We have a new size
+		to = new T[size];
+
+	if (m_currentSize && from && to)
+	{
+		if (copy_offset < 0)					// copy from source to lower indexes
+			copyInstances<T>(to, from - copy_offset, gzMax<gzInt64>(0, gzMin<gzInt64>(m_currentSize + copy_offset, size)));
+		else
+			copyInstances<T>(to + copy_offset, from, gzMax<gzInt64>(0, gzMin<gzInt64>(m_currentSize, size - copy_offset)));
+	}
+
+	if (m_data)
+		delete[] m_data;
+
+	m_data = to;
+	m_size = size;
+	m_currentSize = gzMin(m_currentSize, m_size);
+}
+
+
+//***********************************************************************
+
+template <class T> inline gzDynamicLargeArray<T> gzDynamicLargeArray<T>::operator +(const gzDynamicLargeArray& add)
+{
+	gzDynamicLargeArray<T> array(*this);
+
+	for (gzUInt64 i = 0; i < add.m_currentSize; ++i)
+		array[i + m_currentSize] = add.m_data[i];
+
+	return array;
+}
+
+//***********************************************************************
+
+template <class T> inline gzVoid gzDynamicLargeArray<T>::append(const gzDynamicLargeArray& add)
+{
+	for (gzUInt64 i = 0; i < add.m_currentSize; ++i)
+		operator +=(add.m_data[i]);
+}
+
+//***********************************************************************
 
 #endif
 

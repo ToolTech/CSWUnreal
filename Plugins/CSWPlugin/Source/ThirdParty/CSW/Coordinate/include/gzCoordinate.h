@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of coordinate transforms
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			
@@ -170,6 +170,7 @@ enum gzCoordinateSwizzle
 GZ_USE_BIT_LOGIC(gzCoordinateSwizzle);
 
 GZ_DECLARE_DYNAMIC_ENUM(gzCoordinateSwizzle);
+
 
 //******************************************************************************
 // Class	: gzCoordinate

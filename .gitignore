@@ -324,4 +324,4 @@ Binaries/
 Intermediate/
 /.vsconfig
 *_config.xml
-/DerivedDataCache/VT
+/DerivedDataCache/

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Pipes classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -231,6 +231,8 @@ public:
 	GZ_PROPERTY_EXPORT(		gzString,		Description,	GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(		gzString,		Token,			GZ_BASE_EXPORT);
 
+	GZ_PROPERTY_EXPORT(		gzUInt16,		SleepTicks,		GZ_BASE_EXPORT);
+
 	GZ_PROPERTY_GET_EXPORT( gzUInt32,		Retry,			GZ_BASE_EXPORT);
 
 	GZ_PROPERTY_MUTEX_EXPORT( gzBool,	AllocReceiveData,	m_threadSafeLocker,		GZ_BASE_EXPORT);
@@ -411,6 +413,8 @@ public:
 
 	GZ_PROPERTY_EXPORT(gzString,	Description,		GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzString,	Token,				GZ_BASE_EXPORT);
+
+	GZ_PROPERTY_EXPORT(gzUInt16,	PipeSleepTicks,		GZ_BASE_EXPORT);
 
 protected:
 
@@ -594,9 +598,9 @@ public:
 
 	gzString					password;
 
-	gzBool						accnowledge;	// True means we want answers back that everything went ok or errors
+	gzBool						acknowledge;	// True means we want answers back that everything went ok or errors
 
-	GZ_DECLARE_SERIALIZE_4("SaveFile", url,flags,password,accnowledge);
+	GZ_DECLARE_SERIALIZE_4("SaveFile", url,flags,password,acknowledge);
 };
 
 // --------------- GZ_PURL_COMMAND_REQUEST_SAVE_FILE ---------------------

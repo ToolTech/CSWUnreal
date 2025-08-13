@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzImage class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -35,7 +35,8 @@
 // AMO	211202	Added feature and layer info to metadata			(2.11.55)
 // AMO	221006	Added sample type of image data to metadata			(2.12.13)
 // AMO	231010	Added multiple classes for features					(2.12.107)
-// AMO	240920 Reverted change in homography						(2.12.188)
+// AMO	240920	Reverted change in homography						(2.12.188)
+// AMO	250409	Added units to image homography						(2.12.238)
 //
 //******************************************************************************
 #ifndef __GZ_IMAGE_H__
@@ -168,8 +169,8 @@ class gzPixelInterface
 {
 public:
 
-	virtual gzRGBA  getPixel(gzUInt32 width, gzUInt32 height, gzUInt32 depth = 0) = 0;
-	virtual gzBool  setPixel(gzUInt32 width, gzUInt32 height, const gzRGBA& value, gzUInt32 depth = 0) = 0;
+	virtual gzRGBA  getPixel(gzUInt32 width, gzUInt32 height, gzUInt32 depth = 0, gzBool normalized = TRUE) = 0;
+	virtual gzBool  setPixel(gzUInt32 width, gzUInt32 height, const gzRGBA& value, gzUInt32 depth = 0, gzBool normalized = TRUE) = 0;
 	virtual gzBool	hasOriginAtLowerLeft() = 0;
 };
 
@@ -299,6 +300,20 @@ public:
 
 GZ_DECLARE_DYNAMIC_CUSTOM_TYPE(gzImageHomography);
 
+//! Units used in combination with scale
+enum gzUnits
+{
+	GZ_UNIT_METER,						//! Default to metric units
+	GZ_UNIT_RADIANS,					//! Second Default to radians
+	GZ_UNIT_DEGREES,					//! Degrees when assumed to use scale factor 1 in degrees
+	GZ_UNIT_KILOGRAM,	
+	GZ_UNIT_SECOND,
+	GZ_UNIT_METER_PER_SECOND,			//! Velocity
+	GZ_UNIT_METER_PER_SQUARE_SECOND,	//! Acceleration
+};
+
+GZ_DECLARE_DYNAMIC_ENUM(gzUnits);
+
 // ------------------------------------ META data for images ------------------------------------------------
 // 
 //! Constants for named UserData used by images
@@ -310,8 +325,23 @@ const gzString GZ_IMAGE_INFO_COORD_SYS = "ImI-CoordSystem";								// Coord Sys 
 //! Coordinate Swizzle to x,y,z
 const gzString GZ_IMAGE_INFO_SWIZZLE = "ImI-Swizzle";									// gzCoordinateSwizzle
 
+//! Time attribute for image time
+const gzString GZ_IMAGE_INFO_TIME = "ImI-Time";											// gzDouble UTC
+
+//! Time attribute for image written data time
+const gzString GZ_IMAGE_INFO_SAVE_TIME = "ImI-Save-Time";								// gzDouble UTC
+
+//! Version attribute for image written 
+const gzString GZ_IMAGE_INFO_SAVE_VERSION = "ImI-Save-Version";							// gzString GizmoSDK version
+
+//! Compress level attribute
+const gzString GZ_IMAGE_INFO_COMPRESS_LEVEL = "ImI-Comp-Level";							// gzCompressLevel
+
 //! Image to World homography 3x3 matrix (double)
 const gzString GZ_IMAGE_INFO_IMAGE_TO_WORLD_HOMOGRAPHY = "ImI-Wrld-Hom";				// gzImageHomography
+
+//! Units used in e.g. homography
+const gzString GZ_IMAGE_INFO_UNITS	= "ImI-Units";										// gzUnits
 
 const gzString GZ_IMAGE_INFO_PIXEL_X_SIZE = "ImI-Pixel-X-size";							// Size of Image in meta data
 const gzString GZ_IMAGE_INFO_PIXEL_Y_SIZE = "ImI-Pixel-Y-size";
@@ -336,9 +366,11 @@ const gzString GZ_IMAGE_INFO_LAYER_TYPE = "ImI-Class-Layer-Type";						// gzImag
 
 const gzString GZ_IMAGE_INFO_SAMPLE_TYPE = "ImI-Sample-Type";							// gzImageInfoSampleType
 
+const gzString GZ_IMAGE_INFO_DESCRIPTION = "ImI-Desc";									// gzString
+
 // ------------- data type of storage ---------------
 
-typedef gzDynamicArray<gzQWA_UByte>	ImageData;
+typedef gzDynamicLargeArray<gzQWA_UByte>	ImageData;
 
 //******************************************************************************
 // Class	: gzImage
@@ -438,8 +470,8 @@ public:
 	of the template image type. If there is no ref on the template image it is deleted so you can enter a
 	unreferenced image whithout you needing to delete it.
 	*/
-	GZ_BASE_EXPORT gzVoid copyFrom(gzImage* image, gzRGBASwizzle swizzle = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor = GZ_FLOAT_ONE, gzFloat G_factor = GZ_FLOAT_ONE, gzFloat B_factor = GZ_FLOAT_ONE, gzFloat A_factor = GZ_FLOAT_ONE, gzFloat C_value = GZ_FLOAT_ONE);
-	GZ_BASE_EXPORT gzVoid copyFrom(gzImage* image_1, gzImage* image_2, gzRGBASwizzle swizzle_1 = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor_1 = GZ_FLOAT_ONE, gzFloat G_factor_1 = GZ_FLOAT_ONE, gzFloat B_factor_1 = GZ_FLOAT_ONE, gzFloat A_factor_1 = GZ_FLOAT_ONE, gzFloat C_value_1 = GZ_FLOAT_ONE, gzRGBASwizzle swizzle_2 = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor_2 = GZ_FLOAT_ONE, gzFloat G_factor_2 = GZ_FLOAT_ONE, gzFloat B_factor_2 = GZ_FLOAT_ONE, gzFloat A_factor_2 = GZ_FLOAT_ONE, gzFloat C_value_2 = GZ_FLOAT_ONE);
+	GZ_BASE_EXPORT gzVoid copyFrom(gzImage* image, gzRGBASwizzle swizzle = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor = GZ_FLOAT_ONE, gzFloat G_factor = GZ_FLOAT_ONE, gzFloat B_factor = GZ_FLOAT_ONE, gzFloat A_factor = GZ_FLOAT_ONE, gzFloat C_value = GZ_FLOAT_ONE, gzBool normalize_dest = TRUE,gzBool normalize_source=TRUE);
+	GZ_BASE_EXPORT gzVoid copyFrom(gzImage* image_1, gzImage* image_2, gzRGBASwizzle swizzle_1 = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor_1 = GZ_FLOAT_ONE, gzFloat G_factor_1 = GZ_FLOAT_ONE, gzFloat B_factor_1 = GZ_FLOAT_ONE, gzFloat A_factor_1 = GZ_FLOAT_ONE, gzFloat C_value_1 = GZ_FLOAT_ONE, gzRGBASwizzle swizzle_2 = GZ_MAP_RGBA_TO_RGBA, gzFloat R_factor_2 = GZ_FLOAT_ONE, gzFloat G_factor_2 = GZ_FLOAT_ONE, gzFloat B_factor_2 = GZ_FLOAT_ONE, gzFloat A_factor_2 = GZ_FLOAT_ONE, gzFloat C_value_2 = GZ_FLOAT_ONE,gzBool normalize_dest=TRUE,gzBool normalize_1=TRUE,gzBool normalize_2=TRUE);
 
 	// Utility methods to manage image contents
 
@@ -494,7 +526,7 @@ public:
 	GZ_BASE_EXPORT gzUInt32 getRowSize();
 
 	//!Returns the size of an image with given size.
-	GZ_BASE_EXPORT virtual gzUInt32 getArraySize(gzUInt32 width = 0, gzUInt32 height = 0, gzUInt32 depth = 0);
+	GZ_BASE_EXPORT virtual gzUInt64 getArraySize(gzUInt32 width = 0, gzUInt32 height = 0, gzUInt32 depth = 0);
 
 	//!Returns the size in bytes of one row aligned for width pixels.
 	GZ_BASE_EXPORT virtual gzUInt32 getAlignedRowSize(gzUInt32 width);
@@ -505,26 +537,29 @@ public:
 	// ---------------- Pixel Interface ----------------------------
 
 	//!Returns the RGBA value for the pixel at position (width, height).
-	GZ_BASE_EXPORT virtual gzRGBA  getPixel(gzUInt32 width, gzUInt32 height, gzUInt32 depth = 0) override;
+	GZ_BASE_EXPORT virtual gzRGBA  getPixel(gzUInt32 width, gzUInt32 height, gzUInt32 depth = 0, gzBool normalized = TRUE) override;
 
 	//!Sets the color value for the pixel at position (width, height and optional depth).
-	GZ_BASE_EXPORT virtual gzBool  setPixel(gzUInt32 width, gzUInt32 height, const gzRGBA& value, gzUInt32 depth = 0) override;
+	//! Pixel values are from lower left corner (0,0) to upper right (width-1,height-1) as saved in format
+	//! Memory layout is lowest mem adfress lower left corner.
+	GZ_BASE_EXPORT virtual gzBool  setPixel(gzUInt32 width, gzUInt32 height, const gzRGBA& value, gzUInt32 depth = 0 , gzBool normalized=TRUE) override;
 
-	//! returns TRUE (default) if image has origo in lower left corner
+	//! returns TRUE (default) if image has origo in lower left corner as saved in format
 	GZ_BASE_EXPORT virtual gzBool	hasOriginAtLowerLeft() override;
 
 	// Array management ------------------------------------------
 
 
-	GZ_BASE_EXPORT ImageData& getArray() { return m_data; }
-	GZ_BASE_EXPORT ImageData& createArray(gzBool clearData = FALSE);	// Based on width and height etc.
+	GZ_BASE_EXPORT ImageData&	getArray() noexcept { return m_data; }
+	GZ_BASE_EXPORT ImageData&	createArray(gzBool clearData = FALSE);	// Based on width and height etc.
+	GZ_BASE_EXPORT gzVoid		dropArray();							// Drops image data and sets size 0
 
 	GZ_BASE_EXPORT gzVoid		setArray(const gzArray<gzUByte>& array);
 	GZ_BASE_EXPORT gzVoid		setArray(const gzDynamicArray<gzUByte>& array);
 	GZ_BASE_EXPORT gzVoid		setArray(const ImageData& array);
 
-	GZ_BASE_EXPORT gzBool		hasCreatedArray() { return m_hasCreatedArray; }
-	GZ_BASE_EXPORT gzVoid		setCreatedArray(gzBool on) { m_hasCreatedArray = on; }
+	GZ_BASE_EXPORT gzBool		hasCreatedArray() const;
+	GZ_BASE_EXPORT gzVoid		setCreatedArray(gzBool on);
 
 	//! Cloning ---------------------------------------------------
 	//! 
@@ -590,7 +625,7 @@ public:
 
 	// ------------------- Image Data Registration ------------------
 
-	GZ_BASE_EXPORT gzVoid registerImageData(gzUInt32 bytes = 0);
+	GZ_BASE_EXPORT gzVoid registerImageData(const gzUInt64& bytes = 0);
 	GZ_BASE_EXPORT gzVoid unRegisterImageData();
 
 	GZ_BASE_EXPORT static gzUInt64 getRegisteredImageData();
@@ -615,7 +650,7 @@ protected:
 
 private:
 
-	gzUInt32							m_registeredImageData;
+	gzUInt64							m_registeredImageData;
 	static gzMutex						s_registeredImageDataLocker;
 	static gzUInt64						s_registeredImageDataTotal;
 };
@@ -704,7 +739,7 @@ public:
 	GZ_BASE_EXPORT static gzVoid	unregisterManagers();
 
 	//!Loads an image.
-	GZ_BASE_EXPORT static gzImage* loadImage(const gzString& url, gzString extension = GZ_EVALUATE_EXTENSION, gzSerializeAdapterFlags flags = GZ_IMAGE_FLAGS_DEFAULT, gzUInt32 version = 0, const gzString& password = GZ_EMPTY_STRING, gzReference* associatedData = NULL, gzUInt32* adapterLength = NULL, gzString* errorString = NULL, gzSerializeAdapterError* errorType = NULL);
+	GZ_BASE_EXPORT static gzImage* loadImage(const gzString& url, gzString extension = GZ_EVALUATE_EXTENSION, gzSerializeAdapterFlags flags = GZ_IMAGE_FLAGS_DEFAULT, gzUInt32 version = 0, const gzString& password = GZ_EMPTY_STRING, gzReference* associatedData = NULL, gzUInt64* adapterLength = NULL, gzString* errorString = NULL, gzSerializeAdapterError* errorType = NULL);
 
 	//!Loads an image from an adapter. 
 	GZ_BASE_EXPORT virtual gzImage* loadImage(gzSerializeAdapter* adapter);
@@ -792,5 +827,33 @@ public:
 	GZ_BASE_EXPORT virtual gzUInt32	getDataSize(gzSerializeAdapter* adapter = NULL) const override;
 
 };
+
+// ---------------------------------- Serializers ------------------------------------------
+
+template <> inline gzVoid writeAdapter(gzSerializeAdapter* adapter, const gzImageHomography& data, const gzBool /*useBigEndian*/)
+{
+	((gzImageHomography&)data).write(adapter);
+}
+
+template <> inline gzBool readAdapter(gzSerializeAdapter* adapter, gzImageHomography& data, const gzBool /*useBigEndian*/)
+{
+	if (!adapter->hasData(data.getDataSize()))
+		return FALSE;
+
+	data.read(adapter);
+
+	return TRUE;
+}
+
+template <> inline gzVoid pushBackAdapter(gzSerializeAdapter* adapter, const gzImageHomography& data, const gzBool /*useBigEndian*/)
+{
+	((gzImageHomography&)data).pushBack(adapter);
+}
+
+template <> inline gzUInt32 getDataSize(gzSerializeAdapter* /*adapter*/, const gzImageHomography& data, const gzBool /*useBigEndian*/)
+{
+	return data.getDataSize();
+}
+
 
 #endif

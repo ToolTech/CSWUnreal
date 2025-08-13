@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzDynamicLoader class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -244,7 +244,6 @@ public:
 	GZ_PROPERTY_EXPORT(gzUInt32,				AttachID,				GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT(gzDouble,				LoadPriority,			GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT_(gzString,				NodeURL,				GZ_GRAPH_EXPORT);
-	GZ_PROPERTY_EXPORT_(gzBool,					LoadState,				GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT(gzFloat,					Scale,					GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT(gzFloat,					Heading,				GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT(gzFloat,					Pitch,					GZ_GRAPH_EXPORT);
@@ -261,6 +260,9 @@ public:
 	GZ_PROPERTY_EXPORT(gzUInt32,				ForceEnableMask,		GZ_GRAPH_EXPORT);
 	GZ_PROPERTY_EXPORT(gzUInt32,				ForceDisableMask,		GZ_GRAPH_EXPORT);
 
+	GZ_GRAPH_EXPORT gzVoid setLoadState(gzBool load, gzContext* loadContext = nullptr);
+	GZ_GRAPH_EXPORT gzBool getLoadState() const;
+
 	// ------------- Dirty save management ------------------------------
 	GZ_GRAPH_EXPORT virtual gzVoid setDirtySaveData(gzBool dirty) override;
 	GZ_GRAPH_EXPORT virtual gzBool saveDirtyData(const gzString &url) override;
@@ -269,7 +271,13 @@ public:
 
 	GZ_GRAPH_EXPORT gzUInt64 getLastAccessRenderCount();
 
+	//! Can be used to await a change in unlocked mode
+	GZ_GRAPH_EXPORT static gzBool waitForLoadTrigger(gzUInt32 timeout = GZ_WAIT_INFINITE);
+
 protected:
+
+	GZ_GRAPH_EXPORT gzVoid incDynLoad(gzContext* context);
+	GZ_GRAPH_EXPORT gzVoid decDynLoad();
 
 	GZ_GRAPH_EXPORT gzVoid notifyLoadState(gzDynamicLoadingState state,gzDynamicLoader *loader,gzNode *node);
 
@@ -281,15 +289,15 @@ protected:
 
 	// Atomic vars locked by gzNodeLock
 
-	gzDynamicLoadingState	m_state;
+	gzDynamicLoadingState		m_state;
 
-	gzBool					m_optimize;
+	gzBool						m_propertyLoadState;
 
-	gzBool					m_pendingWork;
+	gzBool						m_optimize;
 
 	// Atomic vars locked by loader item
 
-	gzMutex									m_subscriptionLocker;
+	gzMutex						m_subscriptionLocker;
 
 	gzList<gzDynamicLoaderInfoInterface>	m_subscribers;
 
@@ -299,9 +307,9 @@ protected:
 
 	gzSerializeAdapterFlags		m_adapterFlags;
 
-private:
+	gzContext*					m_loadContext;
 
-	gzBool					m_inRelease;
+private:
 
 	static gzUInt32			s_pendingWork;
 
@@ -316,6 +324,8 @@ private:
 	static gzBool			s_usePreCache;
 
 	static gzDouble			s_genericLoadWaitTimeout;
+
+	static gzEvent			s_loadTrigger;
 };
 
 GZ_DECLARE_REFPTR(gzDynamicLoader);
@@ -369,6 +379,8 @@ public:
 	GZ_GRAPH_EXPORT static	gzVoid preventUnload();
 
 	GZ_GRAPH_EXPORT static	gzBool isUnloadAllowed();
+
+	GZ_GRAPH_EXPORT static	gzVoid triggerLoaders();
 
 	// Locked by Node Edit & Render 
 

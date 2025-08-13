@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of SW distribution service
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -65,6 +65,8 @@ const gzString GZ_DISTRIBUTOR_CONNECT_ANY = "any";
 const gzString GZ_DISTRIBUTOR_REG_KEY_CONNECTION	= "distributor/connection/";
 const gzString GZ_DISTRIBUTOR_REG_KEY_COM_URL		= "distributor/communication/url";
 const gzString GZ_DISTRIBUTOR_REG_KEY_CAP_WORK		= "distributor/capabilities/workers";
+
+// File times
 
 enum gzDistributorCommand
 {
@@ -147,23 +149,30 @@ public:
 
 	gzString	url;
 	gzUInt32	crc;
+	gzUInt64	length;
 	gzBool		local;
 	gzBool		immediateLoad;
 
-	GZ_DECLARE_SERIALIZE_4("FILE_INFO",url,crc,local, immediateLoad);
+	GZ_DECLARE_SERIALIZE_5("FILE_INFO",url,crc,length,local, immediateLoad);
 };
 
 class gzDistributorCommandFileRequest : public gzSerializeData
 {
 public:
 
-	gzString				url;
-	gzSerializeAdapterFlags flags;
-	gzBool					local;
-	gzBool					store;
-	gzBool					immediateLoad;
+	gzString				url;			// url local or global
+	gzSerializeAdapterFlags flags;			// adapter flags
+	gzGUID					requestID;		// id of request
+	gzGUID					batchID;		// id of batch work
+	gzDouble				time;			// timestamp systemSeconds
+	gzUInt64				offset;			// =0 for full file
+	gzUInt32				length;			// =0 for full file	, Can only request UInt32 size
+	gzBool					check;			// = TRUE for file length or exist
+	gzBool					local;			// = TRUE for local file storage
+	gzBool					store;			// = TRUE for immediate store
+	gzBool					immediateLoad;	// = TRUE for immediate load. Just load current url as is
 
-	GZ_DECLARE_SERIALIZE_5("FILE_REQUEST", url,flags,local,store,immediateLoad);
+	GZ_DECLARE_SERIALIZE_11("FILE_REQUEST", url,flags,requestID,batchID,time,offset,length,check,local,store,immediateLoad);
 };
 
 class gzDistributorCommandFileData : public gzSerializeData
@@ -173,12 +182,18 @@ public:
 	gzString				url;
 	gzString				error;
 	gzSerializeAdapterFlags	flags;
+	gzGUID					requestID;		// id of request
+	gzGUID					batchID;		// id of batch work
+	gzDouble				time;			// timestamp from request system
 	gzArray<gzUByte>		data;
+	gzUInt64				offset;			// =0 for full file
+	gzUInt64				length;			// total length of file when check=TRUE
+	gzBool					check;			// = TRUE for file length or exist
 	gzBool					local;
 	gzBool					store;
 	gzBool					immediateLoad;
 
-	GZ_DECLARE_SERIALIZE_7("FILE_REPLY", url,error,flags,data,local,store,immediateLoad);
+	GZ_DECLARE_SERIALIZE_13("FILE_REPLY", url,error,flags,requestID,batchID,time,data,offset,length,check,local,store,immediateLoad);
 };
 
 enum gzDistributorCapability
@@ -233,10 +248,11 @@ public:
 	gzDynamicType	a2;
 	gzDynamicType	a3;
 	gzGUID			workID;
+	gzGUID			batchID;
 	gzDouble		startTime;
 	gzString		host;
 
-	GZ_DECLARE_SERIALIZE_9("WORK", module, method, a0, a1, a2, a3, workID, startTime, host);
+	GZ_DECLARE_SERIALIZE_10("WORK", module, method, a0, a1, a2, a3, workID, batchID, startTime, host);
 };
 
 class gzDistributorCommandWorkResult : public gzSerializeData
@@ -247,11 +263,12 @@ public:
 	gzString		worker;
 	gzString		ip;
 	gzGUID			workID;
+	gzGUID			batchID;
 	gzDouble		processTime;
 	gzDouble		latency;
 	gzDynamicType	result;
 
-	GZ_DECLARE_SERIALIZE_7("WORK_RESULT", error,worker,ip,workID, processTime,latency,result);
+	GZ_DECLARE_SERIALIZE_8("WORK_RESULT", error,worker,ip,workID,batchID, processTime,latency,result);
 };
 
 class gzDistributorCommandConfiguration : public gzSerializeData
@@ -372,23 +389,41 @@ GZ_BASE_EXPORT gzBool gzSendDistributorCommand(gzSerializeAdapter *adapter, gzDi
 
 // ----------------------------------------------------------------------------------------------------------------
 
-class gzDistributorFileData : public gzReference
+class gzDistributorFileData : public gzThreadSafeReference
 {
 public:
 
-	gzString			url;
-	gzString			error;
-	gzArray<gzUByte>	data;
-	gzDouble			systime;
+	gzString				url;
+	gzGUID					requestID;
+	gzString				error;
+	gzBool					check;
+	gzUInt64				length;
+	gzUInt64				offset;
+	gzArray<gzUByte>		data;
+	gzDouble				systime;
 };
 
 GZ_DECLARE_REFPTR(gzDistributorFileData);
+
+// -------------------- State --------------------------------------------------------------------------------------
+
+enum gzDistributorState
+{
+	GZ_DISTRIBUTOR_STATE_NOT_INITIALIZED,
+	GZ_DISTRIBUTOR_STATE_WAITING_FOR_CONNECTION,
+	GZ_DISTRIBUTOR_STATE_RUNNING,
+	GZ_DISTRIBUTOR_STATE_CONNECTION_ERROR,
+	GZ_DISTRIBUTOR_STATE_COMM_ERROR,
+	GZ_DISTRIBUTOR_STATE_LOST_CONNECTION,
+	GZ_DISTRIBUTOR_STATE_REBOOT,
+};
 
 
 // ------------------------------------------- gzDistributor -------------------------------------------------------
 
 class gzDistributor :	public gzService,
-						public gzSerializeURLManagerInterface
+						public gzSerializeURLManagerInterface,
+						public gzMessageReceiverInterface
 {
 public:
 
@@ -398,6 +433,7 @@ public:
 
 	GZ_BASE_EXPORT virtual ~gzDistributor();
 	
+	//! Main Loop
 	GZ_BASE_EXPORT virtual gzVoid process(const gzArgumentParser &args, gzBool runAsService) override;
 
 	GZ_PROPERTY_EXPORT(gzString, ConfigURL, GZ_BASE_EXPORT);
@@ -427,17 +463,19 @@ public:
 	GZ_BASE_EXPORT virtual gzBool onDataRequest(gzDistributorCommandDataRequest * /*mess*/) { return TRUE; }
 	GZ_BASE_EXPORT virtual gzBool onData(gzDistributorCommandData * /*mess*/) { return TRUE; }
 
+	//! Called on new connection
 	GZ_BASE_EXPORT virtual gzBool onNewConnection() {  return TRUE; }
-	GZ_BASE_EXPORT virtual gzBool onLostConnection() { return TRUE; }
 
+	//! Called on lost connection
+	GZ_BASE_EXPORT virtual gzBool onLostConnection();
+
+	//! Init of a distributor
 	GZ_BASE_EXPORT virtual gzBool onInitialize(const gzArgumentParser &args, gzBool runAsService);
+	//! UnInit of a distributor
 	GZ_BASE_EXPORT virtual gzVoid onUninitialize();
-
-	GZ_BASE_EXPORT virtual gzSerializeAdapter *getURLAdapter(const gzString &url, gzSerializeAction action, gzSerializeAdapterFlags flags, const gzString &password, gzString *errorString, gzSerializeAdapterError *errorType) override;
-
-	GZ_BASE_EXPORT virtual gzBool getURLBaseEncoding(const gzString& _url, gzBool& _isAbsolute, gzString& _urlBase, gzString& _urlPath, gzString& _urlName, gzString& _urlAttributes, gzBool& _syntax_OK) override;
-
-
+		
+	GZ_BASE_EXPORT gzDistributorState getDistributorState();
+	
 	GZ_BASE_EXPORT gzBool sendDistributorCommand(gzDistributorCommand command, gzSerializeData *data, gzBool useConnection=TRUE);
 	GZ_BASE_EXPORT gzBool sendCapsWorkers();
 	GZ_BASE_EXPORT gzBool sendAlive();
@@ -454,14 +492,32 @@ public:
 	GZ_PROPERTY_EXPORT(gzDouble, Latency,			GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzDouble, SystemTimeDiff,	GZ_BASE_EXPORT);
 
+	GZ_PROPERTY_EXPORT(gzString, RemoteURLBase,		GZ_BASE_EXPORT);	// Deafult to remote:
+
 	GZ_BASE_EXPORT gzSerializeAdapter*	getCommunicationAdapter() const;
 	GZ_BASE_EXPORT gzSerializeAdapter*	getConnectionAdapter() const;
 	GZ_BASE_EXPORT gzGUID				getGUID() const;
 
+	GZ_BASE_EXPORT gzBool getFileData(gzSerializeAdapter* channel, gzDistributorCommandFileRequest* request, gzDistributorFileDataPtr& fileData, const gzDouble& timeOut, gzUInt32 timeoutLoops=1, gzString* errorString=nullptr, gzSerializeAdapterError* errorType=nullptr);
+
 protected:
+
+	// Url interface
+	GZ_BASE_EXPORT virtual gzSerializeAdapter* getURLAdapter(const gzString& url, gzSerializeAction action, gzSerializeAdapterFlags flags, const gzString& password, gzString* errorString, gzSerializeAdapterError* errorType) override;
+	GZ_BASE_EXPORT virtual gzBool getURLBaseEncoding(const gzString& _url, gzBool& _isAbsolute, gzString& _urlBase, gzString& _urlPath, gzString& _urlName, gzString& _urlAttributes, gzBool& _syntax_OK) override;
+
+	// Message interface
+	GZ_BASE_EXPORT gzVoid onMessage(const gzString& sender, gzMessageLevel level, const char* message) override;
+
+	//! Called on every process cycle
+	GZ_BASE_EXPORT virtual gzBool onProcess() { return TRUE; }
 
 	gzSerializeAdapterPtr				m_communicationAdapter;
 	gzSerializeAdapterPtr				m_connectionAdapter;
+	gzMutex								m_connectionLock;
+
+	gzDistributorState					m_state;
+
 	gzGUID								m_guid;
 
 	gzEvent								m_fileDataLock;
@@ -476,29 +532,56 @@ protected:
 	gzLoggerPtr							m_logger;
 };
 
-class gzDistributorAdapterRead : public gzSerializeAdapterMemory
+GZ_DECLARE_REFPTR(gzDistributor);
+
+class gzDistributorAdapterRead : public gzSerializeAdapterPacket
 {
 public:
 
-	GZ_BASE_EXPORT gzDistributorAdapterRead():gzSerializeAdapterMemory(0,0) {}
+	GZ_BASE_EXPORT gzDistributorAdapterRead(gzDistributor* distributor, gzSerializeAdapter* channel, gzUInt64 length, const gzGUID& batchID);
 
-	gzRefPointer<gzDistributorFileData> fileData;
+	GZ_BASE_EXPORT virtual gzVoid onRequestData(gzUInt64 len) override;
+
+private:
+
+	virtual gzBool			can_seek_imp() override { return TRUE; }
+
+	virtual gzMemSize		seek_imp(gzMemOffset offset, gzOriginPos origin) override;
+
+	virtual gzUByte			read_imp() override;
+
+	virtual gzUInt32		read_imp(gzUByte *adress,gzUInt32 len) override;
+
+	virtual gzUInt32		length_imp() override;
+
+	virtual gzUInt64		length_large_imp() override;
+
+	virtual gzBool			eof_imp() override;
+
+	gzDistributorPtr		m_distributor;
+
+	gzSerializeAdapterPtr	m_channel;
+
+	gzUInt64				m_length;
+
+	gzUInt64				m_offset;
+
+	gzGUID					m_batchID;
 };
 
-class gzDistributorAdapterWrite : public gzSerializeAdapterQueue
+class gzDistributorAdapterWrite : public gzSerializeAdapterPacket
 {
 public:
 
-	GZ_BASE_EXPORT gzDistributorAdapterWrite():gzSerializeAdapterQueue(GZ_QUEUE_FIFO,100000) {}
+	GZ_BASE_EXPORT gzDistributorAdapterWrite(gzSerializeAdapter* channel,const gzGUID & batchID):gzSerializeAdapterPacket(10000),m_channel(channel),m_batchID(batchID){}
 
 	GZ_BASE_EXPORT virtual ~gzDistributorAdapterWrite();
 
-	gzSerializeAdapterPtr		connection;
+private:
 
-	gzString					url;
+	gzSerializeAdapterPtr		m_channel;
 
-	gzSerializeAdapterFlags		flags;
-
+	gzGUID						m_batchID;
 };
 
 // ------------------- Utility class for async sending data --------------------------

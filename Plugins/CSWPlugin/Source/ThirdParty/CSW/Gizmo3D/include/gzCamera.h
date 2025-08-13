@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzCamera class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -33,6 +33,7 @@
 // Who	Date	Description						
 //									
 // AMO	990101	Created file 	
+// AMO	250613	Added gzInfiniteFarPerspCamera to render without depth (2.12.263)
 //
 //******************************************************************************
 #ifndef __GZ_CAMERA_H__
@@ -651,5 +652,46 @@ private:
 };
 
 GZ_DECLARE_REFPTR(gzMultiLayerCamera);
+
+
+//******************************************************************************
+// Class	: gzInfiniteFarPerspCamera
+//									
+// Purpose  : Infinite render without depth buffer far plane
+//									
+// Notes	: -	
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	250613	Created 
+//									
+//******************************************************************************
+//! Use this to render infinite far e.g. a solar system
+class gzInfiniteFarPerspCamera : public gzPerspCamera
+{
+public:
+
+	GZ_GRAPH_EXPORT gzInfiniteFarPerspCamera(const gzString& name = GZ_EMPTY_STRING);
+
+	GZ_GRAPH_EXPORT virtual ~gzInfiniteFarPerspCamera() {};
+
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_GRAPH_EXPORT);	// typed interface
+
+	// ---------- Clone interface ---------------------------------------
+	//!Clone interface	
+	GZ_GRAPH_EXPORT virtual gzReference* clone() const override;
+
+	//!Utility methods used by external renderers.
+	GZ_GRAPH_EXPORT virtual gzVoid render(gzContext* context, gzUInt32 size_x, gzUInt32 size_y, gzUInt32 screen_width, gzTraverseAction* action) override;
+
+	// -------------- Properties ----------------------------------------
+
+	//! Factor InfFarPLane=farPLane*factor
+	GZ_PROPERTY_EXPORT(gzFloat, InfiniteFarFactor, GZ_GRAPH_EXPORT);
+};
+
+GZ_DECLARE_REFPTR(gzInfiniteFarPerspCamera);
 
 #endif

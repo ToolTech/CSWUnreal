@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -491,13 +491,6 @@ const gzString	GZ_STRING_SPACE				= " ";
 
 const gzString	GZ_LOG_IDENTIFIER		= "Gizmo3D";
 const gzString	GZ_SYSTEM_IDENTIFIER	= "GizmoSDK";
-
-const gzString	GZ_ATTRIBUTE_LF			= "lf";
-const gzString	GZ_ATTRIBUTE_ECHO		= "echo";
-const gzString	GZ_ATTRIBUTE_APPEND		= "append";
-const gzString	GZ_ATTRIBUTE_CHUNK		= "chunk";
-const gzString	GZ_ATTRIBUTE_GLOBAL		= "global";
-const gzString	GZ_ATTRIBUTE_PATH		= "path";
 
 const gzString	GZ_STRING_COLON_SEP		= ":";
 const gzString	GZ_STRING_SEMI_SEP		= ";";

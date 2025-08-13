@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzVertexAttributes class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -289,7 +289,7 @@ protected:
 
 // -------------------------------- copyInstances -----------------------------------------------------------
 
-template <> inline gzVoid copyInstances(gzGeoAttribBinding* to, gzGeoAttribBinding* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzGeoAttribBinding* to, gzGeoAttribBinding* from, const gzUInt64& count, gzBool /*clearSource*/)
 {
 	memmove(to, from, count * sizeof(gzGeoAttribBinding));
 }

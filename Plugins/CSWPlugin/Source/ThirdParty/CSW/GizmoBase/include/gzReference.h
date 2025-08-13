@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of reference handle
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -935,7 +935,7 @@ public:
 
 	gzRefData(const T1& copy) :T1(copy) {};
 
-	gzRefData(const gzRefData& copy): T1(copy.getValue()) {};
+	gzRefData(const gzRefData& copy) : T1(copy.getValue()),gzReference(copy) {};
 
 	virtual ~gzRefData() = default;
 

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the COLLADA format loader
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -539,6 +539,11 @@ public:
 	virtual ~gzDaeReader();
 	
 	gzNode *getNode();
+
+	//! When the instanced scene is not specified
+	gzVoid buildAllScenes();
+
+	GZ_PROPERTY_GET(gzBool, HasInstancedScene);
 
 private:
 

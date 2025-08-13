@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -66,10 +66,10 @@
 
 enum gzOriginPos
 {
-	GZ_ORIGIN_SET,
-	GZ_ORIGIN_CUR,
-	GZ_ORIGIN_END,
-	GZ_ORIGIN_SIZE,
+	GZ_ORIGIN_SET,		// From start +-
+	GZ_ORIGIN_CUR,		// From current position +-
+	GZ_ORIGIN_END,		// From end +-
+	GZ_ORIGIN_SIZE,		// just report size of stream
 };
 
 // Permission in io ops
@@ -96,7 +96,7 @@ GZ_BASE_EXPORT gzMemSize	gzFileSize(const gzString &name);
 GZ_BASE_EXPORT gzMemSize	gzFileTell(gzFileHandle handle);
 GZ_BASE_EXPORT gzBool		gzFileReset(gzFileHandle handle,gzMemOffset position);
 GZ_BASE_EXPORT gzBool		gzFileSeek(gzFileHandle handle,gzMemOffset offset, gzOriginPos origin);
-GZ_BASE_EXPORT gzBool		gzFileExist(const gzString &name);
+GZ_BASE_EXPORT gzBool		gzFileExist(const gzString &name, gzBool allowDir=FALSE);
 GZ_BASE_EXPORT gzBool		gzFileDelete(const gzString &name);
 
 GZ_BASE_EXPORT gzBool		gzIsDirURL(const gzString &url);

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 // 
 //			
@@ -616,6 +616,8 @@ inline gzVoid * gzVal2Ptr(gzUInt64 x)				{ return (gzVoid *)x; }
 typedef gzUInt64	gzMemSize;		//!< Size of memory chunk       (gzUInt64)
 typedef gzInt64		gzMemOffset;	//!< +- offset of memory chunk	(gzInt64)
 
+const gzMemSize		GZ_SMALL_MEM_SIZE = LLU(0xffffffff);
+
 #else					// 32 bit pointers
 
 #if defined GZ_WINDOWS
@@ -634,6 +636,8 @@ inline gzVoid * gzVal2Ptr(gzUInt64 x)					{ return (gzVoid *)(gzUInt32)x; }
 
 typedef gzUInt32	gzMemSize;		//!< Size of memory chunk	(gzUInt32)
 typedef gzInt32		gzMemOffset;	//!< +- offset of memory chunk	(gzInt32)
+
+const gzMemSize		GZ_SMALL_MEM_SIZE = LLU(0xffffffff);
 
 #endif
 
@@ -674,7 +678,11 @@ constexpr gzFloat		GZ_INV_PI_QUARTER_F=1.0f/GZ_PI_QUARTER_F;
 	
 constexpr gzFloat		GZ_INV_255=1.0f/255.0f;
 constexpr gzFloat		GZ_INV_65535=1.0f/65535.0f;
-	
+constexpr gzFloat		GZ_INV_0xFFFF = 1.0f / 0xffff;
+constexpr gzFloat		GZ_INV_0x8000 = 1.0f / 0x8000;
+constexpr gzFloat		GZ_INV_0xFFFFFFFF = 1.0f / (gzFloat)0xffffffff;
+constexpr gzFloat		GZ_INV_0x80000000 = 1.0f / (gzFloat)0x80000000;
+
 constexpr gzFloat		GZ_FLOAT_ONE=1.0f;
 constexpr gzFloat		GZ_FLOAT_ZERO=0.0f;
 	 
@@ -1489,7 +1497,7 @@ typedef enum : gzUInt32
 	GZ_TEXTURE_MAX_LOD								= 0x813B,
 	GZ_TEXTURE_BASE_LEVEL							= 0x813C,
 	GZ_TEXTURE_MAX_LEVEL							= 0x813D,
-	GL_SMOOTH_POINT_SIZE_RANGE						= 0x0B12,
+	GZ_SMOOTH_POINT_SIZE_RANGE						= 0x0B12,
 	GZ_SMOOTH_POINT_SIZE_GRANULARITY				= 0x0B13,
 	GZ_SMOOTH_LINE_WIDTH_RANGE						= 0x0B22,
 	GZ_SMOOTH_LINE_WIDTH_GRANULARITY				= 0x0B23,
@@ -3224,10 +3232,10 @@ GZ_USE_BIT_LOGIC(gzClientEnumBits);
 #endif
 
 
-#define GZ_VERSION_STR	"2.12.231"
+#define GZ_VERSION_STR	"2.12.262"
 #define GZ_VERSION_MAJ	2
 #define GZ_VERSION_MIN	12
-#define GZ_VERSION_DEV	231
+#define GZ_VERSION_DEV	262
 
 GZ_BASE_EXPORT const char * gzGenerateDebugString(const char *file , gzInt32 line,const char *version);
 GZ_BASE_EXPORT gzVoid exitNoExceptions();

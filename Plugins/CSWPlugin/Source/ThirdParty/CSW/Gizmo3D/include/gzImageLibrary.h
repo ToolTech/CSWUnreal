@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the image library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -52,7 +52,6 @@
 #include "gzImageManager_png.h"
 #include "gzImageManager_rgb.h"
 #include "gzImageManager_gzi.h"
-#include "gzImageManager_ibg.h"
 #include "gzImageManager_raw.h"
 #include "gzImageManager_mat.h"
 #include "gzImageManager_ktx.h"

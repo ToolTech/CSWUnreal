@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions for compress utility
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -41,6 +41,7 @@
 
 #include "gzTemplates.h"
 #include "gzSerialize.h"
+#include "gzDynamic.h"
 
 /*!	\file 
 	\brief Basic utilites for byte stream compress/uncompress
@@ -64,6 +65,23 @@ enum gzCompressLevel
 	GZ_CL_DEFAULT_COMPRESSION   =-1,
 };
 
+GZ_DECLARE_DYNAMIC_ENUM(gzCompressLevel);
+
+enum gzCompressError
+{
+	GZ_CE_OK			= 0,
+	GZ_CE_STREAM_END    = 1,
+	GZ_CE_NEED_DICT     = 2,
+	GZ_CE_ERRNO			= -1,
+	GZ_CE_STREAM_ERROR	= -2,
+	GZ_CE_DATA_ERROR	= -3,
+	GZ_CE_MEM_ERROR		= -4,
+	GZ_CE_BUF_ERROR		= -5,
+	GZ_CE_VERSION_ERROR	= -6,
+
+	GZ_CE_WRONG_STATE	= -7,
+};
+
 GZ_BASE_EXPORT gzBool gzCompress(const gzArray<gzUByte> &from , gzArray<gzUByte> &to, gzDynamicArray<gzUByte> *buffer=nullptr, const gzCompressLevel& level = GZ_CL_DEFAULT_COMPRESSION);
 GZ_BASE_EXPORT gzBool gzCompress(const gzArray<gzQWA_UByte> &from , gzArray<gzQWA_UByte> &to, gzDynamicArray<gzQWA_UByte> *buffer=nullptr, const gzCompressLevel& level = GZ_CL_DEFAULT_COMPRESSION);
 
@@ -82,6 +100,7 @@ GZ_BASE_EXPORT gzBool gzUnCompress(const gzUByte *from , gzUInt32 len_in , gzUBy
 
 //! CRC32 polynom x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1.
 GZ_BASE_EXPORT gzUInt32 gzCRC32(gzUInt32 crc,const gzUByte *buffer , gzUInt32 len);
+GZ_BASE_EXPORT gzUInt32 gzCRC32(gzUInt32 crc, const gzUByte* buffer, gzUInt64 len);
 
 
 // --------- Def of adapters -----------------------------
@@ -116,7 +135,6 @@ public:
 	GZ_PROPERTY_EXPORT(gzString,		Comment,		GZ_BASE_EXPORT);
 
 	//! Default to streamed input/output
-	GZ_BASE_EXPORT virtual	gzBool		canSeek() override;
 	GZ_BASE_EXPORT gzVoid	setError(const gzString& error) override;
 
 
@@ -134,6 +152,8 @@ public:
 	GZ_BASE_EXPORT gzMemSize	seekZIP(gzMemOffset offset, gzOriginPos origin=GZ_ORIGIN_SET);
 
 protected:
+
+	GZ_BASE_EXPORT virtual	gzBool		can_seek_imp() override;
 
 	GZ_BASE_EXPORT virtual	gzMemSize	seek_imp(gzMemOffset offset, gzOriginPos origin = GZ_ORIGIN_SET) override;
 		
@@ -163,5 +183,52 @@ private:
 
 GZ_DECLARE_REFPTR(gzSerializeAdapterZIP);
 
+// -------------------------------- Stream Based Compress and uncompress ------------------------------
+
+enum gzCompressState
+{
+	GZ_CS_NONE,
+	GZ_CS_COMPRESS,
+	GZ_CS_UNCOMPRESS,
+};
+
+class gzCompressStream : public gzReference
+{
+public:
+
+	GZ_BASE_EXPORT gzCompressStream();
+	GZ_BASE_EXPORT ~gzCompressStream();
+
+	GZ_BASE_EXPORT gzBool init_compress(gzCompressLevel level = GZ_CL_DEFAULT_COMPRESSION, gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool add_compress(const gzUByte* source, gzUInt32* sourceLen, gzUByte* dest=nullptr, gzUInt32* destLen=nullptr, gzBool lastBlock=TRUE,gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool add_compress_large(const gzUByte* source, gzUInt64* sourceLen, gzUByte* dest = nullptr, gzUInt64* destLen = nullptr, gzBool lastBlock = TRUE, gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool end_compress(gzCompressError* error = nullptr);
+
+	GZ_BASE_EXPORT gzBool init_uncompress(gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool add_uncompress(const gzUByte* source, gzUInt32* sourceLen, gzUByte* dest = nullptr, gzUInt32* destLen = nullptr, gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool add_uncompress_large(const gzUByte* source, gzUInt64* sourceLen, gzUByte* dest = nullptr, gzUInt64* destLen = nullptr, gzCompressError* error = nullptr);
+	GZ_BASE_EXPORT gzBool end_uncompress(gzCompressError* error = nullptr);
+
+
+	GZ_BASE_EXPORT gzUInt64 getCompressedLength();
+	GZ_BASE_EXPORT gzUInt64 getUnCompressedLength();
+
+	GZ_BASE_EXPORT gzUByte* getCurrentSource();
+	GZ_BASE_EXPORT gzUByte *getCurrentDestination();
+
+	GZ_BASE_EXPORT gzUInt32 getBufferRemainIn();
+	GZ_BASE_EXPORT gzUInt32 getBufferRemainOut();
+
+private:
+
+	gzVoid	*		m_compressHandle;
+
+	gzUInt64		m_tot_compressed_length;
+	gzUInt64		m_tot_uncompressed_length;
+
+	gzCompressState	m_state;
+};
+
+GZ_DECLARE_REFPTR(gzCompressStream);
 
 #endif // __GZ_COMPRESS_H__

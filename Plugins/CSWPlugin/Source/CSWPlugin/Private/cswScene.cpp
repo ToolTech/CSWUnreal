@@ -918,7 +918,7 @@ UCSWSceneComponent* UCSWScene::getComponent(gzNode* node, gzUInt64 pathID)
 }
 
 // Called by scene manager from custom threads
-gzVoid UCSWScene::onCommand(cswCommandBuffer* buffer)
+gzVoid UCSWScene::onCommand(cswSceneManager* manager, cswCommandBuffer* buffer)
 {
 	GZ_BODYGUARD(m_bufferInLock);
 	m_bufferIn.insert(buffer);			// add refs in locked mode by m_bufferInLock

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of assembler opcodes.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -113,7 +113,7 @@ typedef enum CPUCAPS
 
 GZ_BASE_EXPORT	gzUInt32 GetCPUCaps (CPUCAPS cap);
 
-GZ_BASE_EXPORT	gzVoid		gzMemSet(gzUByte *address,gzUInt32 size,gzUByte value=0);
+GZ_BASE_EXPORT	gzVoid		gzMemSet(gzUByte *address,const gzUInt64& size,gzUByte value=0);
 GZ_BASE_EXPORT	gzUInt64	gzMemBitCompare(gzUInt64 *address_a,gzUInt64 *address_b,gzUInt64 words);
 GZ_BASE_EXPORT	gzUInt32	gzMemBitCompare(gzUInt32 *address_a,gzUInt32 *address_b,gzUInt32 words);
 

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzGeometry class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -974,7 +974,7 @@ GZ_DECLARE_REFPTR(gzInstancedGeometry);
 
 // -------------------------------- copyInstances -----------------------------------------------------------
 
-template <> inline gzVoid copyInstances(gzWeightValue* to, gzWeightValue* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzWeightValue* to, gzWeightValue* from, const gzUInt64& count, gzBool /*clearSource*/)
 {
 	memmove(to, from, count * sizeof(gzWeightValue));
 }

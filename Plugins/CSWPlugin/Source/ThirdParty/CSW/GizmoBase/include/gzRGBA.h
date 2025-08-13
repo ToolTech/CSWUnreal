@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzRGBA class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -33,6 +33,7 @@
 //									
 // AMO	990223	Created file 	
 // AMO	091014	Dont force RGBA::add to update to floats		(2.4.12)
+// AMO	250508	Added uniform get/set for norm/not RGBA vals	(2.12.250)
 //
 //******************************************************************************
 #ifndef __GZ_RGBA_H__
@@ -47,52 +48,66 @@
 #include "gzBasicTypes.h"
 #include "gzHalf.h"
 
-enum gzRGBASwizzle
+enum gzRGBASwizzle : gzUInt64
 {
 	GZ_MAP_NOTHING	=	0,
 
-	GZ_MAP_R_TO_R	=	(1<<0),
-	GZ_MAP_G_TO_R	=	(1<<1),
-	GZ_MAP_B_TO_R	=	(1<<2),
-	GZ_MAP_A_TO_R	=	(1<<3),
+	GZ_MAP_R_TO_R	=	(LL(1)<<0),
+	GZ_MAP_G_TO_R	=	(LL(1)<<1),
+	GZ_MAP_B_TO_R	=	(LL(1)<<2),
+	GZ_MAP_A_TO_R	=	(LL(1)<<3),
 
-	GZ_MAP_R_TO_G	=	(1<<4),
-	GZ_MAP_G_TO_G	=	(1<<5),
-	GZ_MAP_B_TO_G	=	(1<<6),
-	GZ_MAP_A_TO_G	=	(1<<7),
+	GZ_MAP_R_TO_G	=	(LL(1)<<4),
+	GZ_MAP_G_TO_G	=	(LL(1)<<5),
+	GZ_MAP_B_TO_G	=	(LL(1)<<6),
+	GZ_MAP_A_TO_G	=	(LL(1)<<7),
 
-	GZ_MAP_R_TO_B	=	(1<<8),
-	GZ_MAP_G_TO_B	=	(1<<9),
-	GZ_MAP_B_TO_B	=	(1<<10),
-	GZ_MAP_A_TO_B	=	(1<<11),
+	GZ_MAP_R_TO_B	=	(LL(1)<<8),
+	GZ_MAP_G_TO_B	=	(LL(1)<<9),
+	GZ_MAP_B_TO_B	=	(LL(1)<<10),
+	GZ_MAP_A_TO_B	=	(LL(1)<<11),
 
-	GZ_MAP_R_TO_A	=	(1<<12),
-	GZ_MAP_G_TO_A	=	(1<<13),
-	GZ_MAP_B_TO_A	=	(1<<14),
-	GZ_MAP_A_TO_A	=	(1<<15),
+	GZ_MAP_R_TO_A	=	(LL(1)<<12),
+	GZ_MAP_G_TO_A	=	(LL(1)<<13),
+	GZ_MAP_B_TO_A	=	(LL(1)<<14),
+	GZ_MAP_A_TO_A	=	(LL(1)<<15),
 
-	GZ_MAP_C_TO_R	=	(1<<16),
-	GZ_MAP_C_TO_G	=	(1<<17),
-	GZ_MAP_C_TO_B	=	(1<<18),
-	GZ_MAP_C_TO_A	=	(1<<19),
+	GZ_MAP_C_TO_R	=	(LL(1)<<16),
+	GZ_MAP_C_TO_G	=	(LL(1)<<17),
+	GZ_MAP_C_TO_B	=	(LL(1)<<18),
+	GZ_MAP_C_TO_A	=	(LL(1)<<19),
 	
-	GZ_MAP_R_TO_FPX	=	(1<<20),
-	GZ_MAP_G_TO_FPX	=	(1<<21),
-	GZ_MAP_B_TO_FPX	=	(1<<22),
-	GZ_MAP_A_TO_FPX	=	(1<<23),
-	GZ_MAP_C_TO_FPX	=	(1<<24),
+	GZ_MAP_R_TO_FPX	=	(LL(1)<<20),
+	GZ_MAP_G_TO_FPX	=	(LL(1)<<21),
+	GZ_MAP_B_TO_FPX	=	(LL(1)<<22),
+	GZ_MAP_A_TO_FPX	=	(LL(1)<<23),
+	GZ_MAP_C_TO_FPX	=	(LL(1)<<24),
 
-	GZ_MAP_FPX_TO_R	=	(1<<25),
-	GZ_MAP_FPX_TO_G	=	(1<<26),
-	GZ_MAP_FPX_TO_B	=	(1<<27),
-	GZ_MAP_FPX_TO_A	=	(1<<28),
+	GZ_MAP_FPX_TO_R	=	(LL(1)<<25),
+	GZ_MAP_FPX_TO_G	=	(LL(1)<<26),
+	GZ_MAP_FPX_TO_B	=	(LL(1)<<27),
+	GZ_MAP_FPX_TO_A	=	(LL(1)<<28),
 
+	GZ_MAP_GRAY_TO_R = (LL(1)<<29),
+	GZ_MAP_GRAY_TO_G = (LL(1)<<30),
+	GZ_MAP_GRAY_TO_B = (LL(1)<<31),
+	GZ_MAP_GRAY_TO_A = (LL(1)<<32),
 
-	GZ_MAP_RGB_TO_RGBA = (GZ_MAP_R_TO_R+GZ_MAP_G_TO_G+GZ_MAP_B_TO_B+GZ_MAP_C_TO_A),
+	// Custom defines
+
+	GZ_MAP_GRAY_A_TO_RG = (GZ_MAP_GRAY_TO_R + GZ_MAP_A_TO_G),
+	GZ_MAP_RG_TO_RGBA	= (GZ_MAP_R_TO_R + GZ_MAP_R_TO_G + GZ_MAP_R_TO_B + GZ_MAP_G_TO_A),
+	GZ_MAP_RG_TO_RA		= (GZ_MAP_R_TO_R + GZ_MAP_G_TO_A),
+	GZ_MAP_RA_TO_RG		= (GZ_MAP_R_TO_R + GZ_MAP_A_TO_G),
+	GZ_MAP_R_TO_RGB		= (GZ_MAP_R_TO_R + GZ_MAP_R_TO_G + GZ_MAP_R_TO_B),
+
+	GZ_MAP_GRAY_TO_RGB	= (GZ_MAP_GRAY_TO_R+ GZ_MAP_GRAY_TO_G+ GZ_MAP_GRAY_TO_B),
+
+	GZ_MAP_RGB_TO_RGBA	= (GZ_MAP_R_TO_R+GZ_MAP_G_TO_G+GZ_MAP_B_TO_B+GZ_MAP_C_TO_A),
 	GZ_MAP_RGBA_TO_RGBA = (GZ_MAP_R_TO_R+GZ_MAP_G_TO_G+GZ_MAP_B_TO_B+GZ_MAP_A_TO_A)
 };
 
-GZ_USE_BIT_LOGIC(gzRGBASwizzle);
+GZ_USE_64_BIT_LOGIC(gzRGBASwizzle);
 
 class gzRGBA
 {
@@ -105,13 +120,21 @@ public:
 
 	inline GZ_BASE_EXPORT gzRGBA(const gzVec3& copy);
 
-	inline GZ_BASE_EXPORT gzRGBA(gzUByte *adress , gzUByte count=4 , gzUByte def_red=255 , gzUByte def_green=255 , gzUByte def_blue=255 , gzUByte def_alpha=255);
 
-	inline GZ_BASE_EXPORT gzRGBA(gzUInt16 *adress , gzUByte count=4 , gzUInt16 def_red=65535 , gzUInt16 def_green=65535 , gzUInt16 def_blue=65535 , gzUInt16 def_alpha=65535);
+	inline GZ_BASE_EXPORT gzRGBA(gzUByte* adress, gzUByte count = 4, gzUByte def_red = 255, gzUByte def_green = 255, gzUByte def_blue = 255, gzUByte def_alpha = 255);
 
-	inline GZ_BASE_EXPORT gzRGBA(gzFloat *adress , gzUByte count=4 , gzFloat def_red=GZ_FLOAT_ONE , gzFloat def_green=GZ_FLOAT_ONE , gzFloat def_blue=GZ_FLOAT_ONE , gzFloat def_alpha=GZ_FLOAT_ONE);
+	inline GZ_BASE_EXPORT gzRGBA(gzUInt16* adress, gzBool normalized = TRUE, gzUByte count = 4, gzUInt16 def_red = 0xffffu, gzUInt16 def_green = 0xffffu, gzUInt16 def_blue = 0xffffu, gzUInt16 def_alpha = 0xffffu);
 
-	inline GZ_BASE_EXPORT gzRGBA(gzHalf *adress , gzUByte count=4 , gzFloat def_red=GZ_FLOAT_ONE , gzFloat def_green=GZ_FLOAT_ONE , gzFloat def_blue=GZ_FLOAT_ONE , gzFloat def_alpha=GZ_FLOAT_ONE);
+	inline GZ_BASE_EXPORT gzRGBA(gzInt16* adress, gzBool normalized = TRUE, gzUByte count = 4, gzInt16 def_red = 0x7fff, gzInt16 def_green = 0x7fff, gzInt16 def_blue = 0x7fff, gzInt16 def_alpha = 0x7fff);
+
+	inline GZ_BASE_EXPORT gzRGBA(gzUInt32* adress, gzBool normalized = TRUE, gzUByte count = 4, gzUInt32 def_red = 0xffffffffu, gzUInt32 def_green = 0xffffffffu, gzUInt32 def_blue = 0xffffffffu, gzUInt32 def_alpha = 0xffffffffu);
+
+	inline GZ_BASE_EXPORT gzRGBA(gzInt32* adress, gzBool normalized = TRUE, gzUByte count = 4, gzInt32 def_red = 0x7fffffff, gzInt32 def_green = 0x7fffffff, gzInt32 def_blue = 0x7fffffff, gzInt32 def_alpha = 0x7fffffff);
+
+	inline GZ_BASE_EXPORT gzRGBA(gzFloat* adress, gzUByte count = 4, gzFloat def_red = GZ_FLOAT_ONE, gzFloat def_green = GZ_FLOAT_ONE, gzFloat def_blue = GZ_FLOAT_ONE, gzFloat def_alpha = GZ_FLOAT_ONE);
+
+	inline GZ_BASE_EXPORT gzRGBA(gzHalf* adress, gzUByte count = 4, gzFloat def_red = GZ_FLOAT_ONE, gzFloat def_green = GZ_FLOAT_ONE, gzFloat def_blue = GZ_FLOAT_ONE, gzFloat def_alpha = GZ_FLOAT_ONE);
+
 
 	inline GZ_BASE_EXPORT gzRGBA(gzUInt32 rgba=0);
 
@@ -180,7 +203,11 @@ public:
 	inline GZ_BASE_EXPORT gzVoid getRGBA(gzUByte *adress, gzUByte count=4 ) const;
 	inline GZ_BASE_EXPORT gzVoid getRGBA(gzFloat *adress, gzUByte count=4 ) const;
 	inline GZ_BASE_EXPORT gzVoid getRGBA(gzHalf *adress, gzUByte count=4 ) const;
-	inline GZ_BASE_EXPORT gzVoid getRGBA(gzUInt16 *adress, gzUByte count=4 ) const;
+
+	inline GZ_BASE_EXPORT gzVoid getRGBA(gzUInt16* adress, gzBool normalized = TRUE, gzUByte count = 4) const;
+	inline GZ_BASE_EXPORT gzVoid getRGBA(gzInt16* adress, gzBool normalized = TRUE, gzUByte count = 4) const;
+	inline GZ_BASE_EXPORT gzVoid getRGBA(gzUInt32* adress, gzBool normalized = TRUE, gzUByte count = 4) const;
+	inline GZ_BASE_EXPORT gzVoid getRGBA(gzInt32* adress, gzBool normalized = TRUE, gzUByte count = 4) const;
 
 	inline GZ_BASE_EXPORT gzBool operator==(const gzRGBA &right) const;
 
@@ -311,47 +338,348 @@ inline gzRGBA::gzRGBA(gzHalf *adress , gzUByte count , gzFloat def_red , gzFloat
 	byteSetting.byteMask=0;
 }
 
-inline gzRGBA::gzRGBA(gzUInt16 *adress , gzUByte count , gzUInt16 def_red , gzUInt16 def_green , gzUInt16 def_blue , gzUInt16 def_alpha)
+inline gzRGBA::gzRGBA(gzUInt16 *adress , gzBool normalized, gzUByte count , gzUInt16 def_red , gzUInt16 def_green , gzUInt16 def_blue , gzUInt16 def_alpha)
 {
-	switch(count)
+	if (normalized)
 	{
-		case 0 :
-			components.floatVal.red=def_red*GZ_INV_65535;
-			components.floatVal.green=def_green*GZ_INV_65535;
-			components.floatVal.blue=def_blue*GZ_INV_65535;
-			components.floatVal.alpha=def_alpha*GZ_INV_65535;
-			break;
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = def_red * GZ_INV_0xFFFF;
+				components.floatVal.green = def_green * GZ_INV_0xFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFF;
+				break;
 
-		case 1 :
-			components.floatVal.red=*adress*GZ_INV_65535;
-			components.floatVal.green=def_green*GZ_INV_65535;
-			components.floatVal.blue=def_blue*GZ_INV_65535;
-			components.floatVal.alpha=def_alpha*GZ_INV_65535;
-			break;
+			case 1:
+				components.floatVal.red = *adress * GZ_INV_0xFFFF;
+				components.floatVal.green = def_green * GZ_INV_0xFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFF;
+				break;
 
-		case 2 :
-			components.floatVal.red=*adress*GZ_INV_65535;
-			components.floatVal.green=*(++adress)*GZ_INV_65535;
-			components.floatVal.blue=def_blue*GZ_INV_65535;
-			components.floatVal.alpha=def_alpha*GZ_INV_65535;
-			break;
+			case 2:
+				components.floatVal.red = *adress * GZ_INV_0xFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFF;
+				break;
 
-		case 3 :
-			components.floatVal.red=*adress*GZ_INV_65535;
-			components.floatVal.green=*(++adress)*GZ_INV_65535;
-			components.floatVal.blue=*(++adress)*GZ_INV_65535;
-			components.floatVal.alpha=def_alpha*GZ_INV_65535;
-			break;
+			case 3:
+				components.floatVal.red = *adress * GZ_INV_0xFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFF;
+				components.floatVal.blue = *(++adress) * GZ_INV_0xFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFF;
+				break;
 
-		case 4 :
-			components.floatVal.red=*adress*GZ_INV_65535;
-			components.floatVal.green=*(++adress)*GZ_INV_65535;
-			components.floatVal.blue=*(++adress)*GZ_INV_65535;
-			components.floatVal.alpha=*(++adress)*GZ_INV_65535;
-			break;
+			case 4:
+				components.floatVal.red = *adress * GZ_INV_0xFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFF;
+				components.floatVal.blue = *(++adress) * GZ_INV_0xFFFF;
+				components.floatVal.alpha = *(++adress) * GZ_INV_0xFFFF;
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = (gzFloat)def_red;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 1:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 2:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 3:
+				components.floatVal.red = (gzFloat)*adress ;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 4:
+				components.floatVal.red = (gzFloat)*adress ;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat) *(++adress);
+				break;
+		}
 	}
 
 	byteSetting.byteMask=0;
+}
+
+inline gzRGBA::gzRGBA(gzInt16* adress, gzBool normalized, gzUByte count, gzInt16 def_red, gzInt16 def_green, gzInt16 def_blue, gzInt16 def_alpha)
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = def_red * GZ_INV_0x8000;
+				components.floatVal.green = def_green * GZ_INV_0x8000;
+				components.floatVal.blue = def_blue * GZ_INV_0x8000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x8000;
+				break;
+
+			case 1:
+				components.floatVal.red = *adress * GZ_INV_0x8000;
+				components.floatVal.green = def_green * GZ_INV_0x8000;
+				components.floatVal.blue = def_blue * GZ_INV_0x8000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x8000;
+				break;
+
+			case 2:
+				components.floatVal.red = *adress * GZ_INV_0x8000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x8000;
+				components.floatVal.blue = def_blue * GZ_INV_0x8000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x8000;
+				break;
+
+			case 3:
+				components.floatVal.red = *adress * GZ_INV_0x8000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x8000;
+				components.floatVal.blue = *(++adress) * GZ_INV_0x8000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x8000;
+				break;
+
+			case 4:
+				components.floatVal.red = *adress * GZ_INV_0x8000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x8000;
+				components.floatVal.blue = *(++adress) * GZ_INV_0x8000;
+				components.floatVal.alpha = *(++adress) * GZ_INV_0x8000;
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = (gzFloat)def_red;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 1:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 2:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 3:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 4:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat) *(++adress);
+				break;
+		}
+	}
+
+	byteSetting.byteMask = 0;
+}
+
+inline gzRGBA::gzRGBA(gzUInt32* adress, gzBool normalized, gzUByte count, gzUInt32 def_red, gzUInt32 def_green, gzUInt32 def_blue, gzUInt32 def_alpha)
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = def_red * GZ_INV_0xFFFFFFFF;
+				components.floatVal.green = def_green * GZ_INV_0xFFFFFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFFFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFFFFFF;
+				break;
+
+			case 1:
+				components.floatVal.red = *adress * GZ_INV_0xFFFFFFFF;
+				components.floatVal.green = def_green * GZ_INV_0xFFFFFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFFFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFFFFFF;
+				break;
+
+			case 2:
+				components.floatVal.red = *adress * GZ_INV_0xFFFFFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFFFFFF;
+				components.floatVal.blue = def_blue * GZ_INV_0xFFFFFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFFFFFF;
+				break;
+
+			case 3:
+				components.floatVal.red = *adress * GZ_INV_0xFFFFFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFFFFFF;
+				components.floatVal.blue = *(++adress) * GZ_INV_0xFFFFFFFF;
+				components.floatVal.alpha = def_alpha * GZ_INV_0xFFFFFFFF;
+				break;
+
+			case 4:
+				components.floatVal.red = *adress * GZ_INV_0xFFFFFFFF;
+				components.floatVal.green = *(++adress) * GZ_INV_0xFFFFFFFF;
+				components.floatVal.blue = *(++adress) * GZ_INV_0xFFFFFFFF;
+				components.floatVal.alpha = *(++adress) * GZ_INV_0xFFFFFFFF;
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = (gzFloat)def_red;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 1:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 2:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 3:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 4:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat) *(++adress);
+				break;
+		}
+	}
+
+	byteSetting.byteMask = 0;
+}
+
+inline gzRGBA::gzRGBA(gzInt32* adress, gzBool normalized, gzUByte count, gzInt32 def_red, gzInt32 def_green, gzInt32 def_blue, gzInt32 def_alpha)
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = def_red * GZ_INV_0x80000000;
+				components.floatVal.green = def_green * GZ_INV_0x80000000;
+				components.floatVal.blue = def_blue * GZ_INV_0x80000000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x80000000;
+				break;
+
+			case 1:
+				components.floatVal.red = *adress * GZ_INV_0x80000000;
+				components.floatVal.green = def_green * GZ_INV_0x80000000;
+				components.floatVal.blue = def_blue * GZ_INV_0x80000000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x80000000;
+				break;
+
+			case 2:
+				components.floatVal.red = *adress * GZ_INV_0x80000000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x80000000;
+				components.floatVal.blue = def_blue * GZ_INV_0x80000000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x80000000;
+				break;
+
+			case 3:
+				components.floatVal.red = *adress * GZ_INV_0x80000000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x80000000;
+				components.floatVal.blue = *(++adress) * GZ_INV_0x80000000;
+				components.floatVal.alpha = def_alpha * GZ_INV_0x80000000;
+				break;
+
+			case 4:
+				components.floatVal.red = *adress * GZ_INV_0x80000000;
+				components.floatVal.green = *(++adress) * GZ_INV_0x80000000;
+				components.floatVal.blue = *(++adress) * GZ_INV_0x80000000;
+				components.floatVal.alpha = *(++adress) * GZ_INV_0x80000000;
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				components.floatVal.red = (gzFloat)def_red;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 1:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat)def_green;
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 2:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat)def_blue;
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 3:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat)def_alpha;
+				break;
+
+			case 4:
+				components.floatVal.red = (gzFloat)*adress;
+				components.floatVal.green = (gzFloat) *(++adress);
+				components.floatVal.blue = (gzFloat) *(++adress);
+				components.floatVal.alpha = (gzFloat) *(++adress);
+				break;
+		}
+	}
+
+	byteSetting.byteMask = 0;
 }
 
 inline gzRGBA::gzRGBA(gzUInt32 rgba)
@@ -851,73 +1179,262 @@ inline gzVoid gzRGBA::getRGBA(gzHalf *adress, gzUByte count ) const
 	}
 }
 
-inline gzVoid gzRGBA::getRGBA(gzUInt16 *adress, gzUByte count ) const
+inline gzVoid gzRGBA::getRGBA(gzUInt16 *adress, gzBool normalized, gzUByte count ) const
 {
-	switch(count)
+	if (normalized)
 	{
-		case 0:
-			break;
+		switch (count)
+		{
+			case 0:
+				break;
 
-		case 1:
+			case 1:
+				*(adress) = (gzUInt16)(getRed() * 0xffffu);
+				break;
 
-			if(byteSetting.byteVal.hasRedByte)
-				*(adress)=(gzUInt16)(components.byteVal.red * 257);
-			else
-				*(adress)=(gzUInt16)(components.floatVal.red*65535);
-			break;
+			case 2:
+				*(adress) = (gzUInt16)(getRed() * 0xffffu);
+				*(++adress) = (gzUInt16)(getGreen() * 0xffffu);
+				break;
 
-		case 2:
-			if(byteSetting.byteVal.hasRedByte)
-				*(adress)=(gzUInt16)(components.byteVal.red * 257);
-			else
-				*(adress)=(gzUInt16)(components.floatVal.red*65535);
+			case 3:
+				*(adress) = (gzUInt16)(getRed() * 0xffffu);
+				*(++adress) = (gzUInt16)(getGreen() * 0xffffu);
+				*(++adress) = (gzUInt16)(getBlue() * 0xffffu);
+				break;
 
-			if(byteSetting.byteVal.hasGreenByte)
-				*(++adress)=(gzUInt16)(components.byteVal.green * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.green*65535);
-			break;
+			case 4:
+				*(adress) = (gzUInt16)(getRed() * 0xffffu);
+				*(++adress) = (gzUInt16)(getGreen() * 0xffffu);
+				*(++adress) = (gzUInt16)(getBlue() * 0xffffu);
+				*(++adress) = (gzUInt16)(getAlpha() * 0xffffu);
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				break;
 
-		case 3:
-			if(byteSetting.byteVal.hasRedByte)
-				*(adress)=(gzUInt16)(components.byteVal.red * 257);
-			else
-				*(adress)=(gzUInt16)(components.floatVal.red*65535);
+			case 1:
+				*(adress) = (gzUInt16)getRed();
+				break;
 
-			if(byteSetting.byteVal.hasGreenByte)
-				*(++adress)=(gzUInt16)(components.byteVal.green * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.green*65535);
+			case 2:
+				*(adress) = (gzUInt16)getRed();
+				*(++adress) = (gzUInt16)getGreen();
+				break;
 
-			if(byteSetting.byteVal.hasBlueByte)
-				*(++adress)=(gzUInt16)(components.byteVal.blue * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.blue*65535);
-			break;
+			case 3:
+				*(adress) = (gzUInt16)getRed();
+				*(++adress) = (gzUInt16)getGreen();
+				*(++adress) = (gzUInt16)getBlue();
+				break;
 
-		case 4:
-			if(byteSetting.byteVal.hasRedByte)
-				*(adress)=(gzUInt16)(components.byteVal.red * 257);
-			else
-				*(adress)=(gzUInt16)(components.floatVal.red*65535);
-
-			if(byteSetting.byteVal.hasGreenByte)
-				*(++adress)=(gzUInt16)(components.byteVal.green * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.green*65535);
-
-			if(byteSetting.byteVal.hasBlueByte)
-				*(++adress)=(gzUInt16)(components.byteVal.blue * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.blue*65535);
-
-			if(byteSetting.byteVal.hasAlphaByte)
-				*(++adress)=(gzUInt16)(components.byteVal.alpha * 257);
-			else
-				*(++adress)=(gzUInt16)(components.floatVal.alpha*65535);
-			break;
+			case 4:
+				*(adress) = (gzUInt16)getRed();
+				*(++adress) = (gzUInt16)getGreen();
+				*(++adress) = (gzUInt16)getBlue();
+				*(++adress) = (gzUInt16)getAlpha();
+				break;
+		}
 	}
 }
+
+inline gzVoid gzRGBA::getRGBA(gzInt16* adress, gzBool normalized, gzUByte count) const
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzInt16)(getRed() * 0x8000);
+				break;
+
+			case 2:
+				*(adress) = (gzInt16)(getRed() * 0x8000);
+				*(++adress) = (gzInt16)(getGreen() * 0x8000);
+				break;
+
+			case 3:
+				*(adress) = (gzInt16)(getRed() * 0x8000);
+				*(++adress) = (gzInt16)(getGreen() * 0x8000);
+				*(++adress) = (gzInt16)(getBlue() * 0x8000);
+				break;
+
+			case 4:
+				*(adress) = (gzInt16)(getRed() * 0x8000);
+				*(++adress) = (gzInt16)(getGreen() * 0x8000);
+				*(++adress) = (gzInt16)(getBlue() * 0x8000);
+				*(++adress) = (gzInt16)(getAlpha() * 0x8000);
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzInt16)getRed();
+				break;
+
+			case 2:
+				*(adress) = (gzInt16)getRed();
+				*(++adress) = (gzInt16)getGreen();
+				break;
+
+			case 3:
+				*(adress) = (gzInt16)getRed();
+				*(++adress) = (gzInt16)getGreen();
+				*(++adress) = (gzInt16)getBlue();
+				break;
+
+			case 4:
+				*(adress) = (gzInt16)getRed();
+				*(++adress) = (gzInt16)getGreen();
+				*(++adress) = (gzInt16)getBlue();
+				*(++adress) = (gzInt16)getAlpha();
+				break;
+		}
+	}
+}
+
+inline gzVoid gzRGBA::getRGBA(gzUInt32* adress, gzBool normalized, gzUByte count) const
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzUInt32)(getRed() * (gzFloat)0xffffffffu);
+				break;
+
+			case 2:
+				*(adress) = (gzUInt32)(getRed() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getGreen() * (gzFloat)0xffffffffu);
+				break;
+
+			case 3:
+				*(adress) = (gzUInt32)(getRed() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getGreen() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getBlue() * (gzFloat)0xffffffffu);
+				break;
+
+			case 4:
+				*(adress) = (gzUInt32)(getRed() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getGreen() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getBlue() * (gzFloat)0xffffffffu);
+				*(++adress) = (gzUInt32)(getAlpha() * (gzFloat)0xffffffffu);
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzUInt32)getRed();
+				break;
+
+			case 2:
+				*(adress) = (gzUInt32)getRed();
+				*(++adress) = (gzUInt32)getGreen();
+				break;
+
+			case 3:
+				*(adress) = (gzUInt32)getRed();
+				*(++adress) = (gzUInt32)getGreen();
+				*(++adress) = (gzUInt32)getBlue();
+				break;
+
+			case 4:
+				*(adress) = (gzUInt32)getRed();
+				*(++adress) = (gzUInt32)getGreen();
+				*(++adress) = (gzUInt32)getBlue();
+				*(++adress) = (gzUInt32)getAlpha();
+				break;
+		}
+	}
+}
+
+inline gzVoid gzRGBA::getRGBA(gzInt32* adress, gzBool normalized, gzUByte count) const
+{
+	if (normalized)
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzInt32)(getRed() * 0x80000000);
+				break;
+
+			case 2:
+				*(adress) = (gzInt32)(getRed() * 0x80000000);
+				*(++adress) = (gzInt32)(getGreen() * 0x80000000);
+				break;
+
+			case 3:
+				*(adress) = (gzInt32)(getRed() * 0x80000000);
+				*(++adress) = (gzInt32)(getGreen() * 0x80000000);
+				*(++adress) = (gzInt32)(getBlue() * 0x80000000);
+				break;
+
+			case 4:
+				*(adress) = (gzInt32)(getRed() * 0x80000000);
+				*(++adress) = (gzInt32)(getGreen() * 0x80000000);
+				*(++adress) = (gzInt32)(getBlue() * 0x80000000);
+				*(++adress) = (gzInt32)(getAlpha() * 0x80000000);
+				break;
+		}
+	}
+	else
+	{
+		switch (count)
+		{
+			case 0:
+				break;
+
+			case 1:
+				*(adress) = (gzInt32)getRed();
+				break;
+
+			case 2:
+				*(adress) = (gzInt32)getRed();
+				*(++adress) = (gzInt32)getGreen();
+				break;
+
+			case 3:
+				*(adress) = (gzInt32)getRed();
+				*(++adress) = (gzInt32)getGreen();
+				*(++adress) = (gzInt32)getBlue();
+				break;
+
+			case 4:
+				*(adress) = (gzInt32)getRed();
+				*(++adress) = (gzInt32)getGreen();
+				*(++adress) = (gzInt32)getBlue();
+				*(++adress) = (gzInt32)getAlpha();
+				break;
+		}
+	}
+}
+
 
 inline gzVoid gzRGBA::invert()
 {
@@ -1295,6 +1812,18 @@ inline gzRGBA gzRGBA::getSwizzledRGBA(gzRGBASwizzle swizzle , gzFloat R_factor ,
 		else 
 			A+=(A_factor*components.floatVal.alpha);
 	}
+
+	if (swizzle & GZ_MAP_GRAY_TO_R)
+		R += gray();
+
+	if (swizzle & GZ_MAP_GRAY_TO_G)
+		G += gray();
+
+	if (swizzle & GZ_MAP_GRAY_TO_B)
+		B += gray();
+
+	if (swizzle & GZ_MAP_GRAY_TO_A)
+		A += gray();
 
 	// const component
 

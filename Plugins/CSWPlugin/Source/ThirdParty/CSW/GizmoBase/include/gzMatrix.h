@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -169,8 +169,8 @@ public:
 
 	template <class Y> gzVec2_& operator-=(const gzVec2_<Y>& vector)
 	{
-		v1 += vector.v1;
-		v2 += vector.v2;
+		v1 -= vector.v1;
+		v2 -= vector.v2;
 		return *this;
 	}
 
@@ -2831,17 +2831,17 @@ GZ_BASE_EXPORT inline gzVoid getExtendedVector(gzVec3& dest, const gzVec3& from,
 
 // -------------------------------- copyInstances -----------------------------------------------------------
 
-template <> inline gzVoid copyInstances(gzVec2* to, gzVec2* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzVec2* to, gzVec2* from, const gzUInt64& count, gzBool /*clearSource*/)
 {
 	memmove(to, from, count * sizeof(gzVec2));
 }
 
-template <> inline gzVoid copyInstances(gzVec3* to, gzVec3* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzVec3* to, gzVec3* from, const gzUInt64& count, gzBool /*clearSource*/)
 {
 	memmove(to, from, count * sizeof(gzVec3));
 }
 
-template <> inline gzVoid copyInstances(gzVec4* to, gzVec4* from, gzUInt32 count, gzBool /*clearSource*/)
+template <> inline gzVoid copyInstances(gzVec4* to, gzVec4* from, const gzUInt64& count, gzBool /*clearSource*/)
 {
 	memmove(to, from, count * sizeof(gzVec4));
 }

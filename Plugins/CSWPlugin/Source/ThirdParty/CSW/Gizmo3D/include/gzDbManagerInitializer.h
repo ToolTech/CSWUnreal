@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Utilities for image management
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			

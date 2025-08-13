@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize protocol classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -395,15 +395,16 @@ public:
 
 	GZ_BASE_EXPORT gzVoid close();
 
-	GZ_PROPERTY_EXPORT(gzUInt16, Port,					GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzString, AttributeString,		GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzString, Address,				GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzString, NicAddress,			GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzString, UnicastAddress,		GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzBool,	 BlockingRead,			GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzBool,	 CloseOnNoConnection,	GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzDouble, BlockingTimeout,		GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzUInt32, MaxFetchPackets,		GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzUInt16,	Port,					GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString,	AttributeString,		GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString,	Address,				GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString,	NicAddress,				GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString,	UnicastAddress,			GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,		BlockingRead,			GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,		CloseOnNoConnection,	GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,		NoDelay,				GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	BlockingTimeout,		GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzUInt32,	MaxFetchPackets,		GZ_BASE_EXPORT);
 
 	GZ_BASE_EXPORT	gzVoid checkPacket();
 

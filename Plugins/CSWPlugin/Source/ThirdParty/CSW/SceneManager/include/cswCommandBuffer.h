@@ -41,11 +41,11 @@
 
 enum cswCommandBufferType
 {
-	CSW_BUFFER_TYPE_GENERIC,
-	CSW_BUFFER_TYPE_ERROR,
-	CSW_BUFFER_TYPE_FRAME,
-	CSW_BUFFER_TYPE_NEW,
-	CSW_BUFFER_TYPE_DELETE,
+	CSW_BUFFER_TYPE_GENERIC,	// Default buffer type for command communication
+	CSW_BUFFER_TYPE_ERROR,		// Buffers with errors and messages
+	CSW_BUFFER_TYPE_FRAME,		// Frame encapsulation buffer
+	CSW_BUFFER_TYPE_NEW,		// New objects and constructions
+	CSW_BUFFER_TYPE_DELETE,		// Deletes
 };
 
 enum cswCommandBufferDeleteMode

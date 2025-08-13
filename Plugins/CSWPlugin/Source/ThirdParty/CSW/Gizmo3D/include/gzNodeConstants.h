@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Constant and structures for node attributes and definitions
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -39,6 +39,8 @@
 // AMO	231019	Added Map Title as identifier for map in readable	(2.12.110)
 // AMO	250117	Added STATUS_MESSAGE with list of messages			(2.12.207)
 // AMO	250306	Added gzDbInfoOptimizeFlags for optim meta info		(2.12.228)
+// AMO	250409	Added Units to database								(2.12.238)
+// AMO	250409	Added Coordinate Swizzle to database				(2.12.238)
 //
 //******************************************************************************
 #ifndef __GZ_NODE_CONSTANTS_H__
@@ -95,6 +97,7 @@ const gzString	GZ_DB_INFO_GC				= "DbI-GroundClamp";			// Bool value. True (!=0)
 
 const gzString	GZ_DB_INFO_METER_SCALE		= "DbI-MeterScale";				// Number to scale model to meters approx
 const gzString	GZ_DB_INFO_PROJECTION		= "DbI-Projection";				// GZ_DB_INFO_PROJECTION_xx
+const gzString	GZ_DB_INFO_COORD_MAPPING	= "DbI-Coordinate-Mapping";		// gzCoordinateMapping
 const gzString	GZ_DB_INFO_ELLIPSOID		= "DbI-Ellipsoid";
 const gzString	GZ_DB_INFO_COORD_SYS		= "DbI-CoordSystem";			// CoordSystem String
 
@@ -108,6 +111,12 @@ const gzString	GZ_DB_INFO_COMMENT			= "DbI-Comment";				// String generic commen
 const gzString	GZ_DB_INFO_SHADOW_GENERATOR	= "GenShad";
 const gzString	GZ_DB_INFO_STATUS			= "Dbi-Status";					// gzDbInfoStatusBits
 const gzString	GZ_DB_INFO_STATUS_MESSAGE	= "Dbi-Status-Message";			// List of vital status messages
+
+//! Units used 
+const gzString GZ_DB_INFO_UNITS				= "Dbi-Units";					// gzUnits
+
+//! Coordinate Swizzle to x,y,z
+const gzString GZ_DB_INFO_SWIZZLE			= "Dbi-Swizzle";				// gzCoordinateSwizzle
 
 
 // DFAD data & ID
@@ -162,16 +171,39 @@ const gzString	GZ_DB_INFO_MAP_SEASON_AUTUMN		= "Autumn";		// Autumn Theme				// 
 
 // Constants for GZ_DB_INFO_PROJECTION ---------------------------------------------------------------------------------------------
 
+// GZ_DB_INFO_PROJECTION is the old legacy way to tell the system how coordinates are mapped
+// It is merly a textual description
+// In the future GZ_DB_INFO_COORD_MAPPING will be used 
+
+const gzString	GZ_DB_INFO_PROJECTION_UNKNOWN		= "Unknown Projection";
 const gzString	GZ_DB_INFO_PROJECTION_FLAT			= "Flat Earth";
 const gzString	GZ_DB_INFO_PROJECTION_SPHERE		= "Sphere";
 const gzString	GZ_DB_INFO_PROJECTION_GEODETIC		= "Geodetic";
 const gzString	GZ_DB_INFO_PROJECTION_GEOCENTRIC	= "Geocentric";
+const gzString	GZ_DB_INFO_PROJECTION_SINUSODIAL	= "Sinusodial";
 const gzString	GZ_DB_INFO_PROJECTION_TRAPEZODIAL	= "Trapezoidal";
+const gzString	GZ_DB_INFO_PROJECTION_WEB_MERCATOR	= "Web Mercator";
 const gzString	GZ_DB_INFO_PROJECTION_LAMBERT		= "Lambert";
 const gzString	GZ_DB_INFO_PROJECTION_UTM			= "UTM";
 const gzString	GZ_DB_INFO_PROJECTION_RT90			= "RT90";
 const gzString	GZ_DB_INFO_PROJECTION_SWEREF99		= "SWEREF99";
 const gzString	GZ_DB_INFO_PROJECTION_PROJECTED		= "Projected";
+
+// Mapped according to gzCoordinateMapping
+const gzString gzCoordMappingStrings[] = {	GZ_DB_INFO_PROJECTION_UNKNOWN ,
+											GZ_DB_INFO_PROJECTION_FLAT,
+											GZ_DB_INFO_PROJECTION_SPHERE,
+											GZ_DB_INFO_PROJECTION_GEODETIC,
+											GZ_DB_INFO_PROJECTION_GEOCENTRIC,
+											GZ_DB_INFO_PROJECTION_SINUSODIAL,
+											GZ_DB_INFO_PROJECTION_TRAPEZODIAL,
+											GZ_DB_INFO_PROJECTION_WEB_MERCATOR,
+											GZ_DB_INFO_PROJECTION_LAMBERT,
+											GZ_DB_INFO_PROJECTION_UTM,
+											GZ_DB_INFO_PROJECTION_RT90,
+											GZ_DB_INFO_PROJECTION_SWEREF99,
+											GZ_DB_INFO_PROJECTION_PROJECTED };
+
 
 // Constants for GZ_DB_INFO_ELLIPSOID ---------------------------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of exception classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -252,6 +252,7 @@ enum gzStreamErrorType
 	GZ_STREAM_ERROR_USER_EXIT,				// Exit of stream reading requested by user code
 	GZ_STREAM_ERROR_INPUT_STREAM_IS_RESET,	// Input Stream was reset
 	GZ_STREAM_ERROR_OUTPUT_STREAM_IS_RESET,	// Output Stream was reset
+	GZ_STREAM_ERROR_REQUIRE_LARGE_ACCESS,	// Error when using standard access and stream require large access
 	GZ_STREAM_ERROR_GENERIC_ERROR			// Error is found in adapter
 };
 

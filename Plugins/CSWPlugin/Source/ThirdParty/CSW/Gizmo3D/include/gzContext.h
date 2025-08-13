@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzContext class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -119,7 +119,7 @@ public:
 
 	GZ_GRAPH_EXPORT gzVoid	reactivate();	//!< reactivates the current context (all internal states) 
 
-	GZ_GRAPH_EXPORT gzVoid	resetFrame();	//!< Reset every frame for data calculated per frame
+	GZ_GRAPH_EXPORT gzVoid	resetFrameStats();	//!< Reset every frame for data calculated per frame
 
 	// ---------------- Common methods ---------------------------------------------
 
@@ -165,6 +165,8 @@ public:
 
 	gzQueue<gzState *>				stackState;
 	gzBool							stateChange;
+
+	gzUInt32						pendingLoads;
 
 	// Depth State Bits
 	gzEnum							currentDepthFunc;
@@ -553,6 +555,9 @@ public:
 
 	gzBool							useEditLockedRender;
     gzBool                          allowMultiThreadRender;
+
+	// layered rendering
+	gzUInt32						currentLayer; // default 0
 
 	// Shared data attached that can be used by context users
 

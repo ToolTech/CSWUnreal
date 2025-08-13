@@ -64,7 +64,7 @@ public:
 	CSW_SM_EXPORT	virtual ~cswCommandReceiverInterface();
 
 	// ------------ the receiver --------------------
-	CSW_SM_EXPORT	virtual gzVoid onCommand(cswCommandBuffer* buffer) = 0;
+	CSW_SM_EXPORT	virtual gzVoid onCommand(cswSceneManager *manager,cswCommandBuffer* buffer) = 0;
 
 private:
 

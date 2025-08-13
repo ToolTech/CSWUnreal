@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of GUID types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -112,7 +112,7 @@ public:
 	gzBool		isNameBased()	const;
 
 	gzTime		getGenerationTime() const;
-	gzString	asString() const;
+	gzString	asString(gzBool skipCurly=FALSE) const;
 	gzVoid		getGUID(gzUInt32& val1, gzUInt32& val2, gzUInt32& val3, gzUInt32& val4) const;
 	gzVoid		getGUID(gzUInt64& val1, gzUInt64& val2) const;
 	

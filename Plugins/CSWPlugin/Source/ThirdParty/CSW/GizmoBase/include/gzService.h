@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of service features
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 //
 //			
@@ -104,7 +104,8 @@ public:
 	GZ_BASE_EXPORT virtual gzVoid	onPause(){};
 	GZ_BASE_EXPORT virtual gzVoid	onContinue(){};
 
-	GZ_BASE_EXPORT static gzService* getInstance();
+	GZ_BASE_EXPORT static gzService*	getInstance();
+	GZ_BASE_EXPORT static gzBool		runAsService(gzBool on=TRUE);
 
 	GZ_PROPERTY_EXPORT(gzUInt32, ExitValue, GZ_BASE_EXPORT);
 	GZ_BASE_EXPORT virtual gzUInt32	getExitCode() const;

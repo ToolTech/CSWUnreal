@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzNode class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.231
+// Product		: Gizmo3D 2.12.262
 //		
 //
 //			
@@ -504,7 +504,7 @@ public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_GRAPH_EXPORT);	// typed interface
 
 	//! Call to init settings in context
-	GZ_GRAPH_EXPORT virtual gzVoid initTraversal(gzContext * /*context*/) {};
+	GZ_GRAPH_EXPORT virtual gzVoid initTraversal(gzContext * /*context*/);
 
 	//! Call to traverse scene
 	GZ_GRAPH_EXPORT gzVoid traverse(gzNode *node,gzContext *context);
@@ -1022,7 +1022,7 @@ public:
 
 	GZ_GRAPH_EXPORT static gzVoid	unregisterManagers();
 		
-	GZ_GRAPH_EXPORT static gzNode	*loadDB(const gzString &url , gzString extension=GZ_EVALUATE_EXTENSION , gzSerializeAdapterFlags flags=GZ_DB_FLAGS_DEFAULT , gzUInt32 version=0 , const gzString &password=GZ_EMPTY_STRING , gzReference *associatedData=nullptr,gzUInt32 *adapterLength=nullptr, gzString* errorString = NULL, gzSerializeAdapterError* errorType = NULL);
+	GZ_GRAPH_EXPORT static gzNode	*loadDB(const gzString &url , gzString extension=GZ_EVALUATE_EXTENSION , gzSerializeAdapterFlags flags=GZ_DB_FLAGS_DEFAULT , gzUInt32 version=0 , const gzString &password=GZ_EMPTY_STRING , gzReference *associatedData=nullptr,gzUInt64 *adapterLength=nullptr, gzString* errorString = NULL, gzSerializeAdapterError* errorType = NULL);
 
 	GZ_GRAPH_EXPORT virtual gzNode	*loadDB(gzSerializeAdapter *adapter );
 

@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of coordinate transforms types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.231
+// Product		: GizmoBase 2.12.262
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			
@@ -247,6 +247,28 @@ struct gzGaussProjection
 	gzDouble			false_northing;					// m
 	gzDouble			false_easting;					// m
 };
+
+//! How 3D is mapped to coordinates -----------------------------------------------
+
+enum gzCoordinateMapping
+{
+	GZ_COORDINATE_MAPPING_UNKNOWN = 0,
+	GZ_COORDINATE_MAPPING_FLAT,				// Flat Local Map, x->east, y->Up , z->South
+	GZ_COORDINATE_MAPPING_SPHERE,			// Sperical in cartesian x->X, y->Z , z->-Y
+	GZ_COORDINATE_MAPPING_GEODETIC,			// Plain Geodetic radians, x-> lon, z-> -lat y->up
+	GZ_COORDINATE_MAPPING_GEOCENTRIC,		// Geocentric in cartesian x->X , y->Y , z->Z
+	GZ_COORDINATE_MAPPING_SINUSODIAL,		// Sinusodial mapping
+	GZ_COORDINATE_MAPPING_TRAPEZODIAL,
+	GZ_COORDINATE_MAPPING_WEB_MERCATOR,
+	GZ_COORDINATE_MAPPING_LAMBERT,
+	GZ_COORDINATE_MAPPING_UTM,
+	GZ_COORDINATE_MAPPING_RT90,
+	GZ_COORDINATE_MAPPING_SWEREF99,
+	GZ_COORDINATE_MAPPING_PROJECTED,
+};
+
+GZ_USE_BIT_LOGIC(gzCoordinateMapping);
+GZ_DECLARE_DYNAMIC_ENUM(gzCoordinateMapping);
 
 // ---------------- Ellipsoids ---------------
 
