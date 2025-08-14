@@ -53,7 +53,7 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 
 	// Check compatible pixel format
 
-	switch (image->getFormat())
+	switch (image->getImageType())
 	{
 		case GZ_IMAGE_TYPE_BW_8:
 			pixelFormat = PF_G8;
