@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of stub calls
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -139,11 +139,17 @@ public:
 	GZ_GRAPH_EXPORT static  inline	gzBool	has_3d_texture()							{ return s_has_3d_texture; }
 	GZ_GRAPH_EXPORT static  inline	gzBool	has_nonuniform_matrix_upload()				{ return s_matrix_nonuniform_upload; }
 
+	GZ_GRAPH_EXPORT static  inline	gzBool	has_depth_24()								{ return s_has_depth_24; }
+	GZ_GRAPH_EXPORT static  inline	gzBool	has_depth_32()								{ return s_has_depth_32; }
+
+
 	// --- limits ------
 
 	GZ_GRAPH_EXPORT static	inline	gzInt32		getMaxTextureSize()							{ return s_maxtexturesize; }
 
 	GZ_GRAPH_EXPORT static	inline	gzUInt32	getNumberOfTextureUnits()					{ return s_numberOfTextureUnits; }
+
+	GZ_GRAPH_EXPORT static	inline	gzUInt32	forceNumberOfTextureUnits(gzUInt32 units)	{ gzUInt32 old = s_numberOfTextureUnits; s_numberOfTextureUnits = units; return old; }
 
 	GZ_GRAPH_EXPORT static	inline	gzBool		isRemoteConnection()						{ return s_remoteConnection; }
 	
@@ -158,6 +164,12 @@ public:
 	GZ_GRAPH_EXPORT static gzFloat					getShaderVersion();
 	GZ_GRAPH_EXPORT static gzString					getExtensions();
 	GZ_GRAPH_EXPORT static gzString					getRenderer();
+
+	GZ_GRAPH_EXPORT static gzBool					hasEngineError();
+	GZ_GRAPH_EXPORT static gzVoid					pushEngineError(const gzString &error);
+	GZ_GRAPH_EXPORT static gzString					getEngineError();
+	GZ_GRAPH_EXPORT static gzVoid					clearEngineErrors();
+
 
 	// Engine functions
 	
@@ -203,24 +215,36 @@ protected:
 	GZ_GRAPH_EXPORT static gzBool	s_has_3d_texture;
 	GZ_GRAPH_EXPORT static gzBool	s_matrix_nonuniform_upload;
 
-
-	GZ_GRAPH_EXPORT static gzInt32				s_maxtexturesize;
-
-	GZ_GRAPH_EXPORT	static gzUInt32				s_numberOfTextureUnits;
+	GZ_GRAPH_EXPORT static gzBool	s_has_depth_24;
+	GZ_GRAPH_EXPORT static gzBool	s_has_depth_32;
 
 
-	GZ_GRAPH_EXPORT static gzString				s_gz_extensions;
-	GZ_GRAPH_EXPORT static gzFloat				s_gz_version;
-	GZ_GRAPH_EXPORT static gzEngineType			s_engineType;
-	GZ_GRAPH_EXPORT	static gzGraphicsEngine *	s_currentEngine;
-	GZ_GRAPH_EXPORT static gzEngineVendor		s_engineVendor;
-	GZ_GRAPH_EXPORT static gzString				s_renderer;
+	GZ_GRAPH_EXPORT static gzInt32							s_maxtexturesize;
 
-	GZ_GRAPH_EXPORT static gzBool				s_remoteConnection;
-	GZ_GRAPH_EXPORT static gzFloat				s_shader_version;
-	GZ_GRAPH_EXPORT static gzGraphicsEngine *	s_engine[GZ_MAX_3D_ENGINES];
+	GZ_GRAPH_EXPORT	static gzUInt32							s_numberOfTextureUnits;
+
+
+	GZ_GRAPH_EXPORT static gzString							s_gz_extensions;
+	GZ_GRAPH_EXPORT static gzFloat							s_gz_version;
+	GZ_GRAPH_EXPORT static gzEngineType						s_engineType;
+	GZ_GRAPH_EXPORT	static gzGraphicsEngine *				s_currentEngine;
+	GZ_GRAPH_EXPORT static gzEngineVendor					s_engineVendor;
+	GZ_GRAPH_EXPORT static gzString							s_renderer;
+
+	GZ_GRAPH_EXPORT static gzBool							s_remoteConnection;
+	GZ_GRAPH_EXPORT static gzFloat							s_shader_version;
+	GZ_GRAPH_EXPORT static gzGraphicsEngine *				s_engine[GZ_MAX_3D_ENGINES];
+
+	GZ_GRAPH_EXPORT static gzMutex							s_engineLock;
+	GZ_GRAPH_EXPORT static gzRefList<gzRefData<gzString>>	s_engineErrors;
 };
 
+// Some common extensions used in GFX Engines
+
+const gzString ARB_EXTENSION = "ARB";
+const gzString EXT_EXTENSION = "EXT";
+const gzString OES_EXTENSION = "OES";
+const gzString AMD_EXTENSION = "AMD";
 
 #endif
 

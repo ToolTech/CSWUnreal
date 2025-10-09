@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of gzArgument
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -66,7 +66,7 @@ public:
 	GZ_BASE_EXPORT gzArgument(const unsigned long	&value);
 	GZ_BASE_EXPORT gzArgument(const signed long		&value);
 
-	GZ_BASE_EXPORT inline gzArgument():m_type(GZ_ARG_VOID){};
+	GZ_BASE_EXPORT inline gzArgument() : m_type(GZ_ARG_VOID) { m_value.uvalue = 0; }
 
 	GZ_BASE_EXPORT operator gzDouble	() const;
 	GZ_BASE_EXPORT operator gzVoid *	() const;
@@ -77,8 +77,8 @@ public:
 	GZ_BASE_EXPORT gzBool isVoid()		const;
 	GZ_BASE_EXPORT gzBool isDouble()	const;
 	GZ_BASE_EXPORT gzBool isPointer()	const;
-	GZ_BASE_EXPORT gzBool isLongLong()	const;
-	GZ_BASE_EXPORT gzBool isULongLong()	const;
+	GZ_BASE_EXPORT gzBool isInt64()	const;
+	GZ_BASE_EXPORT gzBool isUInt64()	const;
 	GZ_BASE_EXPORT gzBool isString()	const;
 
 private:
@@ -88,7 +88,7 @@ private:
 	union values
 	{
 		gzDouble	dvalue;
-		gzInt64	lvalue;
+		gzInt64		lvalue;
 		gzUInt64	uvalue;
 		gzString	*string;
 	} m_value;

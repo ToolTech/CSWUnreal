@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzNode class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -55,7 +55,6 @@
 
 class gzContext;	// Forward decl
 class gzNode;		// Forward declaraton
-
 
 //! Definition of current version for cache creation. Uses a stable level
 //! Compare with GZ_GZD_VERSION in gzd format
@@ -611,6 +610,7 @@ public:
 
 	GZ_GRAPH_EXPORT gzVoid setBoundaryMode(gzBoundaryMode mode)					{ m_mode=mode; }
 
+	//! Post adjustments made to boundary called from updateBoundary
 	GZ_GRAPH_EXPORT gzVoid adjustBoundary();
 
 	// --------- set to false if object doesn't have a radius -----
@@ -960,7 +960,7 @@ private:
 	// Static vars
 
 	static gzMutex										nodeIDLocker;
-	static gzDict<gzUInt32CompareInterface,gzNode>		nodeIDStorage;
+	static gzDict<gzUInt32,gzNode>		nodeIDStorage;
 	static gzDict<gzInstanceCompareInterface,gzVoid>	IDNodeStorage;
 
 };

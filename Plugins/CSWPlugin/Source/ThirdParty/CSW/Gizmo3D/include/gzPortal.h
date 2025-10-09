@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzPortal class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the Gizmo3D library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -33,6 +33,7 @@
 // Who	Date	Description						
 //									
 // AMO	981027	Created file 	
+// AMO	251007	Updated CCT Libs and CCT Debugger		(2.12.275)
 //
 //******************************************************************************
 #ifndef __GZ_GIZMO3D_LIBRARY_H__
@@ -58,7 +59,7 @@ GZ_SYSTEM_EXPORT gzBool gzStartUpGizmo();
 
 GZ_SYSTEM_EXPORT gzVoid gzCheckLibraryVersion(gzInt32 major=GZ_VERSION_MAJ , gzInt32 minor=GZ_VERSION_MIN , gzInt32 dev=GZ_VERSION_DEV);
 
-class gzSceneGraphDebugger
+class gzSceneGraphDebugger : public gzThreadSafeReference
 {
 public:
 
@@ -84,7 +85,7 @@ private:
 	gzRefPointer<gzModule>	m_info;
 };
 
-
+GZ_DECLARE_REFPTR(gzSceneGraphDebugger);
 
 #endif // __GZ_GIZMO3D_LIBRARY_H__
 

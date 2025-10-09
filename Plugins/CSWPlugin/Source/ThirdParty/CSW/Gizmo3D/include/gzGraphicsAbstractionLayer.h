@@ -19,7 +19,7 @@
 // Module		: gzGraph
 // Description	: Class implementation of the GAL classes
 // Author		: Anders ModÈn		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -477,22 +477,19 @@ public:
 #endif
 
 
-
 // Definition of the API error macros
 #ifdef GZ_DEBUG_GRAPHICS_API
 #define __gz_dbg_api_incr__		++gzGraphicsAbstractionLayer::gzBeginEndStack;
-#define __gz_dbg_api_start__	{ if(!gzGraphicsAbstractionLayer::gzBeginEndStack){while(long error=gzGetError()){GZTRACE("External Graphics error before:'%s' at line %ld in file %s",(const char *)gzGraphicsErrorDescription(error),__LINE__,__FILE__);while(GZ_DEBUG_GRAPHICS_API_STOP);}}
+#define __gz_dbg_api_start__	{ if(!gzGraphicsAbstractionLayer::gzBeginEndStack){while(long error=gzGetError()){GZTRACE("External Graphics Engine error before:'%s' at line %ld in file %s",(const char *)gzGraphicsErrorDescription(error),__LINE__,__FILE__);while(GZ_DEBUG_GRAPHICS_API_STOP);}}
 
 #define __gz_dbg_api_decr__		;--gzGraphicsAbstractionLayer::gzBeginEndStack;
-#define __gz_dbg_api_end__		; if(!gzGraphicsAbstractionLayer::gzBeginEndStack){while(long error=gzGetError()){GZTRACE("API Graphics error:'%s' at line %ld in file %s",(const char *)gzGraphicsErrorDescription(error),__LINE__,__FILE__); while(GZ_DEBUG_GRAPHICS_API_STOP);}}}
+#define __gz_dbg_api_end__		; if(!gzGraphicsAbstractionLayer::gzBeginEndStack){while(long error=gzGetError()){GZTRACE("API Graphics Engine error:'%s' at line %ld in file %s",(const char *)gzGraphicsErrorDescription(error),__LINE__,__FILE__); while(GZ_DEBUG_GRAPHICS_API_STOP);}}}
 #else
 #define __gz_dbg_api_incr__
 #define __gz_dbg_api_decr__
 #define __gz_dbg_api_start__		
 #define __gz_dbg_api_end__		
 #endif
-
-#define GZ_CHECK_GRAPHICS_API(stop) while(long error=gzGetError()){GZTRACE("External Graphics error before:'%s' at line %ld in file %s",(const char *)gzGraphicsErrorDescription(error),__LINE__,__FILE__);while(stop);}
 
 // Function macro definitions
 
@@ -608,8 +605,8 @@ public:
 #define gzCompressedTexImage3D(p1,p2,p3,p4,p5,p6,p7,p8,p9)	__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzCompressedTexImage3D)(p1,p2,p3,p4,p5,p6,p7,p8,p9)	__gz_dbg_api_end__
 #define gzCompressedTexSubImage3D(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11)	__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzCompressedTexSubImage3D)(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11)		__gz_dbg_api_end__
 
-#define gzReadPixels(p1,p2,p3,p4,p5,p6,p7)								__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzReadPixels)(p1,p2,p3,p4,p5,p6,p7)				__gz_dbg_api_end__
-#define gzDrawPixels(p1,p2,p3,p4,p5)									__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzDrawPixels)(p1,p2,p3,p4,p5)						__gz_dbg_api_end__
+#define gzReadPixels(p1,p2,p3,p4,p5,p6,p7)				__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzReadPixels)(p1,p2,p3,p4,p5,p6,p7)				__gz_dbg_api_end__
+#define gzDrawPixels(p1,p2,p3,p4,p5)					__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzDrawPixels)(p1,p2,p3,p4,p5)						__gz_dbg_api_end__
 #define gzBitmap(p1,p2,p3,p4,p5,p6,p7)					__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzBitmap)(p1,p2,p3,p4,p5,p6,p7)					__gz_dbg_api_end__
 #define gzCopyPixels(p1,p2,p3,p4,p5)					__gz_dbg_api_start__ (gzGraphicsAbstractionLayer::imp_gzCopyPixels)(p1,p2,p3,p4,p5)						__gz_dbg_api_end__
 																
@@ -892,9 +889,29 @@ GZ_GRAPH_EXPORT gzVoid gzGetProjectionMatrix( gzMatrix4 &matrix) noexcept(TRUE);
 
 GZ_GRAPH_EXPORT gzVoid gzGetModelMatrix(gzMatrix4 &matrix) noexcept(TRUE);
 
+
 //! Load the matrix into the graphics GAL pipeline
 /*! Note that it depends on the actual matrix mode which matrix is updates. See gzMatrixMode for more details */
 GZ_GRAPH_EXPORT gzVoid gzLoadMatrix(const gzMatrix4 &matrix) noexcept(TRUE);
 
+#define GZ_CHECK_GRAPHICS_ENGINE_ERROR(x) {while (gzInt32 error = gzGetError()){gzString errStr = gzString::formatString("%s Graphics Engine Error:%s at line %ld in file %s", x,gzGraphicsErrorDescription(error), __LINE__, __FILE__);gzGraphicsEngine::pushEngineError(errStr);GZMESSAGE(GZ_MESSAGE_DEBUG, errStr);}}
+
+
+#if defined GZ_DEBUG 
+#define  GZ_CHECK_GRAPHICS_API_(stop) {while (gzInt32 error = gzGetError()){	GZTRACE("Graphics Engine Error:'%s' at line %ld in file %s", (const char*)gzGraphicsErrorDescription(error), __LINE__, __FILE__); while (stop);	}}
+#else
+#define  GZ_CHECK_GRAPHICS_API_(stop)
+#endif 
+
+#define GZ_CHECK_GRAPHICS_API GZ_CHECK_GRAPHICS_API_(GZ_DEBUG_GRAPHICS_API_STOP)
+
+// Uncomment to enable GZ SCENE trace of calls
+// #define GZ_DEBUG_SCENE
+
+#ifdef GZ_DEBUG_SCENE
+#define SCENE_GZTRACE gzTrace::TraceMessage
+#else
+#define SCENE_GZTRACE gzTrace::NoTraceMessage
+#endif
 
 #endif // __GZ_GRAPHICS_ABSTRACTION_LAYER_H__

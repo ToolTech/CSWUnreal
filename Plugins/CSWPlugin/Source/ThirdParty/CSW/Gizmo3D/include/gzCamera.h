@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzCamera class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -74,6 +74,11 @@ public:
 	Default values are heading = 0, pitch = 0 and roll = 0.
 
 	Each value is given in degrees.
+
+	As the default camera is facing -z into the screen, the roll is calculated as rotation around negative z. 
+	Heading = 0 is facing towards -z in "north" direction and positive pitch is elevating (rotaion around x)
+
+	This is a bit different from standard euler_yxz but remains so by legacy reasons
 	*/
 	GZ_GRAPH_EXPORT gzVoid	setHPR( gzFloat heading , gzFloat pitch , gzFloat roll );
 	//!	Sets the heading, pitch and roll using a gzVec3 with the new HPR values. 
@@ -89,9 +94,15 @@ public:
 	The current heading value for the camera is stored in the variable heading, 
 	the current pitch is stored in variable pitch and the current roll is stored in variable roll.
 	*/
-	GZ_GRAPH_EXPORT gzVoid	getHPR( gzFloat &heading , gzFloat &pitch , gzFloat &roll );
+	GZ_GRAPH_EXPORT gzVoid	getHPR( gzFloat &heading , gzFloat &pitch , gzFloat &roll ) const;
+
 	//!Returns the current HPR for the camera.
-	GZ_GRAPH_EXPORT gzVec3	getHPR();
+	GZ_GRAPH_EXPORT gzVec3	getHPR() const;
+
+	//! Quaternion approach
+	GZ_GRAPH_EXPORT gzVoid	setOrientation(const gzQuaternion& quat);
+
+	GZ_GRAPH_EXPORT gzQuaternion getOrientation() const;
 
 	//!	Sets the camera position.
 	/*!
@@ -104,7 +115,7 @@ public:
 	When using this method the HPR is influenced. To get more control it is possible to set a custom value for the roll. 
 	The vector which indicates what is up for the camera can also be specified. 
 	*/
-	GZ_GRAPH_EXPORT gzVoid	lookAt( gzDouble x , gzDouble y , gzDouble z , gzDouble roll=0 , const gzVec3 &up=gzVec3(0,1,0));
+	GZ_GRAPH_EXPORT gzVoid	lookAt( const gzDouble &x , const gzDouble &y , const gzDouble &z , const gzFloat& roll=0 , const gzVec3 &up=gzVec3(0,1,0));
 
 	//!	Sets the camera position.
 	/*!
@@ -117,18 +128,27 @@ public:
 	When using this method the HPR is influenced. To get more control it is possible to set a custom value for the roll. 
 	The vector which indicates what is up for the camera can also be specified. 
 	*/
-	GZ_GRAPH_EXPORT gzVoid	lookAt( const gzVec3D &position , gzDouble roll=0 , const gzVec3 &up=gzVec3(0,1,0));
+	GZ_GRAPH_EXPORT gzVoid	lookAt( const gzVec3D &position , const gzFloat& roll=0 , const gzVec3 &up=gzVec3(0,1,0));
 
 	GZ_GRAPH_EXPORT	gzVoid	useRoiPosition(gzBool on);
 	GZ_GRAPH_EXPORT gzBool	useRoiPosition();
 
+	//! Slerp management of camera
+	//! Slerp camera view and position between slerp values 0 and 1
+
+	GZ_GRAPH_EXPORT gzVoid slerp(	const gzVec3D& startPosition, const gzVec3D& startLookat, const gzVec3& startUpVector, const gzFloat& startRollAngle,
+									const gzVec3D& endPosition, const gzVec3D& endLookat, const gzVec3& endUpVector, const gzFloat& endRollAngle,
+									const gzFloat& slerpValue);
+
 	// ------------------- distance and scene viewbox management ------------------
+	// 
 	//!Sets distance from camera to near clip plane.
 	/*!
 	The distance specify the distance from the camera to the near clip plane.
 	Everything in front of the near clip plane is ignored when rendering the scene. 
 	
 	Default distance is 1.
+
 	*/
 
 	GZ_PROPERTY_EXPORT_V(gzFloat,	NearClipPlane,	GZ_GRAPH_EXPORT);
@@ -154,16 +174,17 @@ public:
 	GZ_GRAPH_EXPORT gzVoid	setScene( gzScene *scene );
 	
 	//!Returns the scene connected to the camera.
-	GZ_GRAPH_EXPORT gzScene *getScene() { return m_scene.get(); }
+	GZ_GRAPH_EXPORT gzScene* getScene() const;
 
 	//!Returns the camera position given in world coordinates.
-	GZ_GRAPH_EXPORT const gzVec3D &getPosition() { return m_eye; }
+	GZ_GRAPH_EXPORT const gzVec3D&	getPosition() const;
 
-	GZ_GRAPH_EXPORT gzVec3  getLocalPosition(); 
+	GZ_GRAPH_EXPORT gzVec3			getLocalPosition() const; 
 
 	//!Returns the viewing direction for the camera
-	GZ_GRAPH_EXPORT gzVec3	getDirection();
-	GZ_GRAPH_EXPORT gzVec3	getNormal();
+	GZ_GRAPH_EXPORT gzVec3			getDirection() const;
+	GZ_GRAPH_EXPORT gzVec3			getNormal() const;
+
 
 	// ------------------- pure transform control ---------------------------------
 
@@ -207,11 +228,11 @@ protected:
 	
 	GZ_GRAPH_EXPORT gzVoid	calculateTransform();
 
+	// A large position coordinate used in transforms or outside
 	gzVec3D					m_eye;
 
-	gzFloat					m_eye_heading;
-	gzFloat					m_eye_pitch;
-	gzFloat					m_eye_roll;
+	// A quaternion based rotation of how the camera is oriented
+	gzQuaternion			m_cameraOrientation;
 
 	gzMatrix4				m_cameraMatrix;
 

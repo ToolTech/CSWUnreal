@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the graph library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -127,6 +127,8 @@
 #include "gzForceTraverse.h"			// Force group render by force_traverese
 
 #include "gzGeoSceneOptimizer.h"		// optimize a global scene with respect to geometry
+
+#include "gzIcon.h"						// Added by TACSI (2.12.266)
 
 // -------------------------------------- Library version ---------------------------------------------------------------
 

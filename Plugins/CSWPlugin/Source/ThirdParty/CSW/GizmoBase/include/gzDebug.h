@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 // 
 //			
@@ -400,7 +400,7 @@ private:
 
 	friend class gzProgressInterface;
 
-	static gzDict<gzUInt32CompareInterface,gzProgressInterface> s_progressInterfaces;
+	static gzDict<gzUInt32,gzProgressInterface> s_progressInterfaces;
 	static gzProgressInterface * s_defaultProgressInterface;
 
 };

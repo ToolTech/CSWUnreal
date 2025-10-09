@@ -19,7 +19,7 @@
 // Module		: gzCoordinate
 // Description	: Class definition of coordinate transforms
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 // Copyright © 2010- SAAB AB, Sweden
 //			
@@ -171,6 +171,7 @@ GZ_USE_BIT_LOGIC(gzCoordinateSwizzle);
 
 GZ_DECLARE_DYNAMIC_ENUM(gzCoordinateSwizzle);
 
+template <> inline gzUInt32 gzGetHash(const gzHeightModel& k) { return (gzUInt32)k; }
 
 //******************************************************************************
 // Class	: gzCoordinate
@@ -306,7 +307,7 @@ private:
 	gzGeodeticTransform		m_user_defined_geoid_transform;
 
 	static gzMutex			s_heightModelLock;
-	static gzRefDict<gzCompareInterface<gzHeightModel>, gzHeightModelTransformer>	s_heightModelTransformers;
+	static gzRefDict<gzHeightModel, gzHeightModelTransformer>	s_heightModelTransformers;
 };
 
 GZ_COORDINATE_EXPORT gzBool operator==(const gzCoordSystem &left, const gzCoordSystem &right);

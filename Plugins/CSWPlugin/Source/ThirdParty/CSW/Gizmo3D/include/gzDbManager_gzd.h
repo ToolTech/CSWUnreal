@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gizmo db format
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -62,7 +62,7 @@
 #include "gzNode.h"
 
 // Current Version Defines
-#define GZ_GZD_VERSION			18
+#define GZ_GZD_VERSION			18						//  <<<<<<--------------- Current Version stable to save
 #define GZ_GZD_MAGIC_NUMBER LLU(0x196806012537BADA)
 
 // Version 2 - First public release
@@ -158,7 +158,7 @@
 
 // Version 19 - added features (in progress)
 //		gzImage : subImageType
-//
+//		gzIcon	: first imp by TACSI	(2.12.266)
 // 
 
 // UserData Db INFO attributes

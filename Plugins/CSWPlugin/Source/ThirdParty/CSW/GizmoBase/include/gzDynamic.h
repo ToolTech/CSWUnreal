@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic methods and vars
 // Author		: Anders Modén
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //
 //
 //
@@ -2132,13 +2132,13 @@ public:
 		{
 			GZ_BODYGUARD(m_locker);
 			
-			gzDictIterator<gzUInt64CompareInterface,gzDynamicMethodChainData> iterator(m_methodDict);
-			gzDictEntry<gzUInt64CompareInterface,gzDynamicMethodChainData> *entry;
+			gzDictIterator<gzUInt64,gzDynamicMethodChainData> iterator(m_methodDict);
+			gzDictEntry<gzUInt64,gzDynamicMethodChainData> *entry;
 
 			while((entry=iterator()))
 			{
 				if(entry->getData()->IIDS_method==IIDS_method)
-					return entry->getKey().getValue();
+					return entry->getKey();
 			}
 		}
 
@@ -2170,12 +2170,12 @@ public:
 
 		gzDynamicMethodID *methodData=localArray.getAddress();
 
-		gzDictIterator<gzUInt64CompareInterface,gzDynamicMethodChainData> iterator(m_methodDict);
-		gzDictEntry<gzUInt64CompareInterface,gzDynamicMethodChainData> *entry;
+		gzDictIterator<gzUInt64,gzDynamicMethodChainData> iterator(m_methodDict);
+		gzDictEntry<gzUInt64,gzDynamicMethodChainData> *entry;
 
 		while((entry=iterator()))
 		{
-			methodData->IID_method=entry->getKey().getValue();
+			methodData->IID_method=entry->getKey();
 			methodData->IIDS_method=entry->getData()->IIDS_method;
 			methodData->method=entry->getData()->directMethodPointer;
 			methodData->description=entry->getData()->description;
@@ -2193,11 +2193,11 @@ public:
 
 private:
 
-	gzRefDict<gzUInt64CompareInterface,gzDynamicMethodChainData>		m_methodDict;
+	gzRefDict<gzUInt64,gzDynamicMethodChainData>		m_methodDict;
 
-	gzMutex																m_locker;
+	gzMutex												m_locker;
 
-	gzBool																m_throwArgumentFailException;
+	gzBool												m_throwArgumentFailException;
 
 };
 

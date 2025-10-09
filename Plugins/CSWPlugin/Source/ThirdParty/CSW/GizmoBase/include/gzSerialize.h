@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 // 		
 //			
@@ -44,6 +44,8 @@
 // AMO	230330	Added zip and service									(2.12.69)
 // AMO	250306	Added isService() to adapter to identify service()		(2.12.228)
 // AMO	250327	Added large data stream support							(2.12.234)
+// AMO	250827	Updated macros for serialization						(2.12.264)
+// AMO	251004	Added gzSerializeAdapterMessage to send to gzMessage	(2.12.274)
 //
 // ******************************************************************************
 
@@ -98,6 +100,10 @@ const gzString	GZ_URLBASE_DUMMY			= "dummy:";	// size
 const gzString	GZ_URLBASE_NULL				= "null:";	// Empty adapter, just to get a handle
 const gzString	GZ_URLBASE_SERIAL			= "ser:";	// connection parameters {tbd}
 const gzString	GZ_URLBASE_REMOTE			= "remote:";// remote located
+const gzString	GZ_URLBASE_DEBUG			= "debug:";	// debug message output
+const gzString	GZ_URLBASE_NOTICE			= "notice:";// notice message output
+const gzString	GZ_URLBASE_WARNING			= "warn:";	// warning message output
+const gzString	GZ_URLBASE_FATAL			= "fatal:";	// fatal message output
 
 
 // --------------- Defined Input Services --------------------
@@ -3877,12 +3883,49 @@ public:
 
 	GZ_BASE_EXPORT virtual ~gzSerializeAdapterString(){};
 
-	GZ_BASE_EXPORT operator gzString ();
+	GZ_BASE_EXPORT operator gzString ();	// pop data
 
-	GZ_BASE_EXPORT gzSerializeAdapterString & operator =(const gzString &str);
+	GZ_BASE_EXPORT gzString getString();	// pop data
+
+	GZ_BASE_EXPORT gzSerializeAdapterString& operator =(const gzString& str); // push data
 };
 
 GZ_DECLARE_REFPTR(gzSerializeAdapterString);
+
+//******************************************************************************
+// Class	: gzSerializeAdapterMessage
+//									
+// Purpose  : Class for Serialize go gzMessage receivers
+//									
+// Notes	: This class is responsible to write/read data to gzMessa
+//									
+// Revision History...							
+//									
+// Who	Date	Description						
+//									
+// AMO	251005	Created 
+//									
+//******************************************************************************
+class gzSerializeAdapterMessage : public gzSerializeAdapter
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);	// RTTI
+
+	GZ_BASE_EXPORT gzSerializeAdapterMessage(gzMessageLevel level);
+
+	GZ_BASE_EXPORT virtual ~gzSerializeAdapterMessage();
+
+private:
+
+	GZ_BASE_EXPORT virtual gzVoid	write_imp(gzUByte data) override;
+	GZ_BASE_EXPORT virtual gzUByte	read_imp() override;
+	GZ_BASE_EXPORT virtual gzUInt32	length_imp() override;
+	
+	gzMessageLevel	m_level;
+	gzString		m_message;
+};
+
+GZ_DECLARE_REFPTR(gzSerializeAdapterMessage);
 
 //******************************************************************************
 // Class	: gzLogger
@@ -4006,7 +4049,7 @@ private:
 
 		virtual ~gzMessageDatabaseSender(){}
 
-		gzRefDict<gzUInt32CompareInterface,gzMessageDatabaseLevel> levels;
+		gzRefDict<gzUInt32,gzMessageDatabaseLevel> levels;
 	};
 
 	gzRefDict<gzString,gzMessageDatabaseSender>	m_senders;
@@ -6232,7 +6275,7 @@ private:
 
 // Big Endian versions
 
-#define GZ_DECLARE_SERIALIZE_15(type,x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14) gzVoid write(gzSerializeAdapter *adapter) { writeAdapter(adapter,x0);writeAdapter(adapter,x1);writeAdapter(adapter,x2);writeAdapter(adapter,x3);writeAdapter(adapter,x4);writeAdapter(adapter,x5);writeAdapter(adapter,x6);writeAdapter(adapter,x7);writeAdapter(adapter,x8);writeAdapter(adapter,x9);writeAdapter(adapter,x10);writeAdapter(adapter,x11);writeAdapter(adapter,x12);writeAdapter(adapter,x13);writeAdapter(adapter,x14);}gzVoid read(gzSerializeAdapter *adapter){readAdapter(adapter,x0);readAdapter(adapter,x1);readAdapter(adapter,x2);readAdapter(adapter,x3);readAdapter(adapter,x4);readAdapter(adapter,x5);readAdapter(adapter,x6);readAdapter(adapter,x7);readAdapter(adapter,x8);readAdapter(adapter,x9);readAdapter(adapter,x10);readAdapter(adapter,x11);readAdapter(adapter,x12);readAdapter(adapter,x13);readAdapter(adapter,x14);}gzVoid pushBack(gzSerializeAdapter *adapter){pushBackAdapter(adapter,x14);pushBackAdapter(adapter,x13);pushBackAdapter(adapter,x12);pushBackAdapter(adapter,x11);pushBackAdapter(adapter,x10);pushBackAdapter(adapter,x9);pushBackAdapter(adapter,x8);pushBackAdapter(adapter,x7);pushBackAdapter(adapter,x6);pushBackAdapter(adapter,x5);pushBackAdapter(adapter,x4);pushBackAdapter(adapter,x3);pushBackAdapter(adapter,x2);pushBackAdapter(adapter,x1);pushBackAdapter(adapter,x0);}gzUInt32	getDataSize(gzSerializeAdapter *adapter=nullptr) const{gzUInt32 size(0);size+=::getDataSize(adapter,x0);size+=::getDataSize(adapter,x1);size+=::getDataSize(adapter,x2);size+=::getDataSize(adapter,x3);size+=::getDataSize(adapter,x4);size+=::getDataSize(adapter,x5);size+=::getDataSize(adapter,x6);size+=::getDataSize(adapter,x7);size+=::getDataSize(adapter,x8);size+=::getDataSize(adapter,x9);size+=::getDataSize(adapter,x10);size+=::getDataSize(adapter,x11);size+=::getDataSize(adapter,x12);size+=::getDataSize(adapter,x13);size+=::getDataSize(adapter,x14);return size;} gzUInt32	getDataSizeLarge(gzSerializeAdapter* adapter = nullptr) const { gzUInt64 size(0); size += ::getDataSizeLarge(adapter, x0); size += ::getDataSizeLarge(adapter, x1); size += ::getDataSizeLarge(adapter, x2); size += ::getDataSizeLarge(adapter, x3); size += ::getDataSizeLarge(adapter, x4); size += ::getDataSizeLarge(adapter, x5); size += ::getDataSizeLarge(adapter, x6); size += ::getDataSizeLarge(adapter, x7); size += ::getDataSizeLarge(adapter, x8); size += ::getDataSizeLarge(adapter, x9); size += ::getDataSizeLarge(adapter, x10); size += ::getDataSizeLarge(adapter, x11); size += ::getDataSizeLarge(adapter, x12); size += ::getDataSizeLarge(adapter, x13); size += ::getDataSizeLarge(adapter, x14); return size; }static gzString getDataTag() { return type; }
+#define GZ_DECLARE_SERIALIZE_15(type,x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14) gzVoid write(gzSerializeAdapter *adapter) { writeAdapter(adapter,x0);writeAdapter(adapter,x1);writeAdapter(adapter,x2);writeAdapter(adapter,x3);writeAdapter(adapter,x4);writeAdapter(adapter,x5);writeAdapter(adapter,x6);writeAdapter(adapter,x7);writeAdapter(adapter,x8);writeAdapter(adapter,x9);writeAdapter(adapter,x10);writeAdapter(adapter,x11);writeAdapter(adapter,x12);writeAdapter(adapter,x13);writeAdapter(adapter,x14);}gzVoid read(gzSerializeAdapter *adapter){readAdapter(adapter,x0);readAdapter(adapter,x1);readAdapter(adapter,x2);readAdapter(adapter,x3);readAdapter(adapter,x4);readAdapter(adapter,x5);readAdapter(adapter,x6);readAdapter(adapter,x7);readAdapter(adapter,x8);readAdapter(adapter,x9);readAdapter(adapter,x10);readAdapter(adapter,x11);readAdapter(adapter,x12);readAdapter(adapter,x13);readAdapter(adapter,x14);}gzVoid pushBack(gzSerializeAdapter *adapter){pushBackAdapter(adapter,x14);pushBackAdapter(adapter,x13);pushBackAdapter(adapter,x12);pushBackAdapter(adapter,x11);pushBackAdapter(adapter,x10);pushBackAdapter(adapter,x9);pushBackAdapter(adapter,x8);pushBackAdapter(adapter,x7);pushBackAdapter(adapter,x6);pushBackAdapter(adapter,x5);pushBackAdapter(adapter,x4);pushBackAdapter(adapter,x3);pushBackAdapter(adapter,x2);pushBackAdapter(adapter,x1);pushBackAdapter(adapter,x0);}gzUInt32	getDataSize(gzSerializeAdapter *adapter=nullptr) const{gzUInt32 size(0);size+=::getDataSize(adapter,x0);size+=::getDataSize(adapter,x1);size+=::getDataSize(adapter,x2);size+=::getDataSize(adapter,x3);size+=::getDataSize(adapter,x4);size+=::getDataSize(adapter,x5);size+=::getDataSize(adapter,x6);size+=::getDataSize(adapter,x7);size+=::getDataSize(adapter,x8);size+=::getDataSize(adapter,x9);size+=::getDataSize(adapter,x10);size+=::getDataSize(adapter,x11);size+=::getDataSize(adapter,x12);size+=::getDataSize(adapter,x13);size+=::getDataSize(adapter,x14);return size;} gzUInt64	getDataSizeLarge(gzSerializeAdapter* adapter = nullptr) const { gzUInt64 size(0); size += ::getDataSizeLarge(adapter, x0); size += ::getDataSizeLarge(adapter, x1); size += ::getDataSizeLarge(adapter, x2); size += ::getDataSizeLarge(adapter, x3); size += ::getDataSizeLarge(adapter, x4); size += ::getDataSizeLarge(adapter, x5); size += ::getDataSizeLarge(adapter, x6); size += ::getDataSizeLarge(adapter, x7); size += ::getDataSizeLarge(adapter, x8); size += ::getDataSizeLarge(adapter, x9); size += ::getDataSizeLarge(adapter, x10); size += ::getDataSizeLarge(adapter, x11); size += ::getDataSizeLarge(adapter, x12); size += ::getDataSizeLarge(adapter, x13); size += ::getDataSizeLarge(adapter, x14); return size; }static gzString getDataTag() { return type; }
 #define GZ_DECLARE_SERIALIZE_14(type,x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13) gzVoid write(gzSerializeAdapter *adapter) { writeAdapter(adapter,x0);writeAdapter(adapter,x1);writeAdapter(adapter,x2);writeAdapter(adapter,x3);writeAdapter(adapter,x4);writeAdapter(adapter,x5);writeAdapter(adapter,x6);writeAdapter(adapter,x7);writeAdapter(adapter,x8);writeAdapter(adapter,x9);writeAdapter(adapter,x10);writeAdapter(adapter,x11);writeAdapter(adapter,x12);writeAdapter(adapter,x13);}gzVoid read(gzSerializeAdapter *adapter){readAdapter(adapter,x0);readAdapter(adapter,x1);readAdapter(adapter,x2);readAdapter(adapter,x3);readAdapter(adapter,x4);readAdapter(adapter,x5);readAdapter(adapter,x6);readAdapter(adapter,x7);readAdapter(adapter,x8);readAdapter(adapter,x9);readAdapter(adapter,x10);readAdapter(adapter,x11);readAdapter(adapter,x12);readAdapter(adapter,x13);}gzVoid pushBack(gzSerializeAdapter *adapter){pushBackAdapter(adapter,x13);pushBackAdapter(adapter,x12);pushBackAdapter(adapter,x11);pushBackAdapter(adapter,x10);pushBackAdapter(adapter,x9);pushBackAdapter(adapter,x8);pushBackAdapter(adapter,x7);pushBackAdapter(adapter,x6);pushBackAdapter(adapter,x5);pushBackAdapter(adapter,x4);pushBackAdapter(adapter,x3);pushBackAdapter(adapter,x2);pushBackAdapter(adapter,x1);pushBackAdapter(adapter,x0);}gzUInt32	getDataSize(gzSerializeAdapter *adapter=nullptr) const{gzUInt32 size(0);size+=::getDataSize(adapter,x0);size+=::getDataSize(adapter,x1);size+=::getDataSize(adapter,x2);size+=::getDataSize(adapter,x3);size+=::getDataSize(adapter,x4);size+=::getDataSize(adapter,x5);size+=::getDataSize(adapter,x6);size+=::getDataSize(adapter,x7);size+=::getDataSize(adapter,x8);size+=::getDataSize(adapter,x9);size+=::getDataSize(adapter,x10);size+=::getDataSize(adapter,x11);size+=::getDataSize(adapter,x12);size+=::getDataSize(adapter,x13);return size;}gzUInt64 getDataSizeLarge(gzSerializeAdapter* adapter = nullptr) const { gzUInt64 size(0); size += ::getDataSizeLarge(adapter, x0); size += ::getDataSizeLarge(adapter, x1); size += ::getDataSizeLarge(adapter, x2); size += ::getDataSizeLarge(adapter, x3); size += ::getDataSizeLarge(adapter, x4); size += ::getDataSizeLarge(adapter, x5); size += ::getDataSizeLarge(adapter, x6); size += ::getDataSizeLarge(adapter, x7); size += ::getDataSizeLarge(adapter, x8); size += ::getDataSizeLarge(adapter, x9); size += ::getDataSizeLarge(adapter, x10); size += ::getDataSizeLarge(adapter, x11); size += ::getDataSizeLarge(adapter, x12); size += ::getDataSizeLarge(adapter, x13); return size; }static gzString getDataTag() { return type; }
 #define GZ_DECLARE_SERIALIZE_13(type,x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12) gzVoid write(gzSerializeAdapter *adapter) { writeAdapter(adapter,x0);writeAdapter(adapter,x1);writeAdapter(adapter,x2);writeAdapter(adapter,x3);writeAdapter(adapter,x4);writeAdapter(adapter,x5);writeAdapter(adapter,x6);writeAdapter(adapter,x7);writeAdapter(adapter,x8);writeAdapter(adapter,x9);writeAdapter(adapter,x10);writeAdapter(adapter,x11);writeAdapter(adapter,x12);}gzVoid read(gzSerializeAdapter *adapter){readAdapter(adapter,x0);readAdapter(adapter,x1);readAdapter(adapter,x2);readAdapter(adapter,x3);readAdapter(adapter,x4);readAdapter(adapter,x5);readAdapter(adapter,x6);readAdapter(adapter,x7);readAdapter(adapter,x8);readAdapter(adapter,x9);readAdapter(adapter,x10);readAdapter(adapter,x11);readAdapter(adapter,x12);}gzVoid pushBack(gzSerializeAdapter *adapter){pushBackAdapter(adapter,x12);pushBackAdapter(adapter,x11);pushBackAdapter(adapter,x10);pushBackAdapter(adapter,x9);pushBackAdapter(adapter,x8);pushBackAdapter(adapter,x7);pushBackAdapter(adapter,x6);pushBackAdapter(adapter,x5);pushBackAdapter(adapter,x4);pushBackAdapter(adapter,x3);pushBackAdapter(adapter,x2);pushBackAdapter(adapter,x1);pushBackAdapter(adapter,x0);}gzUInt32	getDataSize(gzSerializeAdapter *adapter=nullptr) const{gzUInt32 size(0);size+=::getDataSize(adapter,x0);size+=::getDataSize(adapter,x1);size+=::getDataSize(adapter,x2);size+=::getDataSize(adapter,x3);size+=::getDataSize(adapter,x4);size+=::getDataSize(adapter,x5);size+=::getDataSize(adapter,x6);size+=::getDataSize(adapter,x7);size+=::getDataSize(adapter,x8);size+=::getDataSize(adapter,x9);size+=::getDataSize(adapter,x10);size+=::getDataSize(adapter,x11);size+=::getDataSize(adapter,x12);return size;}gzUInt64 getDataSizeLarge(gzSerializeAdapter* adapter = nullptr) const { gzUInt64 size(0); size += ::getDataSizeLarge(adapter, x0); size += ::getDataSizeLarge(adapter, x1); size += ::getDataSizeLarge(adapter, x2); size += ::getDataSizeLarge(adapter, x3); size += ::getDataSizeLarge(adapter, x4); size += ::getDataSizeLarge(adapter, x5); size += ::getDataSizeLarge(adapter, x6); size += ::getDataSizeLarge(adapter, x7); size += ::getDataSizeLarge(adapter, x8); size += ::getDataSizeLarge(adapter, x9); size += ::getDataSizeLarge(adapter, x10); size += ::getDataSizeLarge(adapter, x11); size += ::getDataSizeLarge(adapter, x12); return size; } static gzString getDataTag() { return type; }
 #define GZ_DECLARE_SERIALIZE_12(type,x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11) gzVoid write(gzSerializeAdapter *adapter) { writeAdapter(adapter,x0);writeAdapter(adapter,x1);writeAdapter(adapter,x2);writeAdapter(adapter,x3);writeAdapter(adapter,x4);writeAdapter(adapter,x5);writeAdapter(adapter,x6);writeAdapter(adapter,x7);writeAdapter(adapter,x8);writeAdapter(adapter,x9);writeAdapter(adapter,x10);writeAdapter(adapter,x11);}gzVoid read(gzSerializeAdapter *adapter){readAdapter(adapter,x0);readAdapter(adapter,x1);readAdapter(adapter,x2);readAdapter(adapter,x3);readAdapter(adapter,x4);readAdapter(adapter,x5);readAdapter(adapter,x6);readAdapter(adapter,x7);readAdapter(adapter,x8);readAdapter(adapter,x9);readAdapter(adapter,x10);readAdapter(adapter,x11);}gzVoid pushBack(gzSerializeAdapter *adapter){pushBackAdapter(adapter,x11);pushBackAdapter(adapter,x10);pushBackAdapter(adapter,x9);pushBackAdapter(adapter,x8);pushBackAdapter(adapter,x7);pushBackAdapter(adapter,x6);pushBackAdapter(adapter,x5);pushBackAdapter(adapter,x4);pushBackAdapter(adapter,x3);pushBackAdapter(adapter,x2);pushBackAdapter(adapter,x1);pushBackAdapter(adapter,x0);}gzUInt32	getDataSize(gzSerializeAdapter *adapter=nullptr) const{gzUInt32 size(0);size+=::getDataSize(adapter,x0);size+=::getDataSize(adapter,x1);size+=::getDataSize(adapter,x2);size+=::getDataSize(adapter,x3);size+=::getDataSize(adapter,x4);size+=::getDataSize(adapter,x5);size+=::getDataSize(adapter,x6);size+=::getDataSize(adapter,x7);size+=::getDataSize(adapter,x8);size+=::getDataSize(adapter,x9);size+=::getDataSize(adapter,x10);size+=::getDataSize(adapter,x11);return size;}gzUInt64 getDataSizeLarge(gzSerializeAdapter* adapter = nullptr) const { gzUInt64 size(0); size += ::getDataSizeLarge(adapter, x0); size += ::getDataSizeLarge(adapter, x1); size += ::getDataSizeLarge(adapter, x2); size += ::getDataSizeLarge(adapter, x3); size += ::getDataSizeLarge(adapter, x4); size += ::getDataSizeLarge(adapter, x5); size += ::getDataSizeLarge(adapter, x6); size += ::getDataSizeLarge(adapter, x7); size += ::getDataSizeLarge(adapter, x8); size += ::getDataSizeLarge(adapter, x9); size += ::getDataSizeLarge(adapter, x10); size += ::getDataSizeLarge(adapter, x11); return size; }static gzString getDataTag() { return type; }

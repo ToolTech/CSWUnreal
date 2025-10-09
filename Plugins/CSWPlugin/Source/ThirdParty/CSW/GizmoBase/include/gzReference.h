@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of reference handle
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -34,6 +34,7 @@
 // AMO	980819	Created file 	
 // AMO	101021	Added a releaseRefs to gzReference					(2.5.14)
 // AMO	200408	Added some conveniet operators for gzRefPointer<T>	(2.10.5)
+// AMO	251004	Added move semantics to som ref templates			(2.12.274)
 //
 //******************************************************************************
 #ifndef __GZ_REFERENCE_H__
@@ -618,8 +619,23 @@ public:
 	// Special initializers
 
 	//! Uses cloneEntry to copy from one list to another. This can be shared or copied depending on the result from useDeepCopy()
-	gzRefList( const gzRefList<T> &copy ):gzList<T>(),m_useDelayedRemove(FALSE){ gzList<T>::operator=((const gzList<T> &)copy); }
+	gzRefList( const gzRefList<T> &copy ):gzList<T>(),m_useDelayedRemove(FALSE)
+	{ 
+		gzList<T>::operator=((const gzList<T> &)copy); 
+	}
 
+	//! Move semantics
+	gzRefList(gzRefList&& o) noexcept : gzRefList() 
+	{ 
+		gzList<T>::swapListData(o); 
+	}
+
+	//! Move semantics
+	gzRefList& operator=(gzRefList&& o) noexcept 
+	{ 
+		if (this != &o) gzList<T>::swapListData(o); return *this; 
+	}
+			
 	//! Uses cloneEntry to copy from one list to another. This can be shared or copied depending on the result from useDeepCopy()
 	gzRefList<T> &operator=(const gzRefList<T> &copy ) { gzList<T>::operator=((const gzList<T> &)copy); return *this; }
 
@@ -753,10 +769,39 @@ template <class T> class gzRefDList : public gzDList<T>
 {
 public:
 	
-	gzRefDList():m_useDelayedRemove(FALSE){};
-	gzRefDList( const gzRefDList &copy ):gzDList<T>(),m_useDelayedRemove(FALSE){  gzDList<T>::operator=((const gzDList<T> &)copy); }
-	gzRefDList( const gzRefList<T> &copy ):m_useDelayedRemove(FALSE){  gzDList<T>::operator=((const gzList<T> &)copy); }
+	gzRefDList():m_useDelayedRemove(FALSE)
+	{
+	}
+
+	gzRefDList( const gzRefDList &copy ):gzDList<T>(),m_useDelayedRemove(FALSE)
+	{  
+		gzDList<T>::operator=((const gzDList<T> &)copy); 
+	}
+
+	gzRefDList( const gzRefList<T> &copy ):m_useDelayedRemove(FALSE)
+	{  
+		gzDList<T>::operator=((const gzList<T> &)copy); 
+	}
+
+	gzRefDList& operator=(const gzRefDList<T>& other)
+	{
+		if (this != &other)
+			gzDList<T>::operator=(static_cast<const gzDList<T>&>(other));
+		return *this;
+	}
+
+	gzRefDList& operator=(const gzList<T>& other)
+	{
+		gzDList<T>::operator=(other); // använder gzDList::operator=(const gzList<T>&)
+		return *this;
+	}
 	
+	//! Move semantics
+	gzRefDList(gzRefDList&& o) noexcept : gzRefDList() { gzDList<T>::swapListData(o); }
+
+	//! Move semantics
+	gzRefDList& operator=(gzRefDList&& o) noexcept { if (this != &o) gzDList<T>::swapListData(o); return *this; }
+
 	virtual ~gzRefDList()
 	{ 
 		clear(); //NOSONAR - We want this exception to happend even in destructor
@@ -867,9 +912,9 @@ public:
 		if(item)
 		{
 			if(item->getData()->useDeepCopy())
-				return this->allocEntry(item->getKey(),(T2 *)item->getData()->clone(),item->getKey().hash());
+				return this->allocEntry(item->getKey(),(T2 *)item->getData()->clone(), gzGetHash(item->getKey()));
 			else
-				return gzDict<T1,T2>::allocEntry(item->getKey(),item->getData(),item->getKey().hash()); 
+				return gzDict<T1,T2>::allocEntry(item->getKey(),item->getData(), gzGetHash(item->getKey()));
 		}
 		else
 			return NULL;

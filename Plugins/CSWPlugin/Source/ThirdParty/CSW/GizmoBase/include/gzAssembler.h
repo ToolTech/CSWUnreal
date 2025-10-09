@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of assembler opcodes.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -87,7 +87,7 @@ typedef enum
 	INTEL_Core_I7
 } CPU_TYPES;
 
-typedef enum CPUCAPS
+typedef enum GZ_CPU_CAPS
 {
     // Synthesized values
     CPU_MODEL,      // Manufacturer Model (returns enum CPU_MODELS)
@@ -106,12 +106,20 @@ typedef enum CPUCAPS
     HAS_MMX,        // MMX support
     HAS_3DNOW,      // 3DNow! support
     HAS_SSE,		// SSE support
-} CPUCAPS;
+    HAS_SSE2,
+    HAS_SSE3,
+    HAS_SSSE3,
+    HAS_SSE41,
+    HAS_SSE42,
+    HAS_AVX,
+    HAS_AVX2,
+    HAS_FMA3
+} GZ_CPU_CAPS;
 
 
 // Possible assembler accellerated features
 
-GZ_BASE_EXPORT	gzUInt32 GetCPUCaps (CPUCAPS cap);
+GZ_BASE_EXPORT	gzUInt32 gzGetCPUCaps (GZ_CPU_CAPS cap);
 
 GZ_BASE_EXPORT	gzVoid		gzMemSet(gzUByte *address,const gzUInt64& size,gzUByte value=0);
 GZ_BASE_EXPORT	gzUInt64	gzMemBitCompare(gzUInt64 *address_a,gzUInt64 *address_b,gzUInt64 words);

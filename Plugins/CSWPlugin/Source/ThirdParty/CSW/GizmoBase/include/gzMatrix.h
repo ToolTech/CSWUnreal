@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -588,13 +588,13 @@ public:
 		return gzVec3_<T>(v1, v2, v3);
 	}
 
-	operator gzVec3_<T>() const
+	template <class Y> operator gzVec3_<Y>() const
 	{
 		if (v4 == (T)1)
-			return gzVec3_<T>(v1, v2, v3);
+			return gzVec3_<Y>(v1, v2, v3);
 
 		T inv4 = 1 / v4;
-		return gzVec3_<T>(v1 * inv4, v2 * inv4, v3 * inv4);
+		return gzVec3_<Y>(v1 * inv4, v2 * inv4, v3 * inv4);
 	}
 
 	template <class Y> gzBool operator==(const gzVec4_<Y>& right) const
@@ -1650,7 +1650,11 @@ public:
 
 	gzMatrix4_(const gzVec3_<T>& col_1, const gzVec3_<T>& col_2, const gzVec3_<T>& col_3) : v11(col_1.v1), v21(col_1.v2), v31(col_1.v3), v41(0), v12(col_2.v1), v22(col_2.v2), v32(col_2.v3), v42(0), v13(col_3.v1), v23(col_3.v2), v33(col_3.v3), v43(0), v14(0), v24(0), v34(0), v44(1) {}
 
+	gzMatrix4_(const gzMatrix3_<T>& rot, const gzVec3_<T>& trans) : v11(rot.v11), v21(rot.v21), v31(rot.v31), v41(0), v12(rot.v12), v22(rot.v22), v32(rot.v32), v42(0), v13(rot.v13), v23(rot.v23), v33(rot.v33), v43(0), v14(trans.v1), v24(trans.v2), v34(trans.v3), v44(1) {}
+
 	template <class Y> explicit operator gzMatrix4_<Y>() const { return gzMatrix4_<Y>(gzVec4_<Y>((Y)v11, (Y)v21, (Y)v31, (Y)v41), gzVec4_<Y>((Y)v12, (Y)v22, (Y)v32, (Y)v42), gzVec4_<Y>((Y)v13, (Y)v23, (Y)v33, (Y)v43), gzVec4_<Y>((Y)v14, (Y)v24, (Y)v34, (Y)v44)); }
+
+	template <class Y> explicit operator gzMatrix3_<Y>() const { return gzMatrix3_<Y>(gzVec3_<Y>((Y)v11, (Y)v21, (Y)v31), gzVec3_<Y>((Y)v12, (Y)v22, (Y)v32), gzVec3_<Y>((Y)v13, (Y)v23, (Y)v33)); }
 
 	template <class Y> gzMatrix4_(const gzMatrix3_<Y>& matrix)
 	{

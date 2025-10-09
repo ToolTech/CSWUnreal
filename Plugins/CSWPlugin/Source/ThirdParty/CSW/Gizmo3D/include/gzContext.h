@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzContext class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -571,7 +571,7 @@ private:
 
 	friend class gzContextStore;
 
-	static gzRefDict<gzUInt32CompareInterface,gzContext>	s_contextList;
+	static gzRefDict<gzUInt32,gzContext>	s_contextList;
 
 	static	gzUInt32				s_lastPid;
 	static	gzContext *				s_lastContext;

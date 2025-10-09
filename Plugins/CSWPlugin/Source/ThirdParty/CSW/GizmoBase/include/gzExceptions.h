@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of exception classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			

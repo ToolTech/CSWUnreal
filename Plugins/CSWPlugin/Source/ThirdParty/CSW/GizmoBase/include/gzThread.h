@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Thread classes.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -460,15 +460,15 @@ private:
 		gzUByte		index;
 	};
 
-	gzUInt32											m_currentThreadID;
+	gzUInt32								m_currentThreadID;
 
-	gzRefPointer<_localData<T> >						m_currentData;
+	gzRefPointer<_localData<T> >			m_currentData;
 
-	gzRefDict<gzUInt32CompareInterface,_localData<T> >	m_dict;
+	gzRefDict<gzUInt32,_localData<T> >		m_dict;
 
-	gzMutex												m_locker;
+	gzMutex									m_locker;
 
-	gzUByte												m_indexCount;
+	gzUByte									m_indexCount;
 };
 
 template <class T> inline gzThreadData<T>::gzThreadData(gzUByte indexCount):

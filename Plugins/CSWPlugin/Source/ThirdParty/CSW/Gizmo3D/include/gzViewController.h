@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of view controller classes
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -91,8 +91,11 @@ public:
 
 	GZ_SYSTEM_EXPORT gzVoid setRotationSpeed(gzFloat rotspeed);
 
-	//! Define if the system shall use Head up y axis
+	//! Define if the system shall use Head up Y axis
 	GZ_PROPERTY_EXPORT(gzBool,		HeadUp,				GZ_SYSTEM_EXPORT);
+
+	//! Default up is Y axis
+	GZ_PROPERTY_EXPORT(gzVec3,		DefaultUp,			GZ_SYSTEM_EXPORT);
 	
 	//! Proportional movement according to mouse offset
 	GZ_PROPERTY_EXPORT(gzBool,		Proportional,		GZ_SYSTEM_EXPORT);

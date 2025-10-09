@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzTransform class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -130,11 +130,12 @@ public:
 
 	// Note that additive commands are reset by absolute commands
 
-	//* Rotation about the vector specified in degrees
-	/*!This is the relative method for rotation. The order of transformations is important.
+	//! Rotation about the vector specified in degrees
+	/*! This is the relative method for rotation. The order of transformations is important.
 	*/
 	GZ_GRAPH_EXPORT gzVoid	rotate(const gzVec3 &vector , gzFloat rotation);	
 
+	//! Heading = rot around y in degrees. Pitch = rot around x in degrees. Roll = rotation around z (not negative z) in degrees
 	GZ_GRAPH_EXPORT gzVoid	rotateHPR(gzFloat heading , gzFloat pitch , gzFloat roll);
 
 	/*!

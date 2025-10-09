@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Management of the db library
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			

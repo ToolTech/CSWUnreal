@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzRenderBase class types
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -85,7 +85,9 @@ public:
 
 	GZ_GRAPH_EXPORT	virtual gzVoid	setSwapInterval(gzInt32 interval=1);
 
-	GZ_GRAPH_EXPORT virtual gzVoid *getSymbol(const gzString &symbolName)=0;
+	GZ_GRAPH_EXPORT virtual gzVoid *getSymbol(const gzString &symbolNameWithExt)=0;
+
+	GZ_GRAPH_EXPORT gzVoid* getSymbol(const gzString& simpleSymbolName,const gzString &ext);
 
 	GZ_GRAPH_EXPORT virtual gzString getPlatformExtensions()=0;
 

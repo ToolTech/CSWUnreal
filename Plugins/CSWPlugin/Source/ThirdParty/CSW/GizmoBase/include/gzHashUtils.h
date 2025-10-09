@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Utility file to handle hash comparing etc..
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -32,6 +32,7 @@
 // Who	Date	Description						
 //									
 // AMO	010315	Created file 
+// AMO	251004	Updated hash patterns to use gzGetHash			(2.12.274)
 //
 //******************************************************************************
 
@@ -95,58 +96,7 @@ private:
 };
 
 //******************************************************************************
-// Template	: gzCompareInterface<T>
-//									
-// Purpose  : Template to enable comparison of <T> values 
-//									
-// Notes	: -	
-//									
-// Revision History...							
-//									
-// Who	Date	Description						
-//									
-// AMO	200331	Created 
-//									
-//******************************************************************************
-/*! \brief Provides a base interface for comparing gzInt32 values using hash method
-
-Derive your class from this inteface to get the hash() function. Your class can then
-be used by templates like gzDict etc. that requires the hash() comparing method.
-*/
-template <class T> class gzCompareInterface
-{
-public:
-
-	gzCompareInterface(const T & value) : m_value(value) {};
-
-	gzUInt32	hash() const	{ return (gzUInt32)m_value; }	// Always return a 32 bit hash value
-
-	const T & getValue() const	{ return m_value; }
-
-	gzBool operator ==(const gzCompareInterface<T> & right) const
-	{
-		return (m_value == right.m_value);
-	}
-
-private:
-
-	T	m_value;
-};
-
-// ------------------- Special hash values ----------------------------------
-
-template <> inline gzUInt32 gzCompareInterface<gzUInt64>::hash() const { return (gzUInt32)(m_value & 0xffffffff) + (gzUInt32)((m_value >> 32) & 0xffffffff); }
-template <> inline gzUInt32 gzCompareInterface<gzDouble>::hash() const { return (gzUInt32)((*(gzInt64 *)&m_value) & 0xffffffff) + (gzUInt32)(((*(gzInt64*)&m_value) >> 32) & 0xffffffff); }
-
-// ------------------ Provide some builtin compare names -------------------
-
-typedef gzCompareInterface<gzUInt64> gzUInt64CompareInterface;
-typedef gzCompareInterface<gzUInt32> gzUInt32CompareInterface;
-typedef gzCompareInterface<gzDouble> gzValueCompareInterface;
-
-
-//******************************************************************************
-// Template	: gzHashInterface<T>
+// Template	: gzGetHash<T>
 //									
 // Purpose  : Template to enable hash function of <T> values 
 //									
@@ -156,15 +106,23 @@ typedef gzCompareInterface<gzDouble> gzValueCompareInterface;
 //									
 // Who	Date	Description						
 //									
-// AMO	241122	Created 
+// AMO	251002	Created 
 //									
 //******************************************************************************
-template <class T> class gzHashInterface : public T
+template <class K> inline gzUInt32 gzGetHash(const K & k)
 {
-public:
+	// Retunerar defalt hash value through the hash() method of the class
+	return k.hash();
+}
 
-	gzUInt32	hash() const;
-};
+// ------------------- Special hash values ----------------------------------
+
+template <> inline gzUInt32 gzGetHash(const gzUInt32& k){ return (gzUInt32)k; }
+template <> inline gzUInt32 gzGetHash(const gzInt32& k) { return (gzUInt32)k; }
+template <> inline gzUInt32 gzGetHash(const gzUInt64& k){ return (gzUInt32)(k & 0xffffffff) + (gzUInt32)((k >> 32) & 0xffffffff); }
+template <> inline gzUInt32 gzGetHash(const gzInt64& k) { return (gzUInt32)(k & 0xffffffff) + (gzUInt32)((k >> 32) & 0xffffffff); }
+template <> inline gzUInt32 gzGetHash(const gzDouble& k) { return (gzUInt32)((*(gzInt64*)&k) & 0xffffffff) + (gzUInt32)(((*(gzInt64*)&k) >> 32) & 0xffffffff); }
+template <> inline gzUInt32 gzGetHash(const gzFloat& k) { return *(gzUInt32*)&k; }
 
 #endif // __GZ_HASH_UTILS_H__
 

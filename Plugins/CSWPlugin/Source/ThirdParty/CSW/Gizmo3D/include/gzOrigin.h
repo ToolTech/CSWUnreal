@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzOrigin class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -164,7 +164,7 @@ private:
 
 	gzBool							m_useScale:1;
 
-	static gzMemCheck<gzDict<gzUInt32CompareInterface,gzOrigin> > s_originDictionary;
+	static gzMemCheck<gzDict<gzUInt32,gzOrigin> > s_originDictionary;
 };
 
 // Declare smart pointer type

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of object management
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -327,11 +327,11 @@ private:
 
 	GZ_BASE_EXPORT virtual gzVoid	pushBack(gzSerializeAdapter *adapter) override;	//!< Not allowed to do a pushback of gzObjects
 
-	gzUserDataDictionary	*m_userData;
+	gzUserDataDictionary						*m_userData;
 
-	static gzRefDict< gzUInt32CompareInterface, gzReference> 	s_objectFactory;
+	static gzRefDict< gzUInt32, gzReference> 	s_objectFactory;
 
-	static gzMemCheck<gzMutex>									s_factoryLocker;
+	static gzMemCheck<gzMutex>					s_factoryLocker;
 };
 
 GZ_DECLARE_REFPTR(gzObject);

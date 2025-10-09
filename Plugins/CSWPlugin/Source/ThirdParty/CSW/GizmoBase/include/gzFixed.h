@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Fixed 16.16 bit floating point type
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 // 
 //			

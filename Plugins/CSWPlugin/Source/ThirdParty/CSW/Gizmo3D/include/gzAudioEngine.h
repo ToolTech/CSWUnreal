@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of stub calls for AAL
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -137,6 +137,13 @@ public:
 	GZ_GRAPH_EXPORT	virtual gzVoid setupEngine()=0;
 	GZ_GRAPH_EXPORT	virtual gzVoid shutdownEngine()=0;
 
+	// Errors
+
+	GZ_GRAPH_EXPORT static gzBool					hasEngineError();
+	GZ_GRAPH_EXPORT static gzVoid					pushEngineError(const gzString& error);
+	GZ_GRAPH_EXPORT static gzString					getEngineError();
+	GZ_GRAPH_EXPORT static gzVoid					clearEngineErrors();
+
 	
 protected:
 
@@ -173,6 +180,9 @@ protected:
 
 
 	GZ_GRAPH_EXPORT static gzAudioEngine *		s_engine[GZ_MAX_AUDIO_ENGINES];
+
+	GZ_GRAPH_EXPORT static gzMutex							s_engineLock;
+	GZ_GRAPH_EXPORT static gzRefList<gzRefData<gzString>>	s_engineErrors;
 
 };
 

@@ -19,7 +19,7 @@
 // Module		: gzGraph
 // Description	: Class implementation of the AAL class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -276,5 +276,6 @@ public:
 #define gzAudioCaptureSamples(p1,p2,p3)			(gzAudioAbstractionLayer::imp_gzAudioCaptureSamples)(p1,p2,p3)
 #define gzAudioCaptureGetIntegerv(p1,p2,p3,p4)  (gzAudioAbstractionLayer::imp_gzAudioCaptureGetIntegerv)(p1,p2,p3,p4)
 
+#define GZ_CHECK_AUDIO_ENGINE_ERROR(x) {while (gzEnum audioerror=gzAudioEngine::hasValidEngine()?gzAudioGetError():(gzEnum)FALSE){gzString errStr = gzString::formatString("%s Audio Engine Error:%s at line %ld in file %s", x,gzAudioErrorDescription(audioerror), __LINE__, __FILE__);gzAudioEngine::pushEngineError(errStr);GZMESSAGE(GZ_MESSAGE_DEBUG, errStr);}}
 
 #endif // __GZ_AUDIO_ABSTRACTION_LAYER_H__

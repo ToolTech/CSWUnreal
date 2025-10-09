@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Pipes classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -173,7 +173,7 @@ public:
 	GZ_BASE_EXPORT gzBool connect(const gzString &name, const gzString & address, gzBool create=FALSE, gzUInt32 timeOutRetry=50,const gzString & optionString=GZ_EMPTY_STRING);
 
     //! Direct create a pipe
-	GZ_BASE_EXPORT gzBool createPipe(const gzUInt16 port,gzUInt32 timeOutRetry=50);
+	GZ_BASE_EXPORT gzBool createPipe(const gzUInt16 port,gzUInt32 timeOutRetry=50,const gzString & nic = GZ_EMPTY_STRING);
 
 	//! Direct open a pipe
 	GZ_BASE_EXPORT gzBool openPipe(const gzString &address,gzUInt16 port,gzUInt32 timeOutRetry=50,const gzString & nic=GZ_EMPTY_STRING);
@@ -405,6 +405,8 @@ public:
 	GZ_BASE_EXPORT gzBool isActive() const override;
 
 	GZ_BASE_EXPORT gzString getPipeName() const;
+
+	GZ_BASE_EXPORT gzVoid addPipe(gzPipe* pipe, gzBool startPipe = FALSE);
 
 	GZ_PROPERTY_EXPORT(gzBool,		BlockingRead,		GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzBool,		Echo,				GZ_BASE_EXPORT);

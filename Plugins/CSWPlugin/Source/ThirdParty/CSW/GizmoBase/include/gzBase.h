@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 //
 //			
@@ -248,59 +248,75 @@ public:
 
 	gzBool			compare( const gzString &str , gzBool caseSensitive = TRUE , gzUInt16 *count=nullptr) const;
 
-	//! Recreate the string based on a formatting sequence
-	/*! The method works like a sprintf method to create a string out of a format sequence. 
-	The ARG_DECL_LIST is a type specified ecliptic argument that can hold 10 values 
-	e.g. \code
+	//! \brief Recreate the string based on a formatting sequence.
+	/*! This method works similarly to `sprintf`, creating a formatted string
+		from a format specification and a list of arguments.
+ 
+	 The argument list (ARG_DECL_LIST) is a type-specified, variadic
+	 argument container that can hold up to 10 values.
 	
-	gzString a;
-
-	a.format("%f",10.27);
+	 Example:
+	 \code
+	 gzString a;
+	 a.format("%f", 10.27);
+	 // Result: "10.27"
+	 \endcode
 	
-	\endcode
+	 \par Format syntax
+	 The general format is:
+	 \verbatim
+	 %<pos><flags><width><precision><size><type>
+	 \endverbatim
 	
-	Creates a string "10.27" 
+	 \par Positional arguments (<pos>)
+	 - `n$`  : use argument at position `n` (1–16).
+	 - `*$`  : use next argument as position specifier.
 	
-	\code
-
-	formats: %<pos><flags><width><precision><size><type>
-
-	<pos>
-	number$	uses number to get argument at position 1 to 16. Number is ended by $
-	*$		takes argument and uses that value as argument position 1-16
-
-	<flags>
-	-		left align within width field. Default is to right align
-	+		prefix width sign if output is number type
-	0		insert 0 if number value and no + prefix
-	' ' (blank)	prefix with a space, ignore if + prefix	
-
-	<precision>
-	.number	for type 's' or 'S' number specifies the number of characters in string.
-			for type 'f' number specifies the number of decimals
-			
-
-	<type>
-	c		takes a number n and insert wide char token with value n in string
-	s		takes pointer to null terminated ansi string or ansii gzString and inserts ansii string
-	S		takes pointer to null terminated unicode string or utf8 gzString and inserts unicode string
-	f		takes number and inserts plain number [-]ddd.ddd in string
-	e		takes number and insert exponential number [-]d.dddd e [sign]dd in string
-	E		takes number and insert exponential number [-]d.dddd E [sign]dd in string
-	g		takes number and insers most compact format of f or e
-	G		takes number and insers most compact format of f or E
-	d		takes signed integer and inserts integer value in string
-	u		takes unsigned integer and inserts unsigned integer value in string
-	x		takes unsigned integer and inserts hex lower case value in string 
-	X		takes unsigned integer and inserts hex upper case value in string
-	b		takes unsigned integer and inserts binary lower case value in string
-	B		takes unsigned integer and inserts binary upper case value in string
-	o		takes unsigned integer and inserts octal lower case value in string
-	O		takes unsigned integer and inserts octal upper case value in string
-
-	\endcode */
+	 \par Flags (<flags>)
+	 - `-`   : left align within width (default is right align).
+	 - `+`   : always prefix sign for numeric values.
+	 - `0`   : zero padding for numeric values (ignored if '+' flag present).
+	 - `' '` : (space) prefix a space if positive number (ignored if '+' flag present).
+	
+	 \par Width (<width>)
+	 Minimum field width. Can be a number or taken from an argument via `*`.
+	
+	 \par Precision (<precision>)
+	 - For `%s` and `%S`: maximum number of characters.
+	 - For `%f`: number of decimals.
+	 - For `%e` and `%g`: number of significant digits.
+	
+	 \par Size (<size>)
+	 - `h`   : short (e.g. `%hd`, `%hu`, `%hx`).
+	 - `l`   : long  (e.g. `%ld`, `%lu`, `%lx`).
+	 - `ll`  : long long (e.g. `%lld`, `%llu`, `%llx`).
+	
+	 \par Type (<type>)
+	 - `c` : print single wide character (argument is numeric code).
+	 - `s` : print C-string (`const char*`) or `gzString` (ANSI/UTF-8).
+	 - `S` : print wide string (`const wchar_t*`), converted to UTF-8.
+	 - `d` : signed integer.
+	 - `u` : unsigned integer.
+	 - `f` : floating-point, fixed decimal `[-]ddd.ddd`.
+	 - `e` : floating-point, exponential form `[-]d.dddd e±dd`.
+	 - `g` : floating-point, shortest representation of `f` or `e`.
+	 - `x` : unsigned integer, hexadecimal (lowercase).
+	 - `X` : unsigned integer, hexadecimal (uppercase).
+	 - `b` : unsigned integer, binary (lowercase).
+	 - `B` : unsigned integer, binary (uppercase).
+	 - `o` : unsigned integer, octal (lowercase).
+	 - `O` : unsigned integer, octal (uppercase).
+	 - `t` : tab to absolute column (argument specifies column index; fills with last output char).
+	 - `%` : literal percent sign.
+	
+	 \par Example with flags and positions
+	 \code
+	 gzString s;
+	 s.format("Value:%1$+06d Hex:%2$X", 42, 0xBEEF);
+	 // Result: "Value:+00042 Hex:BEEF"
+	 \endcode */
 	gzString &		format( const gzString &format, ARG_DECL_LIST );
-
+		
 	static gzString	formatString(const gzString &format, ARG_DECL_LIST);
 
 	//! Generates a unique string identifier from a number
@@ -521,6 +537,7 @@ const gzString	GZ_STRING_NEWLINE		= "\n";
 const gzString	GZ_STRING_RETURN		= "\r";
 const gzString	GZ_STRING_STAR			= "*";
 const gzString	GZ_STRING_EQU			= "=";
+const gzString	GZ_STRING_HASH			= "#";
 
 
 class GZ_BASE_EXPORT gzUniqueString : public gzString

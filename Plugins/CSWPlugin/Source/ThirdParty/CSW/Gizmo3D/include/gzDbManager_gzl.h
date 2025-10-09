@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gizmo xml db extension format
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.262
+// Product		: Gizmo3D 2.12.275
 //		
 //
 //			
@@ -173,7 +173,7 @@ private:
 	gzRefList<gzGroup>	m_groupStack;
 	gzRefList<gzObject>	m_objectStack;
 
-	gzRefDict<gzUInt32CompareInterface,gzReference>	m_refData;
+	gzRefDict<gzUInt32,gzReference>	m_refData;
 
 	class gzGZLReaderParser	*m_parser;
 };

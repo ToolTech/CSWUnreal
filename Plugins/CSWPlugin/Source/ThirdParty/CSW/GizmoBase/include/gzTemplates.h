@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of iterator utilities
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.262
+// Product		: GizmoBase 2.12.275
 //		
 // 	 
 //			
@@ -41,6 +41,7 @@
 // AMO	151116	Added contains method to gzDynamicArray				(2.8.1) 
 // AMO	200604	Added gzDynamicArray+=gzDynamicArray				(2.10.6)
 // AMO	200911	Fixed issues in gzDynamicArray with wrong size used	(2.10.6)
+// AMO	251004	Added C++14 Range compatibility to templates		(2.12.274)
 //
 //******************************************************************************
 
@@ -60,6 +61,7 @@
 #include "gzMemory.h"
 #include "gzAssembler.h"
 #include "gzArithmetic.h"
+#include "gzHashUtils.h"
 
 // --------------------- Copy Instances of data from to ---------------------------
 
@@ -164,25 +166,25 @@ template <> inline gzVoid copyInstances(gzDouble *to, gzDouble *from, const gzUI
 template <> inline gzVoid copyInstances(gzQWA_UByte *to, gzQWA_UByte *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
-		memmove(&to->data, &from->data, count * sizeof(gzQWA_UByte));
+		memmove((gzVoid *)to, (gzVoid*)from, count * sizeof(gzQWA_UByte));
 }
 
 template <> inline gzVoid copyInstances(gzQWA_Byte *to, gzQWA_Byte *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
-		memmove(&to->data, &from->data, count * sizeof(gzQWA_Byte));
+		memmove((gzVoid*)to, (gzVoid*)from, count * sizeof(gzQWA_Byte));
 }
 
 template <> inline gzVoid copyInstances(gzQWA_UInt16 *to, gzQWA_UInt16 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
-		memmove(&to->data, &from->data, count * sizeof(gzQWA_UInt16));
+		memmove((gzVoid*)to, (gzVoid*)from, count * sizeof(gzQWA_UInt16));
 }
 
 template <> inline gzVoid copyInstances(gzQWA_Int16 *to, gzQWA_Int16 *from, const gzUInt64 &count, gzBool /*clearSource*/)
 {
 	if (count && to && from)
-		memmove(&to->data, &from->data, count * sizeof(gzQWA_Int16));
+		memmove((gzVoid*)to, (gzVoid*)from, count * sizeof(gzQWA_Int16));
 }
 
 
@@ -190,11 +192,17 @@ template <> inline gzVoid copyInstances(gzQWA_Int16 *to, gzQWA_Int16 *from, cons
 
 template <class T> inline T* resizeInstances(T* oldData, gzUInt32* oldSizePtr, gzUInt32 newSize)
 {
-	if (*oldSizePtr < newSize)	// We need new alloc
+	const gzUInt32 old = *oldSizePtr;
+
+	if (old < newSize)
 	{
 		T* data = new T[newSize];
+		if (old) 
+			copyInstances<T>(data, oldData, old);
 
-		copyInstances<T>(data, oldData, newSize);
+		// default-init remainder
+		for (gzUInt32 i = old; i < newSize; ++i) 
+			data[i] = T();
 
 		*oldSizePtr = newSize;
 
@@ -202,13 +210,11 @@ template <class T> inline T* resizeInstances(T* oldData, gzUInt32* oldSizePtr, g
 
 		return data;
 	}
-	else
-	{
-		*oldSizePtr = newSize;
 
-		return oldData;
-	}
+	*oldSizePtr = newSize;
+	return oldData;
 }
+
 
 // Forward prototyp
 GZ_BASE_EXPORT gzVoid throwFatalTemplateError(const char *string);
@@ -251,6 +257,11 @@ template <class T> class gzList
 
 		//! Default constructor.
 		gzList(const gzBool reuseLinks=FALSE);
+
+		gzList(gzList&& o) noexcept : gzList() { swapListData(o); }
+
+		gzList& operator=(gzList&& o) noexcept { if (this != &o) swapListData(o); return *this; }
+
 
 		//! Default copy constructor.
 
@@ -363,6 +374,22 @@ template <class T> class gzList
 
 		gzBool operator==(const gzList &right) const;
 
+		// ---- Iterator för klassen gzList<T> -----------------------------------------------------
+
+		using iterator = gzListIterator<T>;
+
+		iterator begin();
+		iterator end();
+
+		iterator cbegin() const;
+		iterator cend()   const;
+
+		//! Allocates link items in advance to avoid memory fragmentation
+		gzVoid reserve(gzUInt32 entries);
+
+		//! Utility to swap the contents of two instanses by exchanging data poiners
+		gzVoid		swapListData(gzList& swapper);
+
 	protected:
 
 		struct LinkItem
@@ -382,11 +409,20 @@ template <class T> class gzList
 
 		LinkItem	*m_recycle;
 
-		gzUInt32		m_entries;
+		gzUInt32	m_entries;
 
 		gzBool		m_reuseLinks;
 
 };
+
+template <class T> inline  gzVoid gzList<T>::swapListData(gzList<T>& swapper)
+{
+	gzSwap(m_entries, swapper.m_entries);
+	gzSwap(m_reuseLinks, swapper.m_reuseLinks);
+	gzSwap(m_link, swapper.m_link);
+	gzSwap(m_last, swapper.m_last);
+	gzSwap(m_recycle, swapper.m_recycle);
+}
 
 
 //***********************************************************************
@@ -430,6 +466,19 @@ template <class T> inline typename gzList<T>::LinkItem * gzList<T>::allocLink()
 	return new LinkItem;
 }
 
+template <class T> inline gzVoid gzList<T>::reserve(gzUInt32 entries)
+{
+	m_reuseLinks = TRUE;
+
+	while(entries)
+	{
+		LinkItem *link=new LinkItem;
+		link->next=m_recycle;
+		m_recycle=link;
+		entries--;
+	}
+}
+
 template <class T> inline gzVoid gzList<T>::disposeLink(LinkItem *link) 
 { 
 	if(m_reuseLinks)
@@ -454,6 +503,26 @@ template <class T> inline gzVoid gzList<T>::cleanLinks()
 			m_recycle=nextlink;
 		}
 	}
+}
+
+template <class T> inline gzListIterator<T> gzList<T>::begin()
+{ 
+	return gzListIterator<T>(*this, TRUE); 
+}
+
+template <class T> inline gzListIterator<T> gzList<T>::end()
+{ 
+	return gzListIterator<T>(*this, FALSE); 
+}
+
+template <class T> inline gzListIterator<T> gzList<T>::cbegin() const
+{
+	return gzListIterator<T>(const_cast<gzList<T>&>(*this), TRUE);
+}
+
+template <class T> inline gzListIterator<T> gzList<T>::cend() const
+{
+	return gzListIterator<T>(const_cast<gzList<T>&>(*this), FALSE);
 }
 
 //***********************************************************************
@@ -742,9 +811,10 @@ template <class T> inline T * gzList<T>::removeAt(const gzUInt32 index)
 		}
 		else	// remove first item
 		{
-			m_link=post_link->next;
-			if(!(m_link=post_link->next))	// was last item
-				m_last=nullptr;
+			m_link = post_link->next;
+			if (!m_link) 
+				m_last = nullptr;
+
 		}
 		m_entries--;
 
@@ -1270,7 +1340,20 @@ template <class T> class gzListIterator
 		//! Insert item before current item. If no valid pos the insert is discarded
  		gzVoid pre_insert(T *item);
 
+		//! at key position
+		T* operator*() const;
 
+		//! overload of prefix ++ operator 
+		gzListIterator& operator++();
+		
+		//! overload of not equal operator
+		gzBool operator!=(const gzListIterator& rhs) const;
+		
+		// also overload equal operator
+		gzBool operator==(const gzListIterator& rhs) const;
+
+		explicit gzListIterator(gzList<T>& owner, gzBool atBegin, gzBool /*atEndDummy*/ = FALSE);
+		
 	private:
 	
 		typename gzList<T>::LinkItem *m_link;
@@ -1311,6 +1394,48 @@ template <class T> inline gzVoid gzListIterator<T>::setList(gzList<T> &owner)
 	m_prevlink=0;
 	m_owner=&owner;
 }
+
+
+template <class T> inline T* gzListIterator<T>::operator*() const
+{            
+	return key();
+}
+
+template <class T> inline gzListIterator<T>& gzListIterator<T>::operator++()
+{   
+	operator()();
+	return *this; 
+}
+
+template <class T> inline gzBool gzListIterator<T>::operator!=(const gzListIterator<T> & rhs) const
+{
+	return m_link != rhs.m_link; 
+}
+
+template <class T> inline gzBool gzListIterator<T>::operator==(const gzListIterator<T> & rhs) const
+{
+	return m_link == rhs.m_link;
+}
+
+template <class T> inline gzListIterator<T>::gzListIterator(gzList<T>& owner, gzBool atBegin, gzBool /*atEndDummy*/ )
+{
+	m_owner = &owner;
+	m_circulating = FALSE;
+
+	if (atBegin)
+	{         
+		// This is basically an iteration of operator () without returning the item
+		m_prevlink = 0;
+		m_link = m_owner->m_link;
+	}
+	else
+	{       
+		// This is the endstate of the iterator
+		m_prevlink = 0;
+		m_link = 0;
+	}
+}
+
 
 //***********************************************************************
 
@@ -1744,7 +1869,14 @@ public:
 	gzArray(const gzUInt32 size=0);
 	virtual ~gzArray();
 
+	gzArray(gzArray&& o)   noexcept : gzArray() { swapArrayData(o); }
+
+	gzArray& operator=(gzArray&& o) noexcept  { if (this != &o) swapArrayData(o); return *this; }
+
 	gzArray( const gzArray &copy);
+
+	template<gzUInt32 N> gzArray(const T(&init)[N]);
+
 
 	const gzUInt32 &	getSize() const ;
 
@@ -1755,6 +1887,8 @@ public:
 	T &			operator []( const gzUInt32 index );
 
 	const T&	get(const gzUInt32 index) const;
+
+	gzVoid		set(const gzUInt32 index, const T& value);
 
 	const T&	operator +=(const T& value);
 
@@ -1802,6 +1936,12 @@ public:
 	gzVoid		setTouched()	{ m_untouched=FALSE; }
 	gzBool		isUntouched()	const { return m_untouched; }
 
+	T* begin();
+	T* end();
+
+	const T* begin() const;
+	const T* end()   const;
+
 protected:
 
 	friend class gzDynamicArray<T>;
@@ -1819,18 +1959,43 @@ protected:
 
 //***********************************************************************
 
+template<class T> template<gzUInt32 N> inline gzArray<T>::gzArray(const T(&init)[N]): m_data(nullptr), m_size(0), m_untouched(FALSE)
+{
+	setSize(N);
+	for (gzUInt32 i = 0; i < N; ++i)
+		m_data[i] = init[i];
+}
+
+
 template <class T> inline gzVoid gzArray<T>::swapArrayData(gzArray<T> &swapper)
 {
-	T			*data(m_data);
-	gzUInt32		size(m_size);
+	gzSwap(m_data, swapper.m_data);
+	gzSwap(m_size, swapper.m_size);
 
-	m_data=swapper.m_data;
-	m_size=swapper.m_size;
-
-	swapper.m_data=data;
-	swapper.m_size=size;
-
+	// Both are changed
 	m_untouched=FALSE;
+	swapper.m_untouched = FALSE;
+}
+
+
+template <class T> inline T* gzArray<T>::begin() 
+{ 
+	return m_data; 
+}
+
+template <class T> inline T* gzArray<T>::end() 
+{ 
+	return m_data+m_size; 
+}
+
+template <class T> inline const T* gzArray<T>::begin() const
+{
+	return (const T*)m_data;
+}
+
+template <class T> inline const T* gzArray<T>::end()   const
+{
+	return (const T*)(m_data + m_size);
 }
 
 //***********************************************************************
@@ -2289,6 +2454,17 @@ template <class T> inline const T&	gzArray<T>::get(const gzUInt32 index) const
 
 //***********************************************************************
 
+template <class T> inline gzVoid gzArray<T>::set(const gzUInt32 index,const T& value) 
+{
+	if (index >= m_size)
+		throwFatalTemplateError("gzArray get() index out of bounds");
+
+	m_data[index] = value;
+}
+
+
+//***********************************************************************
+
 // Access without boundary check
 
 template <class T> inline const T & gzArray<T>::getItemInternal(const gzUInt32 index) const
@@ -2644,6 +2820,11 @@ public:
 
 	gzDynamicArray( const gzArray<T> &copy);
 
+	gzDynamicArray(gzDynamicArray&& o) noexcept : gzDynamicArray() { swapArrayData(o); }
+
+	gzDynamicArray& operator=(gzDynamicArray&& o) noexcept { if (this != &o) swapArrayData(o);return *this;}
+
+
 	gzUInt32	getSize() const ;
 
 	gzVoid		setSize( const gzUInt32 newsize, gzInt32 copy_offset = 0);
@@ -2678,6 +2859,7 @@ public:
 
 	gzDynamicArray&	operator=(const gzDynamicArray &copy);
 
+
 	T *			getAddress() { return m_data; }
 
 	const T *	getConstAddress() const  { return m_data; };
@@ -2706,6 +2888,11 @@ public:
 
 	gzBool		contains(const T &item) const;
 
+	T*			begin();
+	T*			end();
+	const T*	begin() const;
+	const T*	end()   const;
+
 private:
 	
 	friend class gzQueue<T>;
@@ -2733,19 +2920,38 @@ template <class T> inline gzVoid gzDynamicArray<T>::swapArrayData(gzDynamicArray
 	swapper.m_currentSize=currentSize;
 }
 
+
+template <class T> inline T* gzDynamicArray<T>::begin()
+{
+	return m_data;
+}
+
+template <class T> inline T* gzDynamicArray<T>::end()
+{
+	return m_data + m_currentSize;
+}
+
+template <class T> inline const T* gzDynamicArray<T>::begin() const
+{
+	return (const T*)m_data;
+}
+
+template <class T> inline const T* gzDynamicArray<T>::end()   const
+{
+	return (const T*)(m_data + m_currentSize);
+}
+
+
 //***********************************************************************
 
 template <class T> inline gzVoid gzDynamicArray<T>::swapArrayData(gzArray<T>& swapper)
 {
-	T* data(m_data);
-	gzUInt32	currentSize(m_currentSize);
+	gzSwap(m_data, swapper.m_data);
+	gzSwap(m_currentSize, swapper.m_size);
 
-	m_data = swapper.m_data;
-	m_size = swapper.m_size;
-	m_currentSize = swapper.m_size;
+	m_size=m_currentSize;
 
-	swapper.m_data = data;
-	swapper.m_size = currentSize;
+	swapper.m_untouched = FALSE;
 }
 
 //**********************************************************************
@@ -2915,6 +3121,7 @@ template <> inline gzVoid gzDynamicArray<gzUByte>::append(const gzUByte *data,co
 }
 
 //***********************************************************************
+
 
 template <class T> inline gzDynamicArray<T>& gzDynamicArray<T>::operator=(const gzDynamicArray &copy)
 {
@@ -3210,7 +3417,7 @@ template <class T1 , class T2> class gzDictEntry
 {
 public:
 
-	gzDictEntry(const T1 &key,T2 *pek):m_key(key),m_pek(pek),m_hash(key.hash()){}
+	gzDictEntry(const T1 &key,T2 *pek):m_key(key),m_pek(pek),m_hash(gzGetHash(key)){}
 	gzDictEntry(const T1 &key,T2 *pek,gzUInt32 hash):m_key(key),m_pek(pek),m_hash(hash){}
 	
 	const T1 &	getKey()		const	{ return m_key;		};
@@ -3218,7 +3425,7 @@ public:
 	const T2 *	getConstData()	const	{ return m_pek;		};
 	gzUInt32	getHash()		const	{ return m_hash;	};
 
-	gzDictEntry<T1,T2> * set(const T1 &key,T2 *pek)					{ m_key=key;m_pek=pek;m_hash=key.hash(); return this;}
+	gzDictEntry<T1,T2> * set(const T1 &key,T2 *pek)					{ m_key=key;m_pek=pek;m_hash=gzGetHash(key); return this;}
 	gzDictEntry<T1,T2> * set(const T1 &key,T2 *pek,gzUInt32 hash)	{ m_key=key;m_pek=pek;m_hash=hash; return this;}
 
 private:
@@ -3472,7 +3679,7 @@ template <class T1 , class T2> inline gzVoid gzDictArray<T1,T2>::operator=(const
 //									
 // Purpose  : Dictionary template. Supports memory references
 //									
-// Notes	: gzDict requires a hash() member function in the T1 class
+// Notes	: gzDict requires a gzGetHash() compatible template function in the T1 class
 //									
 // Revision History...							
 //									
@@ -3530,6 +3737,16 @@ public:
 	//! May affect performance negative in some cases.
 	//! Default is the parallel read disabled.
 	gzVoid			useParallelRead(gzBool on);
+
+	using iterator = gzDictIterator<T1, T2>;
+	using const_iterator = gzDictConstIterator<T1, T2>;
+
+	iterator begin() { return iterator(*this, TRUE); }
+	iterator end() { return iterator(*this, FALSE); }
+
+	const_iterator begin() const { return const_iterator(*this, TRUE); }
+	const_iterator end()   const { return const_iterator(*this, FALSE); }
+
 
 protected:
 
@@ -3738,7 +3955,7 @@ template <class T1 , class T2> inline gzBool gzDict<T1,T2>::exist(const T1 &keyI
 		}
 	}
 
-	gzUInt32 hash=keyItem.hash();
+	gzUInt32 hash=gzGetHash(keyItem);
 
 	gzDictEntry<T1,T2> *entry;
 
@@ -3782,7 +3999,7 @@ template <class T1 , class T2> inline gzBool gzDict<T1,T2>::exist(const T1 &keyI
 
 template <class T1 , class T2> inline T2 * gzDict<T1,T2>::remove(const T1 &keyItem ,T2 *valueItem)
 {
-	gzUInt32 hash=keyItem.hash();
+	gzUInt32 hash=gzGetHash(keyItem);
 	gzDictEntry<T1,T2> *entry;
 
 	T2 *retval;
@@ -3869,7 +4086,7 @@ template <class T1 , class T2> inline gzVoid gzDict<T1,T2>::cleanLinks()
 
 template <class T1 , class T2> inline gzVoid gzDict<T1,T2>::enter(const T1 &keyItem , T2 *valueItem)
 {
-	gzUInt32 hash=keyItem.hash();
+	gzUInt32 hash=gzGetHash(keyItem);
 
 	gzDictEntry<T1,T2> *entry = allocEntry(keyItem,valueItem,hash);
 
@@ -3897,7 +4114,7 @@ template <class T1 , class T2> inline T2 * gzDict<T1,T2>::find(const T1 &keyItem
 	if(!m_entries)
 		return 0;
 
-	gzUInt32 hash=keyItem.hash();
+	gzUInt32 hash= gzGetHash(keyItem);
 	gzDictEntry<T1,T2> *entry=m_lastEntry;
 	
 	if(!parent)
@@ -3967,6 +4184,7 @@ template <class T1 , class T2> class gzDictIterator
 public:
 
 	gzDictIterator(gzDict<T1,T2> &owner);
+	gzDictIterator(gzDict<T1, T2>& owner, gzBool atBegin);
 
 	~gzDictIterator(){};
 
@@ -3979,14 +4197,23 @@ public:
 
 	gzVoid					reset();
 
-	gzDictEntry<T1,T2> *	key();
+	gzDictEntry<T1,T2> *	key() const;
+	
+	// prefix ++
+	gzDictIterator& operator++();
 
+	// deref
+	gzDictEntry<T1, T2>* operator*() const;
+
+	// jämförelse
+	gzBool operator!=(const gzDictIterator& other) const;
+	
 private:
 
 	gzListIterator< gzDictEntry<T1,T2> > m_iterator;
 	gzDict<T1,T2>	*m_owner;
 	size_t			m_index;
-	gzUInt32			m_position;
+	gzUInt32		m_position;
 };
 
 //***********************************************************************
@@ -3996,6 +4223,40 @@ template <class T1 , class T2> inline gzDictIterator<T1,T2>::gzDictIterator( gzD
 	m_owner=&owner;
 	m_index=0;
 	m_position=0;
+}
+
+template <class T1, class T2> inline gzDictIterator<T1, T2>::gzDictIterator(gzDict<T1, T2>& owner, gzBool atBegin)
+	: m_iterator(*owner.m_array.m_data)
+{
+	m_owner = &owner;
+	m_index = 0;
+	m_position = 0;
+
+	if (atBegin)
+	{
+		// Iterate to first position
+		operator()();
+	}
+	else
+	{
+		m_position = m_owner->m_entries+1;
+	}
+}
+
+template <class T1, class T2> inline gzDictIterator<T1, T2>& gzDictIterator<T1, T2>::operator++()
+{
+	operator()();   // nyttja operator() för att gå framåt
+	return *this;
+}
+
+template <class T1, class T2> inline gzDictEntry<T1, T2>* gzDictIterator<T1, T2>::operator*() const
+{
+	return key();
+}
+
+template <class T1, class T2> inline gzBool gzDictIterator<T1, T2>::operator!=(const gzDictIterator& other) const
+{
+	return (m_position != other.m_position);
 }
 
 //***********************************************************************
@@ -4020,7 +4281,7 @@ template <class T1 , class T2> inline gzVoid gzDictIterator<T1,T2>::reset()
 
 //***********************************************************************
 
-template <class T1 , class T2> inline gzDictEntry<T1,T2> *	gzDictIterator<T1,T2>::key()
+template <class T1 , class T2> inline gzDictEntry<T1,T2> *	gzDictIterator<T1,T2>::key() const
 {
 	return m_iterator.key();
 }
@@ -4036,8 +4297,12 @@ template <class T1 , class T2> inline gzDictEntry<T1,T2> * gzDictIterator<T1,T2>
 
 	while(1)
 	{
-		if(m_position>=m_owner->m_entries)
+		if (m_position >= m_owner->m_entries)
+		{
+			if (m_position == m_owner->m_entries)
+				++m_position;	// Move past end position and then never more
 			return 0;
+		}
 
 		entry=m_iterator();
 
@@ -4859,6 +5124,10 @@ template <class T> class gzDList
 		//! Default constructor.
 		gzDList();
 
+		gzDList(gzDList&& o) noexcept : gzDList() { swapListData(o); }
+
+		gzDList& operator=(gzDList&& o) noexcept { if (this != &o) swapListData(o); return *this; }
+
 		//! Default copy constructor. 
 		
 		/*! Note that the cloning in the copy constructor depends
@@ -4959,6 +5228,19 @@ template <class T> class gzDList
 
 		gzVoid reuseLinks(gzBool on=FALSE);
 
+		using iterator = gzDListIterator<T>;
+
+		inline iterator begin() { return iterator(*this, TRUE, FALSE); } // setFirst()
+		inline iterator end() { return iterator(*this, FALSE, TRUE); } // null-sentinel
+
+		inline iterator cbegin() const { return iterator(const_cast<gzDList&>(*this), TRUE, FALSE); }
+		inline iterator cend()   const { return iterator(const_cast<gzDList&>(*this), FALSE, TRUE); }
+
+		// (valfritt) reverse-stöd med samma iterator
+		inline iterator rbegin() { return iterator(*this, FALSE, FALSE); } // setLast()
+		inline iterator rend() { return iterator(*this, FALSE, TRUE); } // null-sentinel för “före-first”
+
+		gzVoid swapListData(gzDList& swapper);
 
 	private:
 
@@ -4982,7 +5264,7 @@ template <class T> class gzDList
 
 		LinkItem	*m_last;
 
-		gzUInt32		m_entries;
+		gzUInt32	m_entries;
 		
 		LinkItem	*m_recycle;
 
@@ -4991,10 +5273,21 @@ template <class T> class gzDList
 
 //***********************************************************************
 
+template <class T> inline  gzVoid gzDList<T>::swapListData(gzDList<T>& swapper)
+{
+	gzSwap(m_entries, swapper.m_entries);
+	gzSwap(m_reuseLinks, swapper.m_reuseLinks);
+	gzSwap(m_link, swapper.m_link);
+	gzSwap(m_last, swapper.m_last);
+	gzSwap(m_recycle, swapper.m_recycle);
+}
+
 template <class T> inline gzVoid gzDList<T>::reuseLinks(gzBool on)
 {
 	m_reuseLinks=on;
 }
+
+
 
 template <class T> inline typename gzDList<T>::LinkItem * gzDList<T>::allocLink()
 { 
@@ -5810,7 +6103,7 @@ template <class T> class gzDListIterator
 
 		//! Returns item at current iterator position.
 		/*! Undefined if iterator position is undefined e.g. before operator () is called. */
-		T *key();
+		T *key() const;
 
 		//! Returns one item ahead in list. You can get the next item without iterating.
 		T *next();
@@ -5841,6 +6134,18 @@ template <class T> class gzDListIterator
 		//! Insert item before current item. If no valid pos the insert is discarded
  		gzVoid pre_insert(T *item);
 
+		// ---- Range-for operators (kompatibla med gzBool) -----------------------------
+		T* operator*() const;						// returnera current key (T*)
+		gzDListIterator& operator++();              // prefix ++ : steg framåt (next)
+		gzDListIterator& operator--();              // prefix -- : steg bakåt (prev)
+
+		gzBool          operator!=(const gzDListIterator& rhs) const;
+		gzBool          operator==(const gzDListIterator& rhs) const;
+
+		// begin()/end()-konstruktor (ren init, ingen logik ändrad i övrigt)
+		explicit gzDListIterator(gzDList<T>& owner, gzBool atBegin, gzBool atEndDummy = FALSE);
+
+
 	private:
 
 		typename gzDList<T>::LinkItem *m_link;
@@ -5857,6 +6162,7 @@ template <class T> inline gzDListIterator<T>::gzDListIterator(gzDList<T> &owner)
 {
 	m_link=0;
 	m_owner=&owner;
+	m_circulating = FALSE;
 }
 
 //***********************************************************************
@@ -5865,6 +6171,54 @@ template <class T> inline gzDListIterator<T>::gzDListIterator(gzDList<T> *owner)
 {
 	m_link=0;
 	m_owner=owner;
+	m_circulating = FALSE;
+}
+
+// Lägg till denna ctor (inline i slutet, som dina andra)
+// Ny konstruktor som nyttjar setFirst/setLast och end-sentinel
+template <class T> inline gzDListIterator<T>::gzDListIterator(gzDList<T>& owner, gzBool atBegin, gzBool atEnd)
+{
+	m_owner = &owner;
+	m_circulating = FALSE;
+
+	if (atBegin)
+		setFirst();
+	else if (atEnd)
+		m_link = 0;          // <— räcker för past-the-end
+	else
+		setLast();
+}
+
+template <class T> inline gzDListIterator<T>& gzDListIterator<T>::operator++()
+{
+	operator()();           // återanvänder din steg-framåt-logik
+	return *this;
+}
+
+template <class T> inline gzDListIterator<T>& gzDListIterator<T>::operator--()
+{
+	m_circulating = FALSE;
+	if (m_link)
+		m_link = m_link->prev;
+	else
+		m_link = m_owner->m_last;
+	return *this;
+}
+
+
+template <class T> inline T* gzDListIterator<T>::operator*() const
+{
+	return key();
+}
+
+template <class T> inline gzBool gzDListIterator<T>::operator!=(const gzDListIterator<T>& rhs) const
+{
+	return m_link != rhs.m_link;
+}
+
+template <class T> inline gzBool gzDListIterator<T>::operator==(const gzDListIterator<T>& rhs) const
+{
+	return m_link == rhs.m_link;
 }
 
 //***********************************************************************
@@ -6090,7 +6444,7 @@ template <class T> inline T *gzDListIterator<T>::backcirculate()
 
 //***********************************************************************
 
-template <class T> inline T *gzDListIterator<T>::key()
+template <class T> inline T *gzDListIterator<T>::key() const
 {
 	if(m_link)
 		return m_link->item;
@@ -6832,6 +7186,8 @@ public:
 
 	gzVoid	clear();
 
+	gzVoid		swapArrayData(gzArray2D& swapper);
+
 protected:
 
 	// Access without boundary check
@@ -6842,6 +7198,14 @@ protected:
 	gzUInt32						m_x_size;
 	gzUInt32						m_y_size;
 };
+
+template <class T> inline gzVoid gzArray2D<T>::swapArrayData(gzArray2D& swapper)
+{
+	gzSwap(m_x_size, swapper.m_x_size);
+	gzSwap(m_y_size, swapper.m_y_size);
+
+	gzArray<T>::swapArrayData(swapper);
+}
 
 template <class T> inline T & gzArray2D<T>::operator()(const gzUInt32 x_index,const gzUInt32 y_index)
 {
@@ -8171,21 +8535,26 @@ and store items in the array.
 template <class T> class gzLargeArray
 {
 public:
-	gzLargeArray(const gzUInt64& size = 0);
+	gzLargeArray(const gzUInt64 size = 0);
 	virtual ~gzLargeArray();
 
 	gzLargeArray(const gzLargeArray& copy);
 
+	gzLargeArray(gzLargeArray&& o) noexcept : gzLargeArray() { swapArrayData(o); }
+
+	gzLargeArray& operator=(gzLargeArray&& o) noexcept { if (this != &o) swapArrayData(o); return *this; }
+
+
 	const gzUInt64& getSize() const;
 
 	//! Sets size and discards old data
-	gzVoid		setSize(const gzUInt64& size);
+	gzVoid		setSize(const gzUInt64 size);
 
-	gzVoid		setPOTSize(const gzUInt64& pot_size);
+	gzVoid		setPOTSize(const gzUInt64 pot_size);
 
-	T& operator [](const gzUInt64& index);
+	T& operator [](const gzUInt64 index);
 
-	const T& get(const gzUInt64& index) const;
+	const T& get(const gzUInt64 index) const;
 
 	const T& operator +=(const T& value);
 
@@ -8204,12 +8573,12 @@ public:
 	const T* getConstAddress() const { return m_data; };
 
 	//! resizes data and keeps old
-	gzVoid		resize(const gzUInt64& newSize);
+	gzVoid		resize(const gzUInt64 newSize);
 
 	//! resizes data and keeps old and runs specific default constructor
-	gzVoid		resize(const gzUInt64& newSize, const T& defaultValue);
+	gzVoid		resize(const gzUInt64 newSize, const T& defaultValue);
 
-	gzVoid		remove(const gzUInt64& index);
+	gzVoid		remove(const gzUInt64 index);
 
 	gzBool		contains(const T& item) const;
 
@@ -8220,28 +8589,34 @@ public:
 	gzVoid		setAll(const T& data);
 
 	//! Set some part of the array to one value
-	gzVoid		setSome(const gzUInt64& index, const gzUInt64& size, const T& data);
+	gzVoid		setSome(const gzUInt64 index, const gzUInt64 size, const T& data);
 
 	//! Multiply the whole array with one value
 	gzVoid		itemMultiply(const T& data);
 
 	//! Multiply some of the array with one value
-	gzVoid		itemMultiply(const gzUInt64& index, const gzUInt64& size, const T& data);
+	gzVoid		itemMultiply(const gzUInt64 index, const gzUInt64 size, const T& data);
 
 	//! Utility to set size and data at once
-	gzVoid		setArrayData(const T* data, const gzUInt64& length);
+	gzVoid		setArrayData(const T* data, const gzUInt64 length);
 
 	gzVoid		setUntouched() { m_untouched = TRUE; }
 	gzVoid		setTouched() { m_untouched = FALSE; }
 	gzBool		isUntouched()	const { return m_untouched; }
+
+	T*			begin();
+	T*			end();
+	const T*	begin() const;
+	const T*	end()   const;
+
 
 protected:
 
 	friend class gzDynamicArray<T>;
 
 	// Access without boundary check
-	const T& getItemInternal(const gzUInt64& index) const;
-	gzVoid		setItemInternal(const gzUInt64& index, const T& val);
+	const T& getItemInternal(const gzUInt64 index) const;
+	gzVoid		setItemInternal(const gzUInt64 index, const T& val);
 
 	T* m_data;
 
@@ -8264,11 +8639,33 @@ template <class T> inline gzVoid gzLargeArray<T>::swapArrayData(gzLargeArray<T>&
 	swapper.m_size = size;
 
 	m_untouched = FALSE;
+	swapper.m_untouched = FALSE;
 }
+
+template <class T> inline T* gzLargeArray<T>::begin()
+{
+	return m_data;
+}
+
+template <class T> inline T* gzLargeArray<T>::end()
+{
+	return m_data + m_size;
+}
+
+template <class T> inline const T* gzLargeArray<T>::begin() const
+{
+	return (const T*)m_data;
+}
+
+template <class T> inline const T* gzLargeArray<T>::end()   const
+{
+	return (const T*)(m_data + m_size);
+}
+
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzLargeArray<T>::setArrayData(const T* data, const gzUInt64& length)
+template <class T> inline gzVoid gzLargeArray<T>::setArrayData(const T* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8289,7 +8686,7 @@ template <class T> inline gzVoid gzLargeArray<T>::setArrayData(const T* data, co
 
 //**********************************************************************
 
-template <> inline gzVoid gzLargeArray<gzUByte>::setArrayData(const gzUByte* data, const gzUInt64& length)
+template <> inline gzVoid gzLargeArray<gzUByte>::setArrayData(const gzUByte* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8298,7 +8695,7 @@ template <> inline gzVoid gzLargeArray<gzUByte>::setArrayData(const gzUByte* dat
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzQWA_UByte>::setArrayData(const gzQWA_UByte* data, const gzUInt64& length)
+template <> inline gzVoid gzLargeArray<gzQWA_UByte>::setArrayData(const gzQWA_UByte* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8307,7 +8704,7 @@ template <> inline gzVoid gzLargeArray<gzQWA_UByte>::setArrayData(const gzQWA_UB
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzQWA_Byte>::setArrayData(const gzQWA_Byte* data, const gzUInt64& length)
+template <> inline gzVoid gzLargeArray<gzQWA_Byte>::setArrayData(const gzQWA_Byte* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8316,7 +8713,7 @@ template <> inline gzVoid gzLargeArray<gzQWA_Byte>::setArrayData(const gzQWA_Byt
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzQWA_UInt16>::setArrayData(const gzQWA_UInt16* data, const gzUInt64& length)
+template <> inline gzVoid gzLargeArray<gzQWA_UInt16>::setArrayData(const gzQWA_UInt16* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8325,7 +8722,7 @@ template <> inline gzVoid gzLargeArray<gzQWA_UInt16>::setArrayData(const gzQWA_U
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzQWA_Int16>::setArrayData(const gzQWA_Int16* data, const gzUInt64& length)
+template <> inline gzVoid gzLargeArray<gzQWA_Int16>::setArrayData(const gzQWA_Int16* data, const gzUInt64 length)
 {
 	setSize(length);
 
@@ -8393,7 +8790,7 @@ template <> inline gzVoid gzLargeArray<gzFloat>::setAll(const gzFloat& data)
 	m_untouched = FALSE;
 }
 
-template <class T> inline gzVoid gzLargeArray<T>::setSome(const gzUInt64& index, const gzUInt64& size, const T& data)
+template <class T> inline gzVoid gzLargeArray<T>::setSome(const gzUInt64 index, const gzUInt64 size, const T& data)
 {
 	if ((size + index) > m_size)
 		throwFatalTemplateError("gzArray::setSome() index out of bounds");
@@ -8411,7 +8808,7 @@ template <class T> inline gzVoid gzLargeArray<T>::setSome(const gzUInt64& index,
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzDouble>::setSome(const gzUInt64& index, const gzUInt64& size, const gzDouble& data)
+template <> inline gzVoid gzLargeArray<gzDouble>::setSome(const gzUInt64 index, const gzUInt64 size, const gzDouble& data)
 {
 	if ((size + index) > m_size)
 		throwFatalTemplateError("gzArray::setSome() index out of bounds");
@@ -8436,7 +8833,7 @@ template <> inline gzVoid gzLargeArray<gzDouble>::setSome(const gzUInt64& index,
 	m_untouched = FALSE;
 }
 
-template <> inline gzVoid gzLargeArray<gzFloat>::setSome(const gzUInt64& index, const gzUInt64& size, const gzFloat& data)
+template <> inline gzVoid gzLargeArray<gzFloat>::setSome(const gzUInt64 index, const gzUInt64 size, const gzFloat& data)
 {
 	if ((size + index) > m_size)
 		throwFatalTemplateError("gzArray::setSome() index out of bounds");
@@ -8477,7 +8874,7 @@ template <class T> inline gzVoid gzLargeArray<T>::itemMultiply(const T& data)
 	m_untouched = FALSE;
 }
 
-template <class T> inline gzVoid gzLargeArray<T>::itemMultiply(const gzUInt64& index, const gzUInt64& size, const T& data)
+template <class T> inline gzVoid gzLargeArray<T>::itemMultiply(const gzUInt64 index, const gzUInt64 size, const T& data)
 {
 	if ((size + index) > m_size)
 		throwFatalTemplateError("gzArray::itemMultiply() index out of bounds");
@@ -8507,7 +8904,7 @@ template <class T> inline T * gzLargeArray<T>::getAddress()
 
 //***********************************************************************
 
-template <class T> inline gzLargeArray<T>::gzLargeArray(const gzUInt64& size)
+template <class T> inline gzLargeArray<T>::gzLargeArray(const gzUInt64 size)
 {
 	if (size)
 		m_data = new T[size];
@@ -8529,7 +8926,7 @@ template <class T> inline gzLargeArray<T>::~gzLargeArray()
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzLargeArray<T>::remove(const gzUInt64& index)
+template <class T> inline gzVoid gzLargeArray<T>::remove(const gzUInt64 index)
 {
 	if (m_size)
 	{
@@ -8708,7 +9105,7 @@ template <class T> inline gzLargeArray<T>::gzLargeArray(const gzLargeArray& copy
 
 //***********************************************************************
 
-template <class T> inline T& gzLargeArray<T>::operator [](const gzUInt64& index)
+template <class T> inline T& gzLargeArray<T>::operator [](const gzUInt64 index)
 {
 	if (index >= m_size)
 		throwFatalTemplateError("gzArray [] index out of bounds");
@@ -8720,7 +9117,7 @@ template <class T> inline T& gzLargeArray<T>::operator [](const gzUInt64& index)
 
 //***********************************************************************
 
-template <class T> inline const T& gzLargeArray<T>::get(const gzUInt64& index) const
+template <class T> inline const T& gzLargeArray<T>::get(const gzUInt64 index) const
 {
 	if (index >= m_size)
 		throwFatalTemplateError("gzArray get() index out of bounds");
@@ -8732,7 +9129,7 @@ template <class T> inline const T& gzLargeArray<T>::get(const gzUInt64& index) c
 
 // Access without boundary check
 
-template <class T> inline const T& gzLargeArray<T>::getItemInternal(const gzUInt64& index) const
+template <class T> inline const T& gzLargeArray<T>::getItemInternal(const gzUInt64 index) const
 {
 	return m_data[index];
 }
@@ -8741,7 +9138,7 @@ template <class T> inline const T& gzLargeArray<T>::getItemInternal(const gzUInt
 
 // Access without boundary check
 
-template <class T> inline gzVoid gzLargeArray<T>::setItemInternal(const gzUInt64& index, const T& val)
+template <class T> inline gzVoid gzLargeArray<T>::setItemInternal(const gzUInt64 index, const T& val)
 {
 	m_untouched = FALSE;
 	m_data[index] = val;
@@ -8757,7 +9154,7 @@ template <class T> inline const gzUInt64& gzLargeArray<T>::getSize() const
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzLargeArray<T>::setSize(const gzUInt64& size)
+template <class T> inline gzVoid gzLargeArray<T>::setSize(const gzUInt64 size)
 {
 	if (size == m_size)
 		return;
@@ -8784,13 +9181,13 @@ template <class T> inline gzVoid gzLargeArray<T>::setSize(const gzUInt64& size)
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzLargeArray<T>::setPOTSize(const gzUInt64& pot_size)
+template <class T> inline gzVoid gzLargeArray<T>::setPOTSize(const gzUInt64 pot_size)
 {
 	gzLargeArray<T>::setSize(LLU(1) << pot_size);
 }
 
 //***********************************************************************
-template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64& size, const T& defaultValue)
+template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64 size, const T& defaultValue)
 {
 	if (size == m_size)
 		return;
@@ -8833,7 +9230,7 @@ template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64& size, c
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64& size)
+template <class T> inline gzVoid gzLargeArray<T>::resize(const gzUInt64 size)
 {
 	if (size == m_size)
 		return;
@@ -9087,23 +9484,27 @@ public:
 	//! Create from LargeArray
 	gzDynamicLargeArray(const gzLargeArray<T>& copy);
 
+	gzDynamicLargeArray(gzDynamicLargeArray&& o) noexcept : gzDynamicLargeArray() { swapArrayData(o); }
+
+	gzDynamicLargeArray& operator=(gzDynamicLargeArray&& o) noexcept { if (this != &o) swapArrayData(o); return *this; }
+
 	gzUInt64	getSize() const;
 
-	gzVoid		setSize(const gzUInt64& newsize, const gzInt64& copy_offset = 0);
+	gzVoid		setSize(const gzUInt64 newsize, const gzInt64 copy_offset = 0);
 
 	gzUInt64	getRealSize() const;
 
-	gzVoid		setRealSize(const gzUInt64& size, const gzInt64& copy_offset = 0);
+	gzVoid		setRealSize(const gzUInt64 size, const gzInt64 copy_offset = 0);
 
-	gzVoid		setChunkSize(const gzUInt64& i) { if (i)m_chunksize = i; else m_chunksize = 1; }
+	gzVoid		setChunkSize(const gzUInt64 i) { if (i)m_chunksize = i; else m_chunksize = 1; }
 
 	gzUInt64	getChunkSize() const { return m_chunksize; }
 
-	T& operator [](const gzUInt64& index);
+	T& operator [](const gzUInt64 index);
 
-	const T& operator [](const gzUInt64& index) const;
+	const T& operator [](const gzUInt64 index) const;
 
-	const T& get(const gzUInt64& index) const;
+	const T& get(const gzUInt64 index) const;
 
 	gzVoid		operator +=(const T& value);
 
@@ -9143,11 +9544,17 @@ public:
 
 	gzVoid		removeLast();
 
-	gzVoid		remove(const gzUInt64& index);
+	gzVoid		remove(const gzUInt64 index);
 
-	gzVoid		insertAt(const gzUInt64& index, const T& value);
+	gzVoid		insertAt(const gzUInt64 index, const T& value);
 
 	gzBool		contains(const T& item) const;
+
+	T* begin();
+	T* end();
+	const T* begin() const;
+	const T* end()   const;
+
 
 private:
 
@@ -9174,6 +9581,27 @@ template <class T> inline gzVoid gzDynamicLargeArray<T>::swapArrayData(gzDynamic
 	swapper.m_currentSize = currentSize;
 }
 
+template <class T> inline T* gzDynamicLargeArray<T>::begin()
+{
+	return m_data;
+}
+
+template <class T> inline T* gzDynamicLargeArray<T>::end()
+{
+	return m_data + m_currentSize;
+}
+
+template <class T> inline const T* gzDynamicLargeArray<T>::begin() const
+{
+	return (const T*)m_data;
+}
+
+template <class T> inline const T* gzDynamicLargeArray<T>::end()   const
+{
+	return (const T*)(m_data + m_currentSize);
+}
+
+
 //***********************************************************************
 
 template <class T> inline gzVoid gzDynamicLargeArray<T>::swapArrayData(gzLargeArray<T>& swapper)
@@ -9187,6 +9615,7 @@ template <class T> inline gzVoid gzDynamicLargeArray<T>::swapArrayData(gzLargeAr
 
 	swapper.m_data = data;
 	swapper.m_size = currentSize;
+	swapper.m_untouched = FALSE;
 }
 
 //**********************************************************************
@@ -9336,7 +9765,7 @@ template <class T> inline gzDynamicLargeArray<T>::operator gzLargeArray<T>() con
 
 template <class T> inline gzVoid gzDynamicLargeArray<T>::operator +=(const T& value)
 {
-	(operator [](m_currentSize)) = value;
+	(operator [](T(m_currentSize))) = value;
 }
 
 template <class T> inline gzVoid gzDynamicLargeArray<T>::append(const T* data, const gzUInt64 len)
@@ -9467,7 +9896,7 @@ template <class T> inline gzVoid gzDynamicLargeArray<T>::removeLast()
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzDynamicLargeArray<T>::remove(const gzUInt64& index)
+template <class T> inline gzVoid gzDynamicLargeArray<T>::remove(const gzUInt64 index)
 {
 	if (index < m_currentSize)
 	{
@@ -9479,7 +9908,7 @@ template <class T> inline gzVoid gzDynamicLargeArray<T>::remove(const gzUInt64& 
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzDynamicLargeArray<T>::insertAt(const gzUInt64& index, const T& value)
+template <class T> inline gzVoid gzDynamicLargeArray<T>::insertAt(const gzUInt64 index, const T& value)
 {
 	if (index < m_currentSize)
 	{
@@ -9496,7 +9925,7 @@ template <class T> inline gzVoid gzDynamicLargeArray<T>::insertAt(const gzUInt64
 
 //***********************************************************************
 
-template <class T> inline T& gzDynamicLargeArray<T>::operator [](const gzUInt64& index)
+template <class T> inline T& gzDynamicLargeArray<T>::operator [](const gzUInt64 index)
 {
 	if (index >= m_currentSize)
 	{
@@ -9515,7 +9944,8 @@ template <class T> inline T& gzDynamicLargeArray<T>::operator [](const gzUInt64&
 
 //***********************************************************************
 
-template <class T> inline const T& gzDynamicLargeArray<T>::operator [](const gzUInt64& index) const
+// Dont use reference to index, because it may be a temporary value
+template <class T> inline const T& gzDynamicLargeArray<T>::operator [](const gzUInt64 index) const
 {
 	if (index >= m_currentSize)
 	{
@@ -9527,7 +9957,7 @@ template <class T> inline const T& gzDynamicLargeArray<T>::operator [](const gzU
 
 //***********************************************************************
 
-template <class T> inline const T& gzDynamicLargeArray<T>::get(const gzUInt64& index) const
+template <class T> inline const T& gzDynamicLargeArray<T>::get(const gzUInt64 index) const
 {
 	if (index >= m_currentSize)
 	{
@@ -9546,7 +9976,7 @@ template <class T> inline gzUInt64 gzDynamicLargeArray<T>::getSize() const
 
 //***********************************************************************
 
-template <class T> inline gzVoid  gzDynamicLargeArray<T>::setSize(const gzUInt64& newsize, const gzInt64& copy_offset)
+template <class T> inline gzVoid  gzDynamicLargeArray<T>::setSize(const gzUInt64 newsize, const gzInt64 copy_offset)
 {
 	if (newsize > m_size)
 	{
@@ -9572,7 +10002,7 @@ template <class T> inline gzUInt64 gzDynamicLargeArray<T>::getRealSize() const
 
 //***********************************************************************
 
-template <class T> inline gzVoid gzDynamicLargeArray<T>::setRealSize(const gzUInt64& size, const gzInt64& copy_offset)
+template <class T> inline gzVoid gzDynamicLargeArray<T>::setRealSize(const gzUInt64 size, const gzInt64 copy_offset)
 {
 	if ((size == m_size) && (copy_offset == 0))
 		return;
