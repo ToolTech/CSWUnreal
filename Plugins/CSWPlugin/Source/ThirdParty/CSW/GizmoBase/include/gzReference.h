@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of reference handle
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.275
+// Product		: GizmoBase 2.12.283
 //		
 //
 //			
@@ -446,7 +446,7 @@ inline gzUInt32 gzReference::unrefNoDelete()
 	}
 	else
 	{
-		throwFatalException("REFRENCE MISMATCH ! Unref an object with zero reference count.");
+		throwFatalException("REFERENCE MISMATCH ! Unref an object with zero reference count.");
 	}
 	return _refCount;
 }
@@ -1127,7 +1127,7 @@ class gzRefListData : public gzReference
 													\
     virtual gzUInt32	getRef() const override		\
 	{												\
-		refhandler::checkDelete();					\
+		refhandler::getRef();						\
 	}												
 
 #endif // __GZ_REFERENCE_H__

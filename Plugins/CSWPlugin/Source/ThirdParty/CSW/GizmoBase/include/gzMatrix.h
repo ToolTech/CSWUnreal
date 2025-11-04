@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Matrix utilites.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.275
+// Product		: GizmoBase 2.12.283
 //		
 //
 //			
@@ -33,6 +33,7 @@
 //									
 // AMO	981104	Created file 	
 // AMO	180919	Rework with templates to handle mix of multiple types
+// AMO	251030	Added ENU as index of Vec3								(2.12.282)
 //
 //******************************************************************************
 
@@ -473,19 +474,23 @@ public:
 	{
 		struct
 		{
-			T v1, v2, v3;
+			T v1, v2, v3;		// Generic
 		};
 		struct
 		{
-			T x, y, z;
+			T x, y, z;			// XYZ vector use
 		};
 		struct
 		{
-			T r, g, b;
+			T east, north, up;	// ENU coordinate use
 		};
 		struct
 		{
-			T heading, pitch, roll;
+			T r, g, b;			// Colour uses
+		};
+		struct
+		{
+			T heading, pitch, roll;	// Euler use
 		};
 	};
 };
@@ -696,15 +701,15 @@ public:
 	{
 		struct
 		{
-			T v1, v2, v3, v4;
+			T v1, v2, v3, v4;	// Generic use
+		};	
+		struct
+		{
+			T x, y, z, w;		// XYZW use
 		};
 		struct
 		{
-			T x, y, z, w;
-		};
-		struct
-		{
-			T r, g, b, a;
+			T r, g, b, a;		// Colour use
 		};
 	};
 };

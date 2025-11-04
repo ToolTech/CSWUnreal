@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.275
+// Product		: GizmoBase 2.12.283
 //		
 // 		
 //			

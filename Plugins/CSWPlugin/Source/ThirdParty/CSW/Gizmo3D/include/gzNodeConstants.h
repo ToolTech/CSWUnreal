@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Constant and structures for node attributes and definitions
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.275
+// Product		: Gizmo3D 2.12.283
 //		
 //
 //			
@@ -41,6 +41,7 @@
 // AMO	250306	Added gzDbInfoOptimizeFlags for optim meta info		(2.12.228)
 // AMO	250409	Added Units to database								(2.12.238)
 // AMO	250409	Added Coordinate Swizzle to database				(2.12.238)
+// AMO	251030	Added GEO_INFO as tags and userdata					(2.12.282)
 //
 //******************************************************************************
 #ifndef __GZ_NODE_CONSTANTS_H__
@@ -68,9 +69,47 @@ GZ_GRAPH_EXPORT	gzVoid gzRemoveNodeDbInfo(gzNode *node,const gzString &attribute
 
 
 // Constants for named UserData used by nodes
-
 const gzString	GZ_USERDATA_DB_INFO	="UserDataDbInfo";
 
+// Constant for named geo info used by geo tools
+const gzString	GZ_USERDATA_GEO_INFO = "UserDataGeoInfo";
+
+
+enum gzGeoPlacement
+{
+	GZ_GEO_PLACEMENT_GROUNDCLAMPED	= 0,	// Use 0 elevation and groundclamp
+	GZ_GEO_PLACEMENT_ELEVATION		= 1,	// Use elevation as height above ground
+	GZ_GEO_PLACEMENT_ALTITUDE		= 2,	// Use elevation as height above ellipsoid
+	GZ_GEO_PLACEMENT_OFFSET			= 3,	// Altitude is defined by GEO file data with elevation offset
+
+};
+
+GZ_DECLARE_DYNAMIC_ENUM(gzGeoPlacement);		// Defined for GZ_GEO_INFO_PLACEMENT
+
+GZ_DECLARE_DYNAMIC_ENUM(gzIntersectMaskValue);	// Defined for GZ_GEO_INFO_ISECT_MASK
+GZ_DECLARE_DYNAMIC_ENUM(gzCullMaskValue);		// Defined for GZ_GEO_INFO_CULL_MASK
+
+const gzString	GZ_GEO_INFO_MODEL_NAME		= "ModelName";					// Model Name
+const gzString	GZ_GEO_INFO_PLACEMENT		= "Placement";					// gzGeoPlacement
+const gzString	GZ_GEO_INFO_ELEVATION		= "Elevation";					// Elevation in meters
+
+const gzString	GZ_GEO_INFO_SCALE_E			= "ScaleEast";					// Relative Scale factor East before rotation
+const gzString	GZ_GEO_INFO_SCALE_N			= "ScaleNorth";					// Relative Scale factor North before rotation
+const gzString	GZ_GEO_INFO_SCALE_U			= "ScaleUp";					// Relative Scale factor Up before rotation
+
+
+const gzString	GZ_GEO_INFO_HEADING			= "Heading";					// Rotation around Up axis in degrees
+const gzString	GZ_GEO_INFO_PITCH			= "Pitch";						// Rotation around East axis in degrees
+const gzString	GZ_GEO_INFO_ROLL			= "Roll";						// Rotation around North axis in degrees
+
+const gzString	GZ_GEO_INFO_MODEL_TYPE		= "ModelType";					// Major model type
+const gzString	GZ_GEO_INFO_MODEL_SUB_TYPE	= "ModelSubType";				// Model sub type
+
+const gzString	GZ_GEO_INFO_VALID_ALTITUDE	= "ValidAltitude";				// TRUE if GEO altitude is valid
+const gzString	GZ_GEO_INFO_VALID_POSITION	= "ValidPosition";				// TRUE if GEO position is valid
+
+const gzString	GZ_GEO_INFO_CULL_MASK		= "CullMask";					// CullMask values
+const gzString	GZ_GEO_INFO_ISECT_MASK		= "IsectMask";					// IntersectMask values
 
 // Constants for Attributes provided by the GZ_USERDATA_DB_INFO
 

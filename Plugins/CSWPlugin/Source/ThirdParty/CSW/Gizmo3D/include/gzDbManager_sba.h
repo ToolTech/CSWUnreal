@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the native RapidMapping format from SBD
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.275
+// Product		: Gizmo3D 2.12.283
 //		
 //
 //			

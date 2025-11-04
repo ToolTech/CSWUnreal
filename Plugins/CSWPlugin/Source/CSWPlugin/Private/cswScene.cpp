@@ -61,6 +61,9 @@ UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectI
 	if (!IsTemplate())	// Avoid construction of threads and resources for CDO
 	{
 		PrimaryComponentTick.bCanEverTick = true;
+
+		//PrimaryComponentTick.SetTickFunctionEnable(true);
+
 		bTickInEditor = true;
 		bAutoActivate = true;
 		

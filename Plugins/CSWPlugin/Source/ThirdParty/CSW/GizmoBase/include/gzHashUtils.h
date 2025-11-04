@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Utility file to handle hash comparing etc..
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.275
+// Product		: GizmoBase 2.12.283
 //		
 //
 //			
@@ -117,11 +117,12 @@ template <class K> inline gzUInt32 gzGetHash(const K & k)
 
 // ------------------- Special hash values ----------------------------------
 
+template <> inline gzUInt32 gzGetHash(const gzUInt16& k){ return (gzUInt32)k; }
 template <> inline gzUInt32 gzGetHash(const gzUInt32& k){ return (gzUInt32)k; }
 template <> inline gzUInt32 gzGetHash(const gzInt32& k) { return (gzUInt32)k; }
 template <> inline gzUInt32 gzGetHash(const gzUInt64& k){ return (gzUInt32)(k & 0xffffffff) + (gzUInt32)((k >> 32) & 0xffffffff); }
 template <> inline gzUInt32 gzGetHash(const gzInt64& k) { return (gzUInt32)(k & 0xffffffff) + (gzUInt32)((k >> 32) & 0xffffffff); }
-template <> inline gzUInt32 gzGetHash(const gzDouble& k) { return (gzUInt32)((*(gzInt64*)&k) & 0xffffffff) + (gzUInt32)(((*(gzInt64*)&k) >> 32) & 0xffffffff); }
+template <> inline gzUInt32 gzGetHash(const gzDouble& k){ return (gzUInt32)((*(gzInt64*)&k) & 0xffffffff) + (gzUInt32)(((*(gzInt64*)&k) >> 32) & 0xffffffff); }
 template <> inline gzUInt32 gzGetHash(const gzFloat& k) { return *(gzUInt32*)&k; }
 
 #endif // __GZ_HASH_UTILS_H__
