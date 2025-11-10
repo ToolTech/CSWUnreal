@@ -47,6 +47,8 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 	if (!image)
 		return nullptr;
 
+	gzImagePtr _image;
+
 	UTexture2D* newTexture(nullptr);
 
 	EPixelFormat pixelFormat(PF_Unknown);
@@ -85,6 +87,36 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 			{
 				switch (image->getFormat())
 				{
+					case GZ_IMAGE_FORMAT_LUMINANCE:
+
+						switch ((gzUInt32)image->getBytesPerComponent())
+						{
+							case 1:
+								pixelFormat = PF_G8;
+								break;
+
+							case 2:
+								pixelFormat = PF_G16;
+								break;
+
+						}
+						break;
+
+					case GZ_IMAGE_FORMAT_RGBA:
+
+						switch ((gzUInt32)image->getBytesPerComponent())
+						{
+							case 1:
+								pixelFormat = PF_R8G8B8A8;
+								break;
+
+							case 2:
+								pixelFormat = PF_R16G16B16A16_UINT;
+								break;
+
+						}
+						break;
+
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGB_S3TC_DXT1:
 					case GZ_IMAGE_FORMAT_COMPRESSED_RGBA_S3TC_DXT1:
 						pixelFormat = PF_DXT1;
@@ -98,13 +130,22 @@ UTexture2D* cswUETexture2DFromImage(gzImage* image)
 						pixelFormat = PF_DXT5;
 						break;
 
-					default:
-						GZMESSAGE(GZ_MESSAGE_WARNING, "No conversion found for pixel format %d", image->getFormat());
-						return nullptr;
-
 				}
 			}
 			break;
+	}
+
+	if (pixelFormat == PF_Unknown)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "No conversion found for pixel format %d", image->getFormat());
+
+		_image = gzImage::createImage(GZ_IMAGE_TYPE_RGBA_8);
+
+		_image = image->create(_image);
+
+		image = _image.get();
+
+		pixelFormat = PF_R8G8B8A8;
 	}
 
 	// Create the texure
