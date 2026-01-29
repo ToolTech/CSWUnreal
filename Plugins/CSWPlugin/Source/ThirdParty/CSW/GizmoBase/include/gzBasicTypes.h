@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic types
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 
 //			
@@ -245,7 +245,7 @@
 	#define GZ_CALLBACK
 	#define GZ_CALLBACK_C
 	#define GZ_FASTCALL
-	#define GZ_NORETURN		/* [[noreturn]] */
+	#define GZ_NORETURN		__attribute__((noreturn))
 
 	#include <sys/types.h>
     #include <unistd.h>
@@ -295,7 +295,7 @@
 	#define GZ_CALLBACK	
 	#define GZ_CALLBACK_C
 	#define GZ_FASTCALL
-	#define GZ_NORETURN		/* [[noreturn]] */
+	#define GZ_NORETURN		__attribute__((noreturn))
 
 	#include <ctype.h>
 	#include <wctype.h>
@@ -438,7 +438,7 @@
 	#define GZ_CALLBACK_C
 	#define GZ_FASTCALL
 	#define GZ_ANDROID_SYST
-	#define GZ_NORETURN		
+	#define GZ_NORETURN		__attribute__((noreturn))
 
 	#include <sys/types.h>
     #include <unistd.h>
@@ -488,7 +488,7 @@
 	#define GZ_CALLBACK_C
 	#define GZ_FASTCALL
 	#define GZ_ANDROID_SYST
-	#define GZ_NORETURN		
+	#define GZ_NORETURN		__attribute__((noreturn))
 
 	#include <sys/types.h>
 	#include <unistd.h>
@@ -3234,10 +3234,10 @@ GZ_USE_BIT_LOGIC(gzClientEnumBits);
 #endif
 
 
-#define GZ_VERSION_STR	"2.12.283"
+#define GZ_VERSION_STR	"2.12.306"
 #define GZ_VERSION_MAJ	2
 #define GZ_VERSION_MIN	12
-#define GZ_VERSION_DEV	283
+#define GZ_VERSION_DEV	306
 
 GZ_BASE_EXPORT const char * gzGenerateDebugString(const char *file , gzInt32 line,const char *version);
 GZ_BASE_EXPORT gzVoid exitNoExceptions();

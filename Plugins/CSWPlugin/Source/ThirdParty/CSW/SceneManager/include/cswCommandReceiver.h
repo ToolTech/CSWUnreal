@@ -42,6 +42,7 @@ class cswSceneManager;
 
 // Disable clear and destroy for gzList<cswSceneManager>
 template <> inline gzVoid gzList<cswSceneManager>::clearAndDestroy(){}
+template <> inline gzVoid gzList<cswCommandReceiverInterface>::clearAndDestroy() {}
 
 //******************************************************************************
 // Class	: cswCommandReceiverInterface
@@ -72,3 +73,4 @@ private:
 
 	gzList<cswSceneManager>	m_sources;
 };
+

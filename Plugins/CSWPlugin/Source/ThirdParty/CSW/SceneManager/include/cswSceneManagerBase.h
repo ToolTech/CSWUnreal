@@ -109,5 +109,8 @@ public:
 
 // Constants --------------------------------------
 
-const gzString CSW_META = "CSW";
-const gzString BUILD_DATA = "build";
+// Scene Attributes used by CSW
+const gzString CSW_META				= "CSW";
+const gzString CSW_BUILD_DATA		= "build";
+const gzString CSW_PATH_ID			= "PathID";
+

@@ -1,4 +1,4 @@
-// *****************************************************************************
+﻿// *****************************************************************************
 //
 // Copyright (C) SAAB AB
 //
@@ -18,8 +18,8 @@
 // File			: gzTime.h
 // Module		: gzBase
 // Description	: Class definition of time management utilties
-// Author		: Anders Mod�n		
-// Product		: GizmoBase 2.12.283
+// Author		: Anders Modén		
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -33,6 +33,7 @@
 //									
 // AMO	040301	Created file 
 // AMO	140321	Updated gzTime::systemSeconds in Windows	(2.7.6)
+// AMO	251231	Added Doxygen for time utilities			(2.12.297)
 //
 // ******************************************************************************
 
@@ -59,7 +60,6 @@
 // AMO	980820	Created 
 //									
 //******************************************************************************
-
 /*! \brief Provides a generic time management class
 
 The gzTime class is Gizmo3D generic class for time management. The time can be adjusted without
@@ -93,29 +93,40 @@ public:
 
 	gzDouble minuteSeconds() const;
 
+	//! Format time to string using strftime-style fields.
 	gzString asString(const gzString &format="%4d-%02d-%02d %02d:%02d:%02d") const;
 
-	//! Defaults to UTC time
+	//! Defaults to UTC time.
 	static gzTime now(gzBool localTime=FALSE);
 
+	//! Set the internal time offset (does not change OS clock).
 	static gzVoid setTime(gzDouble time,gzBool localTime=FALSE);
 
+	//! Seconds since epoch based on current time source.
 	static gzDouble systemSeconds();
 
+	//! Seconds since process start.
 	static gzDouble uptimeSeconds();
 
+	//! Local time offset from UTC in seconds.
 	static gzDouble getLocalTimeOffset();
 
+	//! Days in year (handles leap years).
 	static gzUInt16 daysPerYear(gzUInt32 year);
 
+	//! Days in month (handles leap years).
 	static gzUByte daysPerMonth(gzUByte month,gzUInt32 year);
 
+	//! Timer resolution in seconds (best available).
 	static gzDouble getTimeResolution();
 
+	//! Get current system time offset (seconds).
 	static gzDouble getSystemTimeOffset();
 
+	//! Set system time offset (seconds).
 	static void setSystemTimeOffset(gzDouble offset);
 
+	//! True if system time has been synchronized.
 	static gzBool isSystemSynchronized();
 
 	gzDouble operator -(const gzTime &time) const;

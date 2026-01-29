@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzNode class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -191,6 +191,7 @@ const gzString GZ_SECTION_NODE_DATA				="_node_upd";
 const gzString GZ_SECTION_DYNLOAD				="_dynload";
 const gzString GZ_SECTION_REFRESH				="_refresh";
 const gzString GZ_SECTION_IMAGE_GET				="_get_image_from_gpu";
+const gzString GZ_SECTION_IMAGE_RENDER			="_image_render";
 const gzString GZ_SECTION_FINISH				="_finish";
 const gzString GZ_SECTION_SHADOW_VOLUME_CREATE	="_shad_vol_cr";
 const gzString GZ_SECTION_SHADOW_VOLUME_RENDER	="_shad_vol_re";

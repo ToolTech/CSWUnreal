@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzOrigin class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -33,6 +33,7 @@
 // Who	Date	Description						
 //									
 // AMO	981122	Created file 	
+// AMO	251118	Added method to get number of origins			(2.12.288)
 //
 //******************************************************************************
 #ifndef __GZ_ORIGIN_H__
@@ -128,6 +129,9 @@ public:
 	The size of the geometry axis is 10 and the step is 1.
 	*/
 	GZ_GRAPH_EXPORT static gzVoid addOriginAxis(const gzVec4 &color = gzVec4(0.0, 0.0, 0.0, 1.0));
+
+	//! Get number of origins in database
+	GZ_GRAPH_EXPORT static gzUInt32 getNumberOfOrigins();
 
 	//!	The local coordinate system is scaled with the factor scale.
 	/*!

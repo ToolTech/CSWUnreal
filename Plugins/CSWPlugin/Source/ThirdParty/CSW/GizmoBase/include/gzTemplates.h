@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of iterator utilities
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 	 
 //			
@@ -239,6 +239,9 @@ template <class T> class gzRefList;
 //******************************************************************************
 /*! \brief Template class for linked lists
 
+	\tparam T Item type stored as raw pointers (T*). Ownership is controlled by the caller;
+	use clearAndDestroy() to delete items.
+
 The gzList is a template class that contains a single linked list with fast access to retreive
 and store items in the list. It does also provide the virtual functions onInsert and onRemove so the user
 can derive this class and access these events.
@@ -374,14 +377,19 @@ template <class T> class gzList
 
 		gzBool operator==(const gzList &right) const;
 
-		// ---- Iterator för klassen gzList<T> -----------------------------------------------------
+		// ---- Iterator support for gzList<T> -----------------------------------------------------
 
+		//! Iterator type for range-based for.
 		using iterator = gzListIterator<T>;
 
+		//! Returns iterator at first element.
 		iterator begin();
+		//! Returns end iterator (null-sentinel).
 		iterator end();
 
+		//! Returns const iterator at first element.
 		iterator cbegin() const;
+		//! Returns const end iterator (null-sentinel).
 		iterator cend()   const;
 
 		//! Allocates link items in advance to avoid memory fragmentation
@@ -5109,6 +5117,9 @@ template <class T> class gzDListConstIterator;
 //******************************************************************************
 /*! \brief Template class for double linked lists
 
+	\tparam T Item type stored as raw pointers (T*). Ownership is controlled by the caller;
+	use clearAndDestroy() to delete items.
+
 The gzDList is a template class that contains a single linked list with fast access to retreive
 and store items in the list. It does also provide the virtual functions onInsert and onRemove so the user
 can derive this class and access these events.
@@ -5228,17 +5239,23 @@ template <class T> class gzDList
 
 		gzVoid reuseLinks(gzBool on=FALSE);
 
+		//! Iterator type for range-based for.
 		using iterator = gzDListIterator<T>;
 
+		//! Returns iterator at first element.
 		inline iterator begin() { return iterator(*this, TRUE, FALSE); } // setFirst()
+		//! Returns end iterator (null-sentinel).
 		inline iterator end() { return iterator(*this, FALSE, TRUE); } // null-sentinel
 
+		//! Returns const iterator at first element.
 		inline iterator cbegin() const { return iterator(const_cast<gzDList&>(*this), TRUE, FALSE); }
+		//! Returns const end iterator (null-sentinel).
 		inline iterator cend()   const { return iterator(const_cast<gzDList&>(*this), FALSE, TRUE); }
 
-		// (valfritt) reverse-stöd med samma iterator
+		//! Reverse iteration using the same iterator type.
+		//! rbegin() starts at last element, rend() is the before-first sentinel.
 		inline iterator rbegin() { return iterator(*this, FALSE, FALSE); } // setLast()
-		inline iterator rend() { return iterator(*this, FALSE, TRUE); } // null-sentinel för “före-first”
+		inline iterator rend() { return iterator(*this, FALSE, TRUE); } // null-sentinel for before-first
 
 		gzVoid swapListData(gzDList& swapper);
 
@@ -6902,7 +6919,7 @@ private:
 
 };
 
-template <class T> inline gzLateBindData<T>::gzLateBindData():m_pointer(NULL){};
+template <class T> inline gzLateBindData<T>::gzLateBindData():m_pointer(nullptr){};
 
 template <class T> inline gzBool gzLateBindData<T>::isBound() const
 {
@@ -8394,18 +8411,32 @@ template <class T,class SORTVAL> inline gzVoid gzDataSort<T,SORTVAL>::getSortedA
 
 // --------------------- gzTriState ---------------------------
 
+/*!	\brief Optional value container (value + valid flag).
+
+	Stores a value of type T and a validity flag. When invalid, the stored value
+	is considered undefined. This is useful for "optional" semantics (set/unset)
+	without introducing a separate sentinel value.
+*/
 template <class T> class gzTriState
 {
 public:
 
+	//! Default: invalid state.
 	gzTriState():m_valid(FALSE)
 	{
 	}
 
+	//! Copy constructor preserves value and validity.
+	gzTriState(const gzTriState<T>& right) :m_value(right.m_value), m_valid(right.m_valid)
+	{
+	}
+
+	//! Construct with value, marked valid.
 	gzTriState(const T& right):m_value(right),m_valid(TRUE)
 	{
 	}
 
+	//! Assign value and mark valid.
 	const T& operator=(const T& right)
 	{
 		m_value=right;
@@ -8414,24 +8445,35 @@ public:
 		return m_value;
 	}
 
+	//! Implicit conversion to value (no validity check).
 	operator T () const 
 	{
 		return m_value;
 	}
 
+	//! Get value (no validity check).
 	T  value() const
 	{
 		return m_value;
 	}
 
+	//! Returns TRUE if a value is set.
 	gzBool isValid() const
 	{
 		return m_valid;
 	}
 
+	//! Clears the value (marks invalid).
 	gzVoid clear()
 	{
 		m_valid = FALSE;
+	}
+
+	//! Access value and optionally set validity.
+	T& access(gzBool valid=TRUE)
+	{
+		m_valid = valid;
+		return m_value;
 	}
 
 private:

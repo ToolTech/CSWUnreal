@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzApplication class
 // Author		: Anders ModÈn		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //	
 //			
@@ -181,7 +181,7 @@ public:
 
 	GZ_SYSTEM_EXPORT static gzVoid clearGizmoApplication();
 	
-	GZ_SYSTEM_EXPORT static gzRefPointer<gzApplication> getGizmoApplication();
+	GZ_SYSTEM_EXPORT static gzApplication *getGizmoApplication();
 
 	GZ_SYSTEM_EXPORT static gzVoid stopGizmoApplication();
 
@@ -231,7 +231,8 @@ private:
  	
 #endif // ------------------------ COMMON ---------------------------------
 
-	static gzRefPointer<gzApplication>  s_gizmoApplication;
+	static gzApplication*				s_gizmoApplication;
+	static gzRefPointer<gzApplication>  s_gizmoApplicationInstance;
 	static gzMutex                      s_appLocker;
 };
 

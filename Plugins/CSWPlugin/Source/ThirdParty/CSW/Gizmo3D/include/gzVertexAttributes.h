@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzVertexAttributes class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -44,7 +44,6 @@
 */
 
 
-#include "gzMatrix.h"
 #include "gzObject.h"
 
 enum gzGeoAttribBinding

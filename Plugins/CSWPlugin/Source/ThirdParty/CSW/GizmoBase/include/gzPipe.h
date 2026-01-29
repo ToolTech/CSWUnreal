@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Pipes classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -292,6 +292,10 @@ private:
 	GZ_BASE_EXPORT virtual gzVoid process() override;
 
 	gzSocket*							m_pipeSocket;
+
+	gzSocket*							m_connectionSocket;
+
+	gzMutex								m_connectionSocketLocker;
 
 	gzBool								m_createPipe;
 

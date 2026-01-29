@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of platform dependant test assert integrations
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -44,6 +44,8 @@
 	using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 	#define Assert_Fail(x) Assert::Fail(x)
 	#define Logger(x) Logger::WriteMessage(x)
+
+	#define GZ_IS_ASSERTING
 
 #else
 
@@ -125,12 +127,18 @@ public:
 
 	gzVoid reportErrors()
 	{
+	#if defined GZ_IS_ASSERTING
+		// Assert::Fail is noreturn, so only report the first error to avoid unreachable warnings.
+		if (m_asserts.getSize())
+			Assert_Fail(m_asserts[0].getWideString());
+	#else
 		for (gzUInt32 i = 0; i < m_asserts.getSize(); i++)
 			Assert_Fail(m_asserts[i].getWideString());
 
 		m_asserts.setSize(0);
+	#endif
 	}
-
+	
 	GZ_PROPERTY(gzBool, AssertOnFatal);
 	GZ_PROPERTY(gzBool, AssertOnWarning);
 	GZ_PROPERTY(gzBool, ImmediateAssert);

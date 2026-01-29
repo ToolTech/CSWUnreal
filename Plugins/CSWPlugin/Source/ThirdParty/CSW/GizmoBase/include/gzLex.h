@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Lex classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 
 //			
@@ -1341,7 +1341,7 @@ public:
 
 	GZ_BASE_EXPORT	gzVoid				setError(const gzString& error, ARG_DECL_LIST);
 	GZ_BASE_EXPORT	gzBool				hasError();
-	GZ_BASE_EXPORT	const gzString& getError();
+	GZ_BASE_EXPORT	const gzString&		getError();
 
 
 	GZ_BASE_EXPORT	gzBool				hasData();

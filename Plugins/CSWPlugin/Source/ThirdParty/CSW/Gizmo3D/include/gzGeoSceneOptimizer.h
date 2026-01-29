@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Global SceneGraph LOD Geometry Optimizer
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -44,6 +44,7 @@
 */
 
 #include "gzNode.h"
+#include "gzGeometryOptimizer.h"
 
 typedef enum {
 	GZ_GEO_SCENE_OPTIMIZE_DEFAULT = 0,			// Default
@@ -83,9 +84,10 @@ private:
 
 	gzVoid traverseScene(gzNode* node,  gzUInt32 buildGroup, const gzMatrix4& currentTransform);
 
-	gzVoid addGeometry(gzGeometry* geom, gzUInt32 buildGroup,const gzMatrix4& currentTransform);
+	gzVoid addGeometry(gzGeometry* geom, gzState* state, gzUInt32 buildGroup,const gzMatrix4& currentTransform);
 
 	gzContextPtr m_currentContext;
+	gzTriangleContainerPtr	m_triangleContainer;
 
 	gzUInt32	m_nextBuildGroup;
 };

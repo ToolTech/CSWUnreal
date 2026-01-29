@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of mutex functionality
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			

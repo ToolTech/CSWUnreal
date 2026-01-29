@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzRoi class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -369,6 +369,8 @@ public:
 	GZ_GRAPH_EXPORT gzVoid removeRoiNode(const gzDoubleXYZ & position , const gzString &url);
 
 	GZ_GRAPH_EXPORT gzVoid removeRoiNode(gzRoiNode *node);
+
+	GZ_GRAPH_EXPORT gzUInt32 getNumberOfRoiNodes();
 
 	GZ_GRAPH_EXPORT gzVoid setMinimumCheckDistance(gzDouble distance);
 

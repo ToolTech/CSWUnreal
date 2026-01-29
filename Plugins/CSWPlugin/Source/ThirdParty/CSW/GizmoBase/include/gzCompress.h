@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definitions for compress utility
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -101,6 +101,8 @@ GZ_BASE_EXPORT gzBool gzUnCompress(const gzUByte *from , gzUInt32 len_in , gzUBy
 //! CRC32 polynom x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1.
 GZ_BASE_EXPORT gzUInt32 gzCRC32(gzUInt32 crc,const gzUByte *buffer , gzUInt32 len);
 GZ_BASE_EXPORT gzUInt32 gzCRC32(gzUInt32 crc, const gzUByte* buffer, gzUInt64 len);
+
+GZ_BASE_EXPORT gzUInt32 gzCRC32(const gzString &url,gzUInt64 *length=nullptr);
 
 
 // --------- Def of adapters -----------------------------

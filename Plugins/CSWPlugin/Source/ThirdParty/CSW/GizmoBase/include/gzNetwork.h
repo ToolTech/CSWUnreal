@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Network classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -112,6 +112,7 @@ enum gzSocketOption
 	GZ_SOCKET_OPTION_RECEIVE_TIMEOUT,			//!< set receive timout values
 	GZ_SOCKET_OPTION_IP_TTL,
 	GZ_SOCKET_OPTION_TCP_NO_DELAY,				//!< disable nagle algorithm
+	GZ_SOCKET_OPTION_SYN_RETRY,					//!< retry count for SYN in tcp connect ,timeout=R*(2^(c+1)-1), R=1
 };
 
 
@@ -271,6 +272,8 @@ public:
 	gzSocketAddress							sender;
 	gzRecycleData<gzDynamicArray<gzUByte> >	data;
 };
+
+GZ_DECLARE_REFPTR(gzNetData);
 
 
 //******************************************************************************

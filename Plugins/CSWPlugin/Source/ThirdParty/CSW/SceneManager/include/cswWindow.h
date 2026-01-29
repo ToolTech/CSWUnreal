@@ -39,6 +39,8 @@
 #include "cswSceneManagerBase.h"
 #include "gzSystemLibrary.h"
 
+class cswSceneManager;	// Forward decl
+
 //******************************************************************************
 // Class	: cswWindow
 //
@@ -65,6 +67,8 @@ public:
 
 	CSW_SM_EXPORT gzVoid setCamera(const gzCameraPtr& camera) override;
 
+	CSW_SM_EXPORT gzVoid setSceneManager(cswSceneManager* manager);
+
 protected:
 
 	CSW_SM_EXPORT gzBool onKey(gzKeyValue key, gzKeyState keystate, gzInt32 mouse_x, gzInt32 mouse_y) override;
@@ -72,6 +76,8 @@ protected:
 private:
 
 	gzInputInterface* m_input;
+
+	cswSceneManager* m_manager;
 };
 
 GZ_DECLARE_REFPTR(cswWindow);

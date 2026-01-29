@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the dds format reader
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -33,6 +33,7 @@
 // Who	Date	Description						
 //									
 // AMO	011204	Created file 	
+// AMO	260122	Added saveImage support					(2.12.303)
 //
 //******************************************************************************
 #ifndef __GZ_IMAGE_DDS_H__
@@ -57,7 +58,7 @@ public:
 
 	GZ_IMAGE_EXPORT virtual gzImage	*	loadImage(gzSerializeAdapter *adapter) override;
 
-	// GZ_IMAGE_EXPORT virtual gzBool		saveImage(gzImage *image , gzSerializeAdapter *adapter) override;
+	GZ_IMAGE_EXPORT virtual gzBool		saveImage(gzImage *image , gzSerializeAdapter *adapter) override;
 
 	GZ_IMAGE_EXPORT virtual gzString	getExtensions() override;
 

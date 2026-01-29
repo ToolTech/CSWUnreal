@@ -63,6 +63,19 @@ public:
 };
 
 GZ_DECLARE_REFPTR(cswSceneCommand);
+// ------------------------ cswSceneCommandResponse -------------------------------
+
+class cswSceneCommandResponse : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandResponse(const gzUInt32 commandRefID = 0);
+	GZ_PROPERTY_EXPORT(gzUInt32, CommandRefID, CSW_SM_EXPORT);
+
+};
+
+GZ_DECLARE_REFPTR(cswSceneCommandResponse);
 
 // ------------------------ cswSceneCommandInitialize -------------------------------
 
@@ -126,16 +139,16 @@ public:
 	GZ_PROPERTY_EXPORT(gzString, MapURLs, CSW_SM_EXPORT);
 };
 
-// ------------------------ cswSceneCommandRemoveMap -------------------------------
+// ------------------------ cswSceneCommandRemoveObject -------------------------------
 
-class cswSceneCommandRemoveMap : public cswSceneCommand
+class cswSceneCommandRemoveObject : public cswSceneCommand
 {
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandRemoveMap(const gzString& mapURL);
+	CSW_SM_EXPORT cswSceneCommandRemoveObject(const gzString& objectName);
 
-	GZ_PROPERTY_EXPORT(gzString, MapURL, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzString, Name, CSW_SM_EXPORT);
 };
 
 // ------------------------ cswSceneCommandClearMaps -------------------------------
@@ -216,7 +229,7 @@ public:
 
 // ------------------------ cswSceneCommandError -------------------------------
 
-class cswSceneCommandErrorMessage : public cswSceneCommand
+class cswSceneCommandErrorMessage : public cswSceneCommandResponse
 {
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
@@ -227,7 +240,6 @@ public:
 
 	GZ_PROPERTY_EXPORT(gzString, Message, CSW_SM_EXPORT);
 
-	GZ_PROPERTY_EXPORT(gzUInt32, CommandRefID, CSW_SM_EXPORT);
 
 };
 
@@ -248,15 +260,33 @@ public:
 
 // ------------------------ cswSceneCommandGeoInfo -------------------------------
 
-class cswSceneCommandGeoInfo : public cswSceneCommand
+class cswSceneCommandGeoInfo : public cswSceneCommandResponse
 {
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandGeoInfo(const gzString &coordinateSystem,const gzVec3D &origin);
+	CSW_SM_EXPORT cswSceneCommandGeoInfo(const gzString &coordinateSystem,const gzVec3D &origin, const gzUInt32 commandRefID = 0);
 
 	GZ_PROPERTY_EXPORT(gzString, CoordinateSystem, CSW_SM_EXPORT);
 	GZ_PROPERTY_EXPORT(gzVec3D, Origin, CSW_SM_EXPORT);
+
+};
+
+
+// ------------------------ cswSceneCommandAddObject -------------------------------
+
+class cswSceneCommandAddObject : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandAddObject(const gzString &name, gzNode* node, const gzVec3D& position, const gzDouble& loadDistance = 10000, const gzDouble& purgeDistance = 10000);
+
+	GZ_PROPERTY_EXPORT(gzString,	Name, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzNodePtr,	Node, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	LoadDistance, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	PurgeDistance, CSW_SM_EXPORT);
 
 };
 
@@ -298,7 +328,7 @@ class cswSceneCommandNewNode : public cswSceneCommandHierarchyInstance
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandNewNode(gzNode *node, const gzUInt64& pathID, gzGroup *parent, const gzUInt64& parentPathID, gzState *state);
+	CSW_SM_EXPORT cswSceneCommandNewNode(gzNode *node, const gzUInt64& pathID, gzGroup *parent, const gzUInt64& parentPathID, gzState *state, const gzUInt32 commandRefID = 0);
 
 	GZ_PROPERTY_EXPORT(gzStatePtr, State, CSW_SM_EXPORT);
 };
@@ -334,9 +364,9 @@ public:
 
 	CSW_SM_EXPORT cswSceneCommandPositionCamera(const gzVec3D &position , const gzVec3 &hpr = GZ_ZERO_VEC3 , const gzFloat &hfov=50,const gzFloat& vfov=50);
 
-	GZ_PROPERTY_EXPORT(gzVec3D, Position, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
 
-	GZ_PROPERTY_EXPORT(gzVec3, HPR, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	HPR, CSW_SM_EXPORT);
 
 	GZ_PROPERTY_EXPORT(gzFloat, HFOV, CSW_SM_EXPORT);
 
@@ -361,6 +391,108 @@ public:
 
 };
 
+// ------------------------ cswSceneCommandRequestCameraPosition -------------------------------
+
+class cswSceneCommandRequestCameraPosition : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandRequestCameraPosition();
+};
+
+// ------------------------ cswSceneCommandCameraPositionResponse -------------------------------
+
+class cswSceneCommandCameraPositionResponse : public cswSceneCommandResponse
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandCameraPositionResponse(gzPerspCamera* camera, const gzBool status = TRUE, const gzUInt32 commandRefID = 0);
+
+	GZ_PROPERTY_EXPORT(gzBool,	Status, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	HPR, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzFloat, HFOV, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzFloat, VFOV, CSW_SM_EXPORT);
+};
+
+// ------------------------ cswSceneCommandRequestGroundClampPosition -------------------------------
+
+class cswSceneCommandRequestGroundClampPosition : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandRequestGroundClampPosition(const gzDouble& latitude, const gzDouble& longitude, const gzDouble& heightAboveGround = 1000, const gzBool& waitForData = FALSE);
+
+	GZ_PROPERTY_EXPORT(gzDouble,	Latitude, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	Longitude, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	HeightAboveGround, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,		WaitForData, CSW_SM_EXPORT);
+};
+
+// ------------------------ cswSceneCommandGroundClampPositionResponse -------------------------------
+
+class cswSceneCommandGroundClampPositionResponse : public cswSceneCommandResponse
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandGroundClampPositionResponse(const gzBool& clampResult, const gzVec3D& position, const gzVec3& normal, const gzVec3& up, const gzUInt32 commandRefID = 0);
+
+	GZ_PROPERTY_EXPORT(gzBool,	ClampResult, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	Normal, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	Up, CSW_SM_EXPORT);
+};
+
+// ------------------------ cswSceneCommandKeyPressed -------------------------------
+
+class cswSceneCommandKeyPressed : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandKeyPressed(const gzUInt32 key, const gzUInt32 keyState, const gzInt32 mouseX, const gzInt32 mouseY);
+
+	GZ_PROPERTY_EXPORT(gzUInt32, Key, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzUInt32, KeyState, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzInt32, MouseX, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzInt32, MouseY, CSW_SM_EXPORT);
+};
+// ------------------------ cswSceneCommandIntersect -------------------------------
+
+class cswSceneCommandIntersect : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandIntersect(const gzVec3D& start, const gzVec3& direction, const gzBool waitForData = FALSE, const gzIntersectMaskValue& intersectMask = (gzIntersectMaskValue)(GZ_INTERSECT_MASK_GROUND | GZ_INTERSECT_MASK_WATER));
+
+	GZ_PROPERTY_EXPORT(gzVec3D, Start,			CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	Direction,		CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,	WaitForData,	CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzIntersectMaskValue,	IntersectMask,	CSW_SM_EXPORT);
+};
+// ------------------------ cswSceneCommandIntersectResponse -------------------------------
+
+class cswSceneCommandIntersectResponse : public cswSceneCommandResponse
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandIntersectResponse(const gzBool status = FALSE, const gzVec3D& position = gzVec3D(0,0,0), const gzVec3& normal = GZ_ZERO_VEC3, const gzFloat& distance = 0, const gzVec3& a = GZ_ZERO_VEC3, const gzVec3& b = GZ_ZERO_VEC3, const gzVec3& c = GZ_ZERO_VEC3, gzNode* hitNode = nullptr, const gzUInt32 commandRefID = 0);
+
+	GZ_PROPERTY_EXPORT(gzBool,	Status,		CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	Normal,		CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzFloat, Distance,	CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	A,			CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	B,			CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,	C,			CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzNodePtr,	HitNode,	CSW_SM_EXPORT);
+};
 // ------------------------ cswSceneCommandStartFrame -------------------------------
 
 class cswSceneCommandStartFrame : public cswSceneCommandPositionCamera
@@ -377,7 +509,7 @@ public:
 
 // ------------------------ cswSceneCommandEndFrame -------------------------------
 
-class cswSceneCommandEndFrame : public cswSceneCommand
+class cswSceneCommandEndFrame : public cswSceneCommandResponse
 {
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);

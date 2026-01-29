@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 		
 //			
@@ -46,6 +46,8 @@
 // AMO	250327	Added large data stream support							(2.12.234)
 // AMO	250827	Updated macros for serialization						(2.12.264)
 // AMO	251004	Added gzSerializeAdapterMessage to send to gzMessage	(2.12.274)
+// AMO	251205	Added gzDirectoryIteratorDepth with max recursive depth	(2.12.291)
+// AMO	251217	Added lf=tyes in readLine that was removed before		(2.12.296)
 //
 // ******************************************************************************
 
@@ -71,16 +73,16 @@ Gizmo3D uses serialize patterns for file and data storage/retreival
 #include "gzRGBA.h"
 #include "gzExceptions.h"
 
-//#include <stdio.h>
-
 enum gzSerializeAction { GZ_SERIALIZE_NONE=0 , GZ_SERIALIZE_OUTPUT=1 , GZ_SERIALIZE_INPUT=2 , GZ_SERIALIZE_DUPLEX=GZ_SERIALIZE_OUTPUT|GZ_SERIALIZE_INPUT} ;
 
 GZ_USE_BIT_LOGIC(gzSerializeAction);
 
+//! Default name of gizmosdk logging output
 const gzString	GZ_LOG_NAME				="gizmosdk.log";
 
 class gzSerializeData;
 
+// Definitions of common URL bases
 const gzString	GZ_URLBASE_FILE				= "file:";	// path/file name?append=true/false or service
 const gzString	GZ_URLBASE_HTTP				= "http:";	// http url
 const gzString	GZ_URLBASE_UDP				= "udp:";	// udp multicast or broadcast {multicast adress:port?nic} url
@@ -104,18 +106,20 @@ const gzString	GZ_URLBASE_DEBUG			= "debug:";	// debug message output
 const gzString	GZ_URLBASE_NOTICE			= "notice:";// notice message output
 const gzString	GZ_URLBASE_WARNING			= "warn:";	// warning message output
 const gzString	GZ_URLBASE_FATAL			= "fatal:";	// fatal message output
+const gzString	GZ_URLBASE_PROCESS			= "process:";// process:{command}?quiet=yes&merge=yes
 
 
 // --------------- Defined Input Services --------------------
 
 // (Input) Directory listing (2.12.17)
-// URL="{base}{path}[dir:recursive={yes/no}&showpath=yes&showdir=yes&verbose=no&showsize=no&bnf=]");
+// URL="{base}{path}[dir:recursive={yes/no}&showpath=yes&showdir=yes&verbose=no&depth=0xffff&showsize=no&bnf=]");
 // resursive	: traverses down
 // showpath		: show complete path
 // showdir		: includes dir as items
 // verbose		: a more verbose output
 // showsize		: shows filesize
 // bnf			: bnf to match items
+// depth		: max depth of recursive iterator
 
 // (Input) CRC number of file content(2.12.117)
 // URL="{base}{path}filename[crc:verbose=no&showsize=no]");
@@ -374,6 +378,9 @@ public:
 	//! Use this to to check if we are adapter service
 	GZ_BASE_EXPORT virtual gzBool isService() const					{ return m_isService; }
 
+	//! Await data to read in milliseconds
+	GZ_BASE_EXPORT virtual gzBool awaitAvailableData(gzUInt32 msec) ;
+
 	// ------------- Errors ------------------------------------------------------------------------------
 	
 	GZ_BASE_EXPORT virtual gzBool	hasError() const;
@@ -474,6 +481,7 @@ public:
 		\return TRUE means that the URL is an Absolute path
 	*/
 	GZ_BASE_EXPORT static gzBool	getURLBaseEncoding(const gzString &url, gzString *_urlBase=nullptr,gzString * _urlPath=nullptr,gzString *_urlName=nullptr,gzString *_urlAttributes=nullptr,gzBool *_syntax_OK=nullptr,gzBool enablePathExtension=TRUE);
+	GZ_BASE_EXPORT static gzString	getResolvedURL(const gzString &baseURL, const gzString &url, gzBool enablePathExtension=TRUE);
 	GZ_BASE_EXPORT static gzString	getURLAttributeValue(const gzString &attributeName,const gzString &urlAttributes,const gzString &defaultValue=GZ_EMPTY_STRING);
 	GZ_BASE_EXPORT static gzString	updateURLAttributeValue(const gzString& attributeName, const gzString& value, const gzString& urlAttributes, const gzString& amp=GZ_STRING_AMPERSAND);
 	GZ_BASE_EXPORT static gzBool	hasURLAttributeValue(const gzString &attributeName, const gzString &urlAttributes);
@@ -561,48 +569,6 @@ protected:
 
 GZ_DECLARE_REFPTR(gzSerializeAdapter);
 
-// ------------------------ conio imp --------------------------------------------
-
-GZ_BASE_EXPORT void gz_gotoxy(int x, int y);
-GZ_BASE_EXPORT void gz_clrscr();
-GZ_BASE_EXPORT void gz_putch(int c);
-GZ_BASE_EXPORT int	gz_getch();
-GZ_BASE_EXPORT int	gz_getche();
-GZ_BASE_EXPORT int	gz_kbhit();
-
-//******************************************************************************
-// Class	: gzSerializeAdapterStdIO
-//									
-// Purpose  : Class for Serialize data to STDIO
-//									
-// Notes	: This class is responsible to write/read data to adapter
-//									
-// Revision History...							
-//									
-// Who	Date	Description						
-//									
-// AMO	981019	Created 
-//									
-//******************************************************************************
-class  gzSerializeAdapterStdIO : public gzSerializeAdapter
-{
-public:
-	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);	// RTTI
-
-	GZ_BASE_EXPORT gzSerializeAdapterStdIO();
-
-	GZ_BASE_EXPORT virtual ~gzSerializeAdapterStdIO();
-
-	GZ_PROPERTY_EXPORT(gzBool, LF, GZ_BASE_EXPORT);
-	GZ_PROPERTY_EXPORT(gzBool, Echo, GZ_BASE_EXPORT);
-
-protected:
-		
-	GZ_BASE_EXPORT virtual gzVoid	write_imp(gzUByte data) override;
-	GZ_BASE_EXPORT virtual gzUByte	read_imp() override;
-	GZ_BASE_EXPORT virtual gzBool	hasData_imp() override;
-	GZ_BASE_EXPORT virtual gzUInt32 length_imp() override;
-};
 
 //******************************************************************************
 // Class	: gzSerializeAdapterMemory
@@ -3819,6 +3785,10 @@ public:
 	//! Called when adapter wants more data if possible in a read
 	GZ_BASE_EXPORT virtual gzVoid onRequestData(gzUInt64 /*len*/) {}
 
+	GZ_BASE_EXPORT gzUInt64 getPackageSize();
+
+	GZ_BASE_EXPORT gzBool validate();
+
 protected:
 
 	GZ_BASE_EXPORT virtual gzBool		support_large_imp() override { return TRUE; }
@@ -6188,9 +6158,6 @@ public:
 
 #define writeAdapterString gzWriteAdapterStringUtils::writeAdapterString
 
-GZ_BASE_EXPORT gzBool readLine(gzString &result,gzSerializeAdapter *adapter=gzSerializeAdapter::getURLAdapter("con:"),gzFloat timeOut=10);
-GZ_BASE_EXPORT gzBool writeLine(const gzString& output, gzSerializeAdapter* adapter = gzSerializeAdapter::getURLAdapter("con:"));
-
 GZ_BASE_EXPORT gzBool copyAdapters(gzSerializeAdapter *to, gzSerializeAdapter *from, gzString *errorString = NULL);
 GZ_BASE_EXPORT gzBool copyAdapters(const gzString &toURL, const gzString &fromURL, gzString *errorString = NULL);
 GZ_BASE_EXPORT gzBool copyAdapters(const gzString &toURL , const gzString &fromURL, gzString *errorString , gzSerializeAdapterFlags output_flags, gzSerializeAdapterFlags input_flags);
@@ -6272,6 +6239,59 @@ private:
 	static gzUInt32								s_maxBytes;
 	static gzUInt32								s_currentBytes;
 };
+
+class gzExecProcess;
+
+//******************************************************************************
+// Class	: gzSerializeAdapterProcessIO
+//									
+// Purpose  : Class for Serialize data from/to a process
+//									
+// Revision History...
+//									
+// AMO	251229	Created												(2.12.297)
+//									
+//******************************************************************************
+class gzSerializeAdapterProcessIO : public gzSerializeAdapter
+{
+public:
+
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);
+
+	GZ_BASE_EXPORT gzSerializeAdapterProcessIO(gzExecProcess* process);
+
+	GZ_BASE_EXPORT virtual ~gzSerializeAdapterProcessIO();
+
+	// Explicit stängning av respektive sida
+	GZ_BASE_EXPORT gzVoid closeIn();
+	GZ_BASE_EXPORT gzVoid closeOut();
+
+	// Optional: query
+	GZ_BASE_EXPORT gzBool hasIn() const;
+	GZ_BASE_EXPORT gzBool hasOut() const;
+
+
+	GZ_BASE_EXPORT virtual gzVoid		flush() override;
+
+protected:
+
+	GZ_BASE_EXPORT virtual gzVoid		write_imp(gzUByte data) override;
+	GZ_BASE_EXPORT virtual gzUByte		read_imp() override;
+
+	GZ_BASE_EXPORT virtual gzVoid		write_imp(const gzUByte* data, gzUInt32 count) override;
+	GZ_BASE_EXPORT virtual gzUInt32		read_imp(gzUByte* data, gzUInt32 maxcount) override;
+
+	GZ_BASE_EXPORT virtual gzBool		hasData_imp() override;
+	GZ_BASE_EXPORT virtual gzUInt32		length_imp() override;
+	GZ_BASE_EXPORT virtual gzBool		eof_imp() override;
+
+private:
+
+	gzRefPointer<gzReference>	m_process;
+};
+
+GZ_DECLARE_REFPTR(gzSerializeAdapterProcessIO);
+
 
 // Big Endian versions
 

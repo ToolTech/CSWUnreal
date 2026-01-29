@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of reference handle
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -35,6 +35,7 @@
 // AMO	101021	Added a releaseRefs to gzReference					(2.5.14)
 // AMO	200408	Added some conveniet operators for gzRefPointer<T>	(2.10.5)
 // AMO	251004	Added move semantics to som ref templates			(2.12.274)
+// AMO	260113	Marked throwFatalException noreturn			(2.12.275)
 //
 //******************************************************************************
 #ifndef __GZ_REFERENCE_H__
@@ -209,7 +210,7 @@ protected:
 
 	// Protected utility function
 
-	static gzVoid throwFatalException(const char* str1, const char* str2 = NULL);
+	GZ_NORETURN static gzVoid throwFatalException(const char* str1, const char* str2 = NULL);
 
 private:
 
@@ -332,7 +333,6 @@ inline gzReference::~gzReference()
 inline gzReference* gzReference::clone() const
 {
 	throwFatalException("Unimplemented clone called for type '%s'", (const char*)getTypeName());
-	return NULL;
 }
 
 //******************************************************************************
@@ -633,7 +633,10 @@ public:
 	//! Move semantics
 	gzRefList& operator=(gzRefList&& o) noexcept 
 	{ 
-		if (this != &o) gzList<T>::swapListData(o); return *this; 
+		if (this != &o) 
+			gzList<T>::swapListData(o); 
+		
+		return *this; 
 	}
 			
 	//! Uses cloneEntry to copy from one list to another. This can be shared or copied depending on the result from useDeepCopy()

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic plugin modules
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -146,6 +146,8 @@ public:
         moduleInstance=nullptr;
 	}
 };
+
+
 
 #ifdef GZ_WINDOWS 
 #define GZ_MODULE_EXPORT __declspec(dllexport)

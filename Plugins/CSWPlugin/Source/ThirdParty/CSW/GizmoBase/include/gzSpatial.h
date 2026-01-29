@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of spatial data storage templates
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -34,6 +34,7 @@
 // AMO	050222	Created file 
 // AMO	100420	Added a line segment intersector					(2.5.4) 
 // AMO	100614	Updated gzSPatial with faster indexing				(2.5.8)
+// AMO	260127	Avoid copying spatial tree data						(2.12.307)
 //
 // ******************************************************************************
 
@@ -71,6 +72,10 @@ template <class T> class gzSpatialData
 public:
 
 	gzSpatialData(const gzDoubleXYZ& position_1=gzDoubleXYZ(0,0,0) , const gzDoubleXYZ& position_2=gzDoubleXYZ(1,1,1),gzUInt32 divisions=3,gzUInt32 splitItems=0);
+
+	gzSpatialData(const gzSpatialData<T> &copy);
+
+	gzSpatialData<T> &operator=(const gzSpatialData<T> &copy);
 
 	~gzSpatialData();
 
@@ -177,6 +182,33 @@ template <class T> inline gzSpatialData<T>::gzSpatialData(const gzDoubleXYZ& pos
 	m_space=nullptr;
 
 	m_entries=0;
+}
+
+template <class T> inline gzSpatialData<T>::gzSpatialData(const gzSpatialData<T> &copy)
+{
+	m_space=nullptr;
+	m_minPosition=copy.m_minPosition;
+	m_stepping=copy.m_stepping;
+	m_divisions=copy.m_divisions;
+	m_splitItems=copy.m_splitItems;
+	m_entries=0;
+}
+
+template <class T> inline gzSpatialData<T> &gzSpatialData<T>::operator=(const gzSpatialData<T> &copy)
+{
+	if(this==&copy)
+		return *this;
+
+	if(m_space)
+		delete m_space;
+	m_space=nullptr;
+	m_minPosition=copy.m_minPosition;
+	m_stepping=copy.m_stepping;
+	m_divisions=copy.m_divisions;
+	m_splitItems=copy.m_splitItems;
+	m_entries=0;
+
+	return *this;
 }
 
 template <class T> inline gzSpatialData<T>::~gzSpatialData()

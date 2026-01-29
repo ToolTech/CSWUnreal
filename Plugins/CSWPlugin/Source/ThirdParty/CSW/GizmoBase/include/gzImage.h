@@ -18,8 +18,8 @@
 // File			: gzImage.h
 // Module		: gzBase
 // Description	: Class definition of the gzImage class
-// Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Author		: Anders ModÃ©n
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -37,6 +37,12 @@
 // AMO	231010	Added multiple classes for features					(2.12.107)
 // AMO	240920	Reverted change in homography						(2.12.188)
 // AMO	250409	Added units to image homography						(2.12.238)
+// AMO	260102	Added bitmap dither conversion						(2.12.297)
+// AMO	260102	Added bitmap dither console demo helper				(2.12.297)
+// AMO	260102	Added bitmap dither type selection					(2.12.297)
+// AMO	260102	Added Atkinson dither type							(2.12.297)
+// AMO	260122	Added image comparison metric						(2.12.298)
+// AMO	260122	Added image quality attribute					(2.12.299)
 //
 //******************************************************************************
 #ifndef __GZ_IMAGE_H__
@@ -144,6 +150,13 @@ enum gzImageFormat
 
 	GZ_IMAGE_FORMAT_META						= 0,
 
+};
+
+enum gzImageDitherType
+{
+	GZ_IMAGE_DITHER_FLOYD_STEINBERG = 0,
+	GZ_IMAGE_DITHER_SIERRA_LITE = 1,
+	GZ_IMAGE_DITHER_ATKINSON = 2
 };
 
 enum gzComponentType
@@ -337,6 +350,9 @@ const gzString GZ_IMAGE_INFO_SAVE_VERSION = "ImI-Save-Version";							// gzStrin
 //! Compress level attribute
 const gzString GZ_IMAGE_INFO_COMPRESS_LEVEL = "ImI-Comp-Level";							// gzCompressLevel
 
+//! Quality attribute for image compression (0=std, 1=better, 2=best)
+const gzString GZ_IMAGE_INFO_QUALITY = "ImI-Quality";									// Number
+
 //! Image to World homography 3x3 matrix (double)
 const gzString GZ_IMAGE_INFO_IMAGE_TO_WORLD_HOMOGRAPHY = "ImI-Wrld-Hom";				// gzImageHomography
 
@@ -486,8 +502,13 @@ public:
 	//! MIN value of RGBA
 	GZ_BASE_EXPORT	gzRGBA minRGBA(const gzRGBA& threshold = gzRGBA());
 
+	//!Compare with another image using RMSE metric (0..1). Returns -1 on failure.
+	/*!If ignoreTransparent is TRUE, pixels with alpha close to zero in both images are skipped.*/
+	GZ_BASE_EXPORT	gzFloat	compareRMSE(gzImage* image, gzBool useAlpha = TRUE, gzBool ignoreTransparent = FALSE, gzBool useLumaWeights = TRUE);
+
 
 	GZ_BASE_EXPORT	gzVoid	toGray();
+	GZ_BASE_EXPORT	gzImage* toBitmapDither(gzFloat threshold = 0.5f, gzBool useAlpha = FALSE, gzImageDitherType ditherType = GZ_IMAGE_DITHER_FLOYD_STEINBERG);
 	GZ_BASE_EXPORT	gzVoid	alphaMask(gzDouble level);
 	GZ_BASE_EXPORT	gzVoid	alphaMask(const gzRGBA& mask);	// Only mask for RGB values
 	GZ_BASE_EXPORT	gzVoid	alphaDiv();
@@ -594,7 +615,7 @@ public:
 	GZ_BASE_EXPORT gzVoid	removeAllSubImages();
 
 	//! Mipmap generation
-	GZ_BASE_EXPORT gzBool	createMipMaps(gzBool forceCreate=FALSE);
+	GZ_BASE_EXPORT gzBool	createMipMaps(gzBool forceCreate=FALSE, gzUInt32 minSize=1);
 
 	// ---- Serializing --------------------------------
 
@@ -683,8 +704,8 @@ const gzSerializeAdapterFlags	GZ_IMAGE_FLAGS_NO_CACHED_IMAGE = GZ_IMAGE_FLAG_NUM
 
 /*!
 Gizmo3D normally tries to load alternate images when an image is not understood by the loader. E.g. a
-database might reference a file “test.tiff” and there is no “tiff” reader registered. In that case
-Gizmo3D normally want to find a “test.dds” or a “test.bmp” file. This flag disables that search.
+database might reference a file "test.tiff" and there is no "tiff" reader registered. In that case
+Gizmo3D normally want to find a "test.dds" or a "test.bmp" file. This flag disables that search.
 */
 const gzSerializeAdapterFlags	GZ_IMAGE_FLAGS_NO_ALTERNATE_IMAGE_EXT = GZ_IMAGE_FLAG_NUM(2);
 const gzSerializeAdapterFlags	GZ_IMAGE_FLAGS_IGNORE_IMAGE_MIPMAPS = GZ_IMAGE_FLAG_NUM(3);

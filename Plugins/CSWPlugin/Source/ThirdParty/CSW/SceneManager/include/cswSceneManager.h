@@ -104,11 +104,19 @@ public:
 	CSW_SM_EXPORT	gzVoid setCamera(gzPerspCamera *camera, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid setCameraPosition(const gzVec3D &position, const gzVec3 &hpr=GZ_ZERO_VEC3, const gzFloat& hfov=50, const gzFloat& vfov=50, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid setCameraSettings(const gzFloat& nearDistance,const gzFloat &farDistance, const gzBool infinite,  const gzUInt32& refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid requestCameraPosition(const gzUInt32& refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid requestGroundClampPosition(const gzDouble& latitude, const gzDouble& longitude, const gzDouble& heightAboveGround = 1000, const gzBool& waitForData = FALSE, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid refreshScene(const gzDouble& time, const gzUInt32 &size_x, const gzUInt32 &size_y, const gzUInt32 &screen_width, const gzUInt32 &refCommandID = 0);
 
+	CSW_SM_EXPORT	gzVoid intersect(const gzVec3D& start, const gzVec3& direction, const gzBool waitForData = FALSE, const gzUInt32 &refCommandID = 0, const gzIntersectMaskValue& intersectMask = (gzIntersectMaskValue)(GZ_INTERSECT_MASK_GROUND | GZ_INTERSECT_MASK_WATER));
+	CSW_SM_EXPORT	gzVoid keyPressed(const gzUInt32 key, const gzUInt32 keyState, const gzInt32 mouseX, const gzInt32 mouseY);
+
 	CSW_SM_EXPORT	gzVoid addMap(const gzString & mapURL, const gzUInt32 &refCommandID = 0);
+
+	CSW_SM_EXPORT	gzVoid addRoiObject(const gzString &name, gzNode* node, const gzVec3D& position, const gzDouble& loadDistance = 1000, const gzDouble& purgeDistance = 1000, const gzUInt32 &refCommandID = 0);
+
 	CSW_SM_EXPORT	gzVoid setMapURLs(const gzString& mapURLs, const gzUInt32& refCommandID = 0);
-	CSW_SM_EXPORT	gzVoid removeMap(const gzString& mapURL, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid removeRoiObject(const gzString& mapURL, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid removeAllMaps(const gzUInt32& refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid centerMap(const gzUInt32 &refCommandID = 0);
 
@@ -121,7 +129,6 @@ public:
 	CSW_SM_EXPORT	virtual gzVoid			preDestroyReference(gzNode* node, const gzUInt64& pathID,gzReference *userdata);
 
 	GZ_PROPERTY_GET_EXPORT(gzString,		CoordinateSystem,	CSW_SM_EXPORT);
-	GZ_PROPERTY_GET_EXPORT(gzUInt32,		TopBits,			CSW_SM_EXPORT);
 	GZ_PROPERTY_GET_EXPORT(cswCapability,	Capabilities,		CSW_SM_EXPORT);
 
 	CSW_SM_EXPORT	static gzBool initializeSceneSystem();
@@ -141,20 +148,26 @@ protected:
 
 private:
 
-	CSW_SM_EXPORT	gzVoid addCommandBufferOut(cswCommandBuffer* buffer);
-	CSW_SM_EXPORT	gzVoid process() override;
-
-	CSW_SM_EXPORT	gzVoid onDynamicLoadState(gzDynamicLoadingState state, gzDynamicLoader* loader, gzNode* node) override;
-
-	CSW_SM_EXPORT	gzVoid onAction(gzNodeActionEvent action, gzContext* context, gzNodeActionProvider* trigger, gzTraverseAction* actionclass, gzVoid* userdata) override;
-
-
-	CSW_SM_EXPORT	gzVoid returnErrorMessage(const gzMessageLevel &messageLevel, const gzString& errorMessage, const gzUInt32 &commandRefID);
+	gzVoid addCommandBufferOut(cswCommandBuffer* buffer);
+	gzVoid addSingleCommandOut(cswSceneCommand* command, const cswCommandBufferType& type = CSW_BUFFER_TYPE_GENERIC);
+	
+	CSW_SM_EXPORT gzVoid process() override;
+	
+	CSW_SM_EXPORT gzVoid onDynamicLoadState(gzDynamicLoadingState state, gzDynamicLoader* loader, gzNode* node) override;
+	
+	CSW_SM_EXPORT gzVoid onAction(gzNodeActionEvent action, gzContext* context, gzNodeActionProvider* trigger, gzTraverseAction* actionclass, gzVoid* userdata) override;
+	
+	gzVoid returnErrorMessage(const gzMessageLevel &messageLevel, const gzString& errorMessage, const gzUInt32 &commandRefID);
 
 	// When process runs the buffer 
 	gzVoid processCommandBufferIn(cswCommandBuffer* buffer);
 	gzVoid processCommandBufferOut(cswCommandBuffer* buffer);
 
+	gzUInt32	getRoiID();
+	gzBool		returnRoiID(gzUInt32 ID);
+
+	gzList<gzVoid>	m_roiIdBuffer;
+	gzUInt32		m_nextRoiID;
 
 	friend class cswCommandReceiverInterface;
 

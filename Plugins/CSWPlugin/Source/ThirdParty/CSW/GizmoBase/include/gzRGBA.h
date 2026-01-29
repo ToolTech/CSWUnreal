@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of the gzRGBA class
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -34,6 +34,7 @@
 // AMO	990223	Created file 	
 // AMO	091014	Dont force RGBA::add to update to floats		(2.4.12)
 // AMO	250508	Added uniform get/set for norm/not RGBA vals	(2.12.250)
+// AMO	251114	Return Byte functions as round of float values	(2.12.287)
 //
 //******************************************************************************
 #ifndef __GZ_RGBA_H__
@@ -948,7 +949,7 @@ inline gzVoid gzRGBA::setComponents(gzUByte red_component,gzUByte green_componen
 inline gzUByte gzRGBA::getRedByte() const
 {
 	if(!byteSetting.byteVal.hasRedByte)
-		return (gzUByte)gzMax(gzMin((long)(components.floatVal.red*255),255L),0L);
+		return (gzUByte)gzClamp((gzInt32)gzRound(components.floatVal.red*255),0,255);
 	else
 		return (gzUByte)components.byteVal.red;
 }
@@ -956,7 +957,7 @@ inline gzUByte gzRGBA::getRedByte() const
 inline gzUByte gzRGBA::getGreenByte() const
 {
 	if(!byteSetting.byteVal.hasGreenByte)
-		return (gzUByte)gzMax(gzMin((long)(components.floatVal.green*255),255L),0L);
+		return (gzUByte)gzClamp((gzInt32)gzRound(components.floatVal.green*255),0,255);
 	else 
 		return (gzUByte)components.byteVal.green;
 }
@@ -964,7 +965,7 @@ inline gzUByte gzRGBA::getGreenByte() const
 inline gzUByte gzRGBA::getBlueByte() const
 {
 	if(!byteSetting.byteVal.hasBlueByte)
-		return (gzUByte)gzMax(gzMin((long)(components.floatVal.blue*255),255L),0L);
+		return (gzUByte)gzClamp((gzInt32)gzRound(components.floatVal.blue*255),0,255);
 	else
 		return (gzUByte)components.byteVal.blue;
 }
@@ -972,7 +973,7 @@ inline gzUByte gzRGBA::getBlueByte() const
 inline gzUByte gzRGBA::getAlphaByte() const
 {
 	if(!byteSetting.byteVal.hasAlphaByte)
-		return (gzUByte)gzMax(gzMin((long)(components.floatVal.alpha*255),255L),0L);
+		return (gzUByte)gzClamp((gzInt32)gzRound(components.floatVal.alpha*255),0,255);
 
 	return (gzUByte)components.byteVal.alpha;
 }
@@ -1647,7 +1648,7 @@ inline gzVoid gzRGBA::resetFloat()
 
 inline gzUByte gzRGBA::grayByte() const
 {
-	return (gzUByte)(0.311f*getRedByte()+0.614f*getGreenByte()+0.075f*getBlueByte());
+	return (gzUByte)gzRound(0.311f*getRedByte()+0.614f*getGreenByte()+0.075f*getBlueByte());
 }
 
 

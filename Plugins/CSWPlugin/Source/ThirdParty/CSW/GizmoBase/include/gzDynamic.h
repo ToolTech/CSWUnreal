@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of dynamic methods and vars
 // Author		: Anders Modén
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //
 //
 //
@@ -40,6 +40,7 @@
 // AMO	210420	Added encoders/decoders for compressed streams						(2.10.23)
 // AMO	210429	Optimized serialisation ( Breaks compatibility with old version )	(2.11.1)
 // AMO	250218	Added clearRegisteredMethods to remove all methods in bulk			(2.12.222)
+// AMO	251106	Added cast of Dynamic String value to bool as true/false yes/no		(2.12.284)
 //
 // ******************************************************************************
 
@@ -1684,7 +1685,13 @@ template<> inline gzBool gzDynamic_Cast(const gzDynamicType &data,gzUByte &resul
 	}
 	if (data.is(GZ_DYNAMIC_TYPE_STRING))
 	{
-		result = (gzUByte)data.getString().num();
+		gzString str = data.getString().toLower();
+
+		if ((str == GZ_STRING_YES) || (str == GZ_STRING_TRUE))
+			result = TRUE;
+		else
+			result = (gzUByte)str.num();
+
 		return TRUE;
 	}
 	if (data.is(GZ_DYNAMIC_TYPE_INT64))

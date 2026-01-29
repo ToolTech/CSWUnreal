@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzImageRender class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -74,7 +74,7 @@ public:
 
 	GZ_GRAPH_EXPORT virtual gzBool refreshImage(); // route to texture
 
-	//! Drops context binding of VBO
+	//! Drops context binding of Image Buffers. If type of render target is changed, you need to reBind
 	GZ_GRAPH_EXPORT gzVoid reBind();
 
 	//! Render active context directly into image

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Constant and structures for node attributes and definitions
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -80,7 +80,7 @@ enum gzGeoPlacement
 	GZ_GEO_PLACEMENT_GROUNDCLAMPED	= 0,	// Use 0 elevation and groundclamp
 	GZ_GEO_PLACEMENT_ELEVATION		= 1,	// Use elevation as height above ground
 	GZ_GEO_PLACEMENT_ALTITUDE		= 2,	// Use elevation as height above ellipsoid
-	GZ_GEO_PLACEMENT_OFFSET			= 3,	// Altitude is defined by GEO file data with elevation offset
+	GZ_GEO_PLACEMENT_OFFSET			= 3,	// Altitude is defined by GEO file or ALTITUDE attribute with elevation offset
 
 };
 
@@ -91,7 +91,12 @@ GZ_DECLARE_DYNAMIC_ENUM(gzCullMaskValue);		// Defined for GZ_GEO_INFO_CULL_MASK
 
 const gzString	GZ_GEO_INFO_MODEL_NAME		= "ModelName";					// Model Name
 const gzString	GZ_GEO_INFO_PLACEMENT		= "Placement";					// gzGeoPlacement
+
 const gzString	GZ_GEO_INFO_ELEVATION		= "Elevation";					// Elevation in meters
+
+const gzString	GZ_GEO_INFO_LATITUDE		= "Latitude";					// Latitude in radians
+const gzString	GZ_GEO_INFO_LONGITUDE		= "Longitude";					// Longitude in radians
+const gzString	GZ_GEO_INFO_ALTITUDE		= "Altitude";					// Altitude in meters above ellipsoid, can be replaced by elevation dep on Placement
 
 const gzString	GZ_GEO_INFO_SCALE_E			= "ScaleEast";					// Relative Scale factor East before rotation
 const gzString	GZ_GEO_INFO_SCALE_N			= "ScaleNorth";					// Relative Scale factor North before rotation

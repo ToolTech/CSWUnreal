@@ -18,8 +18,8 @@
 // File			: gzDebug.h
 // Module		: gzBase
 // Description	: Class definitions and macros for debugging aid
-// Author		: Anders ModÃ©n		
-// Product		: GizmoBase 2.12.283
+// Author		: Anders Modén		
+// Product		: GizmoBase 2.12.306
 //		
 // 
 //			
@@ -33,6 +33,8 @@
 // AMO	980819	Created file 	
 // AMO	000531	Restructured Message Receivers, Allow multiple instances
 // AMO	120911	Added GZ_MESSAGE_HEAVY_TRACE for intensive message output	(2.6.11)
+// AMO	251231	Added default message color output toggle			(2.12.297)
+// AMO	260126	Added progress status routing				(2.12.307)
 //
 //******************************************************************************
 
@@ -305,12 +307,22 @@ public:
 	GZ_BASE_EXPORT static gzVoid waitLock();
 	GZ_BASE_EXPORT static gzVoid unLock();
 
+	GZ_BASE_EXPORT static gzMutex& getSyncLock();
+
 private:
 
 	static gzMessageLevel						s_messageLevel;
 	static gzList<gzMessageReceiverInterface>	s_messageReceivers;
 	static gzMessageTranslatorInterface			*s_messageTranslator;
 };
+
+//! Enable or disable colored output in the default message receiver.
+/*! This only affects the built-in default console handler. */
+GZ_BASE_EXPORT gzVoid gz_message_set_default_color_output(gzBool enable);
+
+//! Get the current default message color output setting.
+/*! This only reflects the built-in default console handler. */
+GZ_BASE_EXPORT gzBool gz_message_get_default_color_output();
 
 //! Short Macro for message sending e.g. GZMESSAGE(GZ_MESSAGE_DEBUG,"MyDebug");
 #define GZMESSAGE	gzMessage::message
@@ -336,6 +348,15 @@ private:
 //									
 //******************************************************************************
 
+//! Progress status flags
+enum gzProgressStatus
+{
+	GZ_PROGRESS_STATUS_RESET_MESSAGE_BUFFER		= 1 << 0,
+	GZ_PROGRESS_STATUS_CLEAR_PROGRESS			= 1 << 1,
+};
+
+GZ_USE_BIT_LOGIC(gzProgressStatus);
+
 //! Virtual interface for gzProgress messages
 class  gzProgressInterface 
 {
@@ -347,11 +368,15 @@ public:
 
 	GZ_BASE_EXPORT virtual gzVoid onProgress( gzUByte percent , const char *message );
 
+	GZ_BASE_EXPORT virtual gzVoid onStatus(gzProgressStatus status , const char *message );
+
 	GZ_BASE_EXPORT gzVoid activateProgressInterface();
 
 	GZ_BASE_EXPORT gzVoid deactivateProgressInterface();
 
 	GZ_BASE_EXPORT gzVoid routeProgress(gzUByte percent , const char *message);
+
+	GZ_BASE_EXPORT gzVoid routeStatus(gzProgressStatus status , const char *message);
 
 private:
 
@@ -395,6 +420,13 @@ public:
 		\param percent 0-99 for progress, 100 for done
 		\param message Identifier for progress */
 	GZ_BASE_EXPORT static gzVoid progress(gzUByte percent , const char *message );
+
+	//! Status method to send progress status messages to other clients.
+	/*! The method forwards status flags to the current progress interface (thread aware)
+		or the default progress interface when no thread interface exists.
+		\param status Status flags such as GZ_PROGRESS_STATUS_RESET_MESSAGE_BUFFER or GZ_PROGRESS_STATUS_CLEAR_PROGRESS
+		\param message Optional status message */
+	GZ_BASE_EXPORT static gzVoid status(gzProgressStatus status , const char *message = NULL);
 
 private:
 

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of serialize protocol classes
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -325,6 +325,8 @@ public:
 
 	GZ_BASE_EXPORT gzBool	hasError() const override;
 
+	GZ_BASE_EXPORT gzBool	awaitAvailableData(gzUInt32 msec) override;
+
 protected:  
 
 	// Adapter
@@ -403,6 +405,7 @@ public:
 	GZ_PROPERTY_EXPORT(gzBool,		BlockingRead,			GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzBool,		CloseOnNoConnection,	GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzBool,		NoDelay,				GZ_BASE_EXPORT);
+	GZ_PROPERTY_EXPORT(gzUInt32,	ConnectRetry,			GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzDouble,	BlockingTimeout,		GZ_BASE_EXPORT);
 	GZ_PROPERTY_EXPORT(gzUInt32,	MaxFetchPackets,		GZ_BASE_EXPORT);
 
@@ -411,6 +414,8 @@ public:
 	GZ_BASE_EXPORT gzBool	isActive() const override;
 
 	GZ_BASE_EXPORT gzBool	hasError() const override;
+
+	GZ_BASE_EXPORT gzBool	awaitAvailableData(gzUInt32 msec) override;
 
 protected:
 
@@ -431,6 +436,8 @@ protected:
 	gzMutex						m_dataLocker;
 
 	gzRefList<gzNetData>		m_packets;
+
+	gzRefList<gzNetData>		m_packet_store;
 
 	gzRefPointer<gzNetData>		m_current;
 

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Management of the base library
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -91,6 +91,8 @@
 #include "gzTestAssertManager.h"	// Built in test bridge
 #include "gzDistributor.h"			// SW distributor service
 #include "gzGooble.h"				// Super large floating point precision
+#include "gzConsole.h"				// Console IO and control
+#include "gzAtomic.h"				// Lock free access
 
 // -------------------------------------- Library version ---------------------------------------------------------------
 

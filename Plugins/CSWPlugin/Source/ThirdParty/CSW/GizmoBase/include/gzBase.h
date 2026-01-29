@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of basic classes such as strings etc.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -33,11 +33,13 @@
 //									
 // AMO	980819	Created file 
 // AMO	990602	Added support for file traversal	
-// AMO	120904	Changed the PRNG to a Mersenne Twister							(2.6.16)
-// AMO	120904	Added Normal, Exponential and Weibull random numnber gen		(2.6.16)
-// AMO	130205	Added gzString::substitute										(2.6.24)
-// AMO	140821	Added upper/lower case for gzYesNo								(2.8.0)
-// AMO	180426	Added some safe STDC routines									(2.9.1)
+// AMO	120904	Changed the PRNG to a Mersenne Twister								(2.6.16)
+// AMO	120904	Added Normal, Exponential and Weibull random numnber gen			(2.6.16)
+// AMO	130205	Added gzString::substitute											(2.6.24)
+// AMO	140821	Added upper/lower case for gzYesNo									(2.8.0)
+// AMO	180426	Added some safe STDC routines										(2.9.1)
+// AMO	251203	Renamed substitute string function to replacement to avoid clash	(2.12.290)
+// AMO	251231	Updated format # flag doc											(2.12.297)
 //
 // ******************************************************************************
 
@@ -133,6 +135,8 @@ public:
 	gzString(const char *str, gzUInt16 len);
     
 	gzString(const gzString &str);
+
+	gzString(gzString &&str) noexcept(TRUE);
     
 	virtual ~gzString();
 
@@ -216,7 +220,6 @@ public:
 
 	gzUInt32		find(gzUByte token,gzUInt16 start=0)		const;
 
-
 	/*! Remove characters from start and end of string.
 	\param c the character number to strip
 	\param left TRUE if to strip from the left
@@ -277,6 +280,7 @@ public:
 	 - `+`   : always prefix sign for numeric values.
 	 - `0`   : zero padding for numeric values (ignored if '+' flag present).
 	 - `' '` : (space) prefix a space if positive number (ignored if '+' flag present).
+	 - `#`   : add prefix for nonzero values (`0x`,`0X`,`0b`,`0B`,`0`).
 	
 	 \par Width (<width>)
 	 Minimum field width. Can be a number or taken from an argument via `*`.
@@ -381,13 +385,44 @@ public:
 	//! Changes character from into a to character
 	gzUInt16		substitute(char from,char to);
 
-	//! Changes character from into a to character
-	gzString		substitute(const gzString &subString,const gzString &replacement) const;
+	//! Changes substring from into a to character
+	gzString		replacement(const gzString &subString,const gzString &replacement) const;
 
 	//! returns True if string contains "yes"
 	gzBool			yesNo() const;
 
 	gzUInt64		wrapHash() const;
+
+	// Efficiently swaps two strings by exchanging their pointers
+	gzVoid			swapStringData(gzString& str) noexcept(TRUE);
+
+	// Returns true if the string starts with subString
+	gzBool			startsWith(const gzString& subString) const;
+
+	gzBool			startsWith(const char* subString) const;
+
+	// Returns true if the string ends with subString
+	gzBool			endsWith(const gzString& subString) const;
+
+	gzBool			endsWith(const char* subString) const;
+
+	// Constructs a string as the sum of all strings in an array
+	static gzString concatenate(const gzArray<gzString>& strings);
+
+	static gzString concatenate(std::initializer_list<gzString> strings);
+
+	// Counts the number of occurrences of character
+	gzUInt16		count(gzChar character) const;
+
+	// Counts the number of (non-overlapping) occurrences of subString
+	gzUInt16		count(const gzString& subString, gzBool caseSensitive = TRUE) const;
+
+	// Splits the string at each occurence of separator
+	// If the string does not contain the separator, returns an array with a single element (the original string)
+	// If removeEmpty is TRUE, empty strings will be removed from the array
+	gzArray<gzString> split(gzChar separator, gzBool removeEmpty = FALSE) const;
+
+	gzArray<gzString> split(const gzString& separator, gzBool caseSensitive = TRUE, gzBool removeEmpty = FALSE) const;
 
 	//! Calcualtes the hash value of the buffer s with size.
 	/* param size Set to zero if string length shall be calculated. */
@@ -416,6 +451,8 @@ public:
 
     gzString &	operator =(const gzString &str);
 
+    gzString &	operator =(gzString &&str) noexcept(TRUE);
+
     gzString &	operator +=(const char *str);
 
 	gzString 	operator +(const char *str) const;
@@ -439,6 +476,8 @@ public:
 	gzString	operator ()(const gzUInt16 index , const gzUInt16 len) const;
 
 	// ---- Global operators --------------------------------
+
+	GZ_BASE_EXPORT friend gzString	operator +(const char *s, const gzString &str);
 
     GZ_BASE_EXPORT friend gzBool	operator ==(const gzString &str, const char *s);
  
@@ -504,6 +543,7 @@ const gzString	GZ_STRING_DOT_SLASH			= "./";
 const gzString	GZ_STRING_DOT_BACKSLASH		= ".\\";
 
 const gzString	GZ_STRING_SPACE				= " ";
+const gzString	GZ_STRING_MINUS				= "-";
 
 const gzString	GZ_LOG_IDENTIFIER		= "Gizmo3D";
 const gzString	GZ_SYSTEM_IDENTIFIER	= "GizmoSDK";
@@ -529,6 +569,7 @@ const gzString	GZ_STRING_NULL			= "null";
 const gzString	GZ_STRING_C_YES			= "Yes";
 const gzString	GZ_STRING_C_NO			= "No";
 const gzString	GZ_STRING_C_TRUE		= "TRUE";
+const gzString	GZ_STRING_C_FALSE		= "FALSE";
 const gzString	GZ_STRING_DOLLAR		= "$";
 const gzString	GZ_STRING_PERCENT		= "%";
 const gzString	GZ_STRING_DBL_QUOTE		= "\"";
@@ -543,6 +584,7 @@ const gzString	GZ_STRING_HASH			= "#";
 class GZ_BASE_EXPORT gzUniqueString : public gzString
 {
 public:
+	gzUniqueString(const char* copy,gzUInt16 uniqueID=0);
 	gzUniqueString(const gzString &copy,gzUInt16 uniqueID=0);
 	gzUniqueString(gzUInt16 uniqueID);
 
@@ -655,6 +697,7 @@ GZ_BASE_EXPORT	gzString gzGetSysErrorDescription(gzInt32 error);
 
 //! Returns yes/no/YES/NO depending on value
 GZ_BASE_EXPORT gzString gzYesNo(gzBool value,gzBool upperCase=FALSE);
+GZ_BASE_EXPORT gzString gzTrueFalse(gzBool value, gzBool upperCase = FALSE);
 
 GZ_BASE_EXPORT	gzBool gzBigEndian();
 
@@ -915,6 +958,21 @@ private:
 	gzBool				m_recursive;
 	gzDirectoryEntry	m_currentEntry;
 	gzDirectoryIterator *m_iterator;
+};
+
+// ------------------------------------------------------------------------------------------
+
+class gzDirectoryIteratorDepth : public gzDirectoryIterator
+{
+public:
+
+	GZ_BASE_EXPORT gzDirectoryIteratorDepth(const gzString& path, gzBool recursive = FALSE, gzUInt32 maxDepth = GZ_MAX_UINT32);
+
+	GZ_BASE_EXPORT virtual gzBool descent(const gzString& path, const gzString& name) override;
+
+	GZ_BASE_EXPORT virtual gzDirectoryIterator* getDescentIterator(const gzString& path, gzBool recursive = FALSE) override;
+
+	GZ_PROPERTY_GET_EXPORT(gzUInt32, MaxDepth, GZ_BASE_EXPORT);
 };
 
 class gzSerializeAdapter; // Forward decl for serializers

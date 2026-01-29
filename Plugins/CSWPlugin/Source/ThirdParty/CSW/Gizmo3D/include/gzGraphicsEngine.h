@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of stub calls
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -33,6 +33,7 @@
 // Who	Date	Description						
 //									
 // AMO	990217	Created file 	
+// AMO	251112	Added difference between texture image units and fixed texture units	(2.12.286)
 //
 //******************************************************************************
 
@@ -149,6 +150,8 @@ public:
 
 	GZ_GRAPH_EXPORT static	inline	gzUInt32	getNumberOfTextureUnits()					{ return s_numberOfTextureUnits; }
 
+	GZ_GRAPH_EXPORT static	inline	gzUInt32	getNumberOfTextureImageUnits()				{ return s_numberOfTextureImageUnits; }
+
 	GZ_GRAPH_EXPORT static	inline	gzUInt32	forceNumberOfTextureUnits(gzUInt32 units)	{ gzUInt32 old = s_numberOfTextureUnits; s_numberOfTextureUnits = units; return old; }
 
 	GZ_GRAPH_EXPORT static	inline	gzBool		isRemoteConnection()						{ return s_remoteConnection; }
@@ -222,6 +225,7 @@ protected:
 	GZ_GRAPH_EXPORT static gzInt32							s_maxtexturesize;
 
 	GZ_GRAPH_EXPORT	static gzUInt32							s_numberOfTextureUnits;
+	GZ_GRAPH_EXPORT	static gzUInt32							s_numberOfTextureImageUnits;
 
 
 	GZ_GRAPH_EXPORT static gzString							s_gz_extensions;

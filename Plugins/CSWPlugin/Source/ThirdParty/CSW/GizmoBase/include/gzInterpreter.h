@@ -1,4 +1,4 @@
-// *****************************************************************************
+//*****************************************************************************
 //
 // Copyright (C) SAAB AB
 //
@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of interpreter utilities
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 		
 //			
@@ -33,7 +33,7 @@
 //									
 // AMO	150707	Created file 									(2.8.1)
 //
-// ******************************************************************************
+//******************************************************************************
 #ifndef __GZ_INTERPRETER_H__
 #define __GZ_INTERPRETER_H__
 
@@ -140,6 +140,8 @@ private:
 	gzSerializeAdapterMuxPtr	m_adapter;
 
 	gzInterpreterDataInterface	*m_response;
+
+	gzEvent						m_dataTrigger;
 };
 
 GZ_DECLARE_REFPTR(gzInterpreter);

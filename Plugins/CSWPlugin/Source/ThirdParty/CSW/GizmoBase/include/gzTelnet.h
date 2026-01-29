@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of telnet based communication
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 // 		
 //			
@@ -92,6 +92,8 @@ public:
 	GZ_BASE_EXPORT	gzVoid triggerGotData();
 
 	GZ_BASE_EXPORT	gzBool waitForData(gzUInt32 timeout=10000,gzBool alreadyLocked=FALSE);
+
+	GZ_BASE_EXPORT gzVoid enableSmallMessages(gzBool on);
 		
 	//! Factory
 	GZ_BASE_EXPORT	virtual gzReference *clone() const override =0 ;
@@ -207,6 +209,8 @@ protected:
 	gzRefList<gzTcpConnectionInterface>		m_removedConnections;
 	gzMutex									m_connectionLocker;			// Locks access to list change
 
+	gzMutex									m_connectionSocketLocker;
+	gzSocket *								m_connectionSocket;
 };
 
 GZ_DECLARE_REFPTR(gzTcpConnectionServer);

@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of SW distribution service
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -64,6 +64,7 @@ const gzString GZ_DISTRIBUTOR_CONNECT_ANY = "any";
 
 const gzString GZ_DISTRIBUTOR_REG_KEY_CONNECTION	= "distributor/connection/";
 const gzString GZ_DISTRIBUTOR_REG_KEY_COM_URL		= "distributor/communication/url";
+const gzString GZ_DISTRIBUTOR_REG_KEY_DATA_PATH		= "distributor/data_path";
 const gzString GZ_DISTRIBUTOR_REG_KEY_CAP_WORK		= "distributor/capabilities/workers";
 
 // File times
@@ -385,10 +386,6 @@ public:
 
 // ----------------------------------------------------------------------------------------------------------------
 
-GZ_BASE_EXPORT gzBool gzSendDistributorCommand(gzSerializeAdapter *adapter, gzDistributorCommand command, gzSerializeData *data);
-
-// ----------------------------------------------------------------------------------------------------------------
-
 class gzDistributorFileData : public gzThreadSafeReference
 {
 public:
@@ -429,7 +426,7 @@ public:
 
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);
 
-	GZ_BASE_EXPORT gzDistributor(const gzString &name, const gzString &info);
+	GZ_BASE_EXPORT gzDistributor(const gzString &name, const gzString &info,gzBool isMessageReceiver=TRUE);
 
 	GZ_BASE_EXPORT virtual ~gzDistributor();
 	
@@ -438,7 +435,7 @@ public:
 
 	GZ_PROPERTY_EXPORT(gzString, ConfigURL, GZ_BASE_EXPORT);
 
-	GZ_BASE_EXPORT gzBool pollCommands(gzSerializeAdapter *adapter,gzBool *gotCommand);
+	GZ_BASE_EXPORT gzBool pollCommands(gzSerializeAdapter *adapter,gzBool *gotCommand,gzUInt32 waitMiliseconds=0);
 
 	GZ_BASE_EXPORT virtual gzBool onCommand(gzDistributorCommand command, gzUInt32 length,gzSerializeAdapter *adapter);
 	GZ_BASE_EXPORT virtual gzBool onServerId(gzDistributorCommandServerId *mess);
@@ -487,6 +484,7 @@ public:
 	GZ_BASE_EXPORT gzVoid unregisterURLManager();
 
 	GZ_BASE_EXPORT gzVoid setResponseBoostDuration(const gzDouble& duration);
+	GZ_BASE_EXPORT gzVoid increaseResponseBoostDuration(const gzDouble& increase,const gzDouble &threshold=10);
 	GZ_BASE_EXPORT gzDouble getResponseBoostDuration() const;
 
 	GZ_PROPERTY_EXPORT(gzDouble, Latency,			GZ_BASE_EXPORT);
@@ -499,6 +497,21 @@ public:
 	GZ_BASE_EXPORT gzGUID				getGUID() const;
 
 	GZ_BASE_EXPORT gzBool getFileData(gzSerializeAdapter* channel, gzDistributorCommandFileRequest* request, gzDistributorFileDataPtr& fileData, const gzDouble& timeOut, gzUInt32 timeoutLoops=1, gzString* errorString=nullptr, gzSerializeAdapterError* errorType=nullptr);
+
+	//! Get a combination of DataPath and SubPath
+	GZ_BASE_EXPORT gzString getWorkingPath();
+
+	//! A path where the working data shall reside. Defaults to getPath from service
+	GZ_PROPERTY_EXPORT(gzString,	DataPath,			GZ_BASE_EXPORT);
+
+	//! A subpath for each instance when run multiple threads
+	GZ_PROPERTY_EXPORT(gzString,	SubPath,			GZ_BASE_EXPORT);
+
+	GZ_BASE_EXPORT gzBatchManager* getReponseManager();
+
+	GZ_BASE_EXPORT gzVoid triggerMainLoop();
+
+	GZ_BASE_EXPORT gzVoid triggerModuleLoads();
 
 protected:
 
@@ -523,13 +536,20 @@ protected:
 	gzEvent								m_fileDataLock;
 	gzRefList<gzDistributorFileData>	m_fileData;
 
+	gzEvent								m_yeilder;
+
 	gzBatchManagerPtr					m_batchManager;
+
+	gzBatchManagerPtr					m_responseManager;
 
 	gzMutex								m_responseBoostLock;
 	gzDouble							m_responseBoostStartTime;
 	gzDouble							m_responseBoostDuration;
 
 	gzLoggerPtr							m_logger;
+
+	gzMutex								m_moduleLoadLock;
+	gzRefList<gzRefData<gzString>>		m_moduleLoad;
 };
 
 GZ_DECLARE_REFPTR(gzDistributor);
@@ -573,11 +593,13 @@ class gzDistributorAdapterWrite : public gzSerializeAdapterPacket
 {
 public:
 
-	GZ_BASE_EXPORT gzDistributorAdapterWrite(gzSerializeAdapter* channel,const gzGUID & batchID):gzSerializeAdapterPacket(10000),m_channel(channel),m_batchID(batchID){}
+	GZ_BASE_EXPORT gzDistributorAdapterWrite(gzDistributor *distributor,gzSerializeAdapter* channel,const gzGUID & batchID):gzSerializeAdapterPacket(1000), m_distributor(distributor), m_channel(channel),m_batchID(batchID){}
 
 	GZ_BASE_EXPORT virtual ~gzDistributorAdapterWrite();
 
 private:
+
+	gzDistributorPtr			m_distributor;
 
 	gzSerializeAdapterPtr		m_channel;
 
@@ -597,5 +619,10 @@ public:
 	gzRecycledBuffer		data;
 	gzSerializeAdapterPtr	adapter;
 };
+
+// ----------------------------------------------------------------------------------------------------------------
+
+GZ_BASE_EXPORT gzBool gzSendDistributorCommand(gzDistributor* sender, gzSerializeAdapter* adapter, gzDistributorCommand command, gzSerializeData* data);
+
 
 #endif // __GZ_DISTRIBUTOR_H__

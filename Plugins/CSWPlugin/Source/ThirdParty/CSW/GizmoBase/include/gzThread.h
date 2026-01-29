@@ -19,7 +19,7 @@
 // Module		: gzBase
 // Description	: Class definition of Thread classes.
 // Author		: Anders Modén		
-// Product		: GizmoBase 2.12.283
+// Product		: GizmoBase 2.12.306
 //		
 //
 //			
@@ -33,6 +33,7 @@
 //									
 // AMO	981104	Created file 
 // AMO	240426	Added wait for at least one added Work or non		(2.12.147)	
+// AMO	260114	Added working directory support						(2.12.298)
 //
 // ******************************************************************************
 
@@ -67,6 +68,14 @@ typedef struct
 			gzUInt32 info;		// Thread ID
 			HANDLE handle;
 		} gzThreadInfo;
+
+typedef struct
+		{
+			gzUInt32	info;		// PID
+			HANDLE		handle;		// Process handle
+			HANDLE		thread;		// Primary thread handle
+		} gzProcessInfo;
+
 #else
 
 typedef gzUInt32  gzThreadReturnValue;
@@ -78,6 +87,15 @@ typedef struct
 			HANDLE thread;
 
 		} gzThreadInfo;
+
+typedef struct
+		{
+			gzUInt32	info;		// PID
+			HANDLE		handle;		// Process handle
+			HANDLE		thread;		// Primary thread handle
+		} gzProcessInfo;
+
+
 #endif
 
 #elif defined GZ_UNIX
@@ -91,6 +109,12 @@ typedef struct
 			pthread_t info;		// Thread ID
 
 		} gzThreadInfo;
+
+typedef struct
+		{
+			pid_t	info;		// PID
+		} gzProcessInfo;
+
 
 typedef gzVoid *		gzThreadReturnValue;
 
@@ -228,6 +252,8 @@ private:
 #define gzSleep gzThread::gzDelayFunction
 
 #define gzMicroSleep gzThread::gzMicroDelayFunction
+
+#define gzYield() gzThread::gzDelayFunction(0);
 
 typedef enum { GZ_TICK_ACCUM , GZ_TICK_SKIP } gzTickPolicy;
 
@@ -740,6 +766,101 @@ private:
 };
 
 GZ_DECLARE_REFPTR(gzBatchManager);
+
+//******************************************************************************
+// Class	: gzExecProcess
+//									
+// Purpose  : Owns a running process and optional redirected stdio
+//									
+// Notes	: 
+//	- gzExecProcess owns the process lifetime and stdio handles (stdin/stdout).
+//	- No adapters are created by default.
+//	- Adapters are created on demand and only hold a ref to gzExecProcess.
+//	- IO is accessed through the public stdio API below (no friend needed).
+//									
+// Revision History...
+//									
+// Who	Date	Description						
+//									
+// AMO	251229	Created												(2.12.297)
+//									
+//******************************************************************************
+
+class gzSerializeAdapterProcessIO;
+
+class gzExecProcess : public gzReference
+{
+public:
+
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(GZ_BASE_EXPORT);
+
+	GZ_BASE_EXPORT static gzExecProcess* execProcess(const gzString& executable,
+																					 gzBool quiet = TRUE,
+																					 gzBool createIO = FALSE,
+																					 gzBool mergeStdErr = TRUE,
+																					 gzInt32* sysError = nullptr,
+																					 const gzString& workingDirectory = gzString());
+
+	GZ_BASE_EXPORT gzExecProcess();
+	GZ_BASE_EXPORT virtual ~gzExecProcess();
+
+	GZ_BASE_EXPORT gzProcessInfo getProcessInfo() const;
+
+	GZ_BASE_EXPORT gzBool isValid() const;
+
+	// TRUE om processen fortfarande kör (eller åtminstone inte har rapporterats terminerad).
+	// Om exitCode != nullptr och processen inte kör, returneras cachad exitkod om sådan finns.
+	GZ_BASE_EXPORT gzBool isRunning(gzInt32* exitCode = nullptr) const;
+
+	// Wait for termination. timeoutMS == 0xFFFFFFFF => infinite.
+	// Returns TRUE if terminated within timeout (or already terminated).
+	GZ_BASE_EXPORT gzBool wait(gzUInt32 timeoutMS, gzInt32* exitCode = nullptr);
+
+	GZ_BASE_EXPORT gzBool terminate(gzInt32 exitCode = -1);
+
+	GZ_BASE_EXPORT gzVoid close();
+
+	// ----------------------------------------------------------------------------
+	// Stdio API (used by gzSerializeAdapterProcessIO)
+	// ----------------------------------------------------------------------------
+
+	GZ_BASE_EXPORT gzBool hasStdIn() const;
+	GZ_BASE_EXPORT gzBool hasStdOut() const;
+
+	GZ_BASE_EXPORT gzVoid closeStdIn();
+	GZ_BASE_EXPORT gzVoid closeStdOut();
+
+	GZ_BASE_EXPORT gzVoid flushStdIn();
+
+	GZ_BASE_EXPORT gzVoid writeStdIn(const gzUByte* data, gzUInt32 count);
+
+	// Read from stdout. Returns number of bytes read. 0 => EOF / closed.
+	GZ_BASE_EXPORT gzUInt32 readStdOut(gzUByte* data, gzUInt32 maxcount);
+
+	// --- Handle properties (get only) ------------------------------------------
+	GZ_PROPERTY_GET_EXPORT(gzFileHandle, StdIn, GZ_BASE_EXPORT);
+	GZ_PROPERTY_GET_EXPORT(gzFileHandle, StdOut, GZ_BASE_EXPORT);
+	GZ_PROPERTY_GET_EXPORT(gzFileHandle, StdErr, GZ_BASE_EXPORT);
+
+	GZ_BASE_EXPORT gzSerializeAdapterProcessIO* createStdIOAdapter();
+
+private:
+
+	gzProcessInfo	m_process;
+
+	gzBool			m_ioCreated;
+	gzBool			m_mergeStdErr;
+	gzBool			m_closed;
+
+	// Status-cache för isRunning()/wait() (mutable för att kunna uppdateras i const-metoder)
+	mutable gzBool	m_terminated;
+	mutable gzInt32	m_exitCode;
+
+	mutable gzMutex m_locker;
+
+};
+
+GZ_DECLARE_REFPTR(gzExecProcess);
 
 #endif //__GZ_THREAD_H__
 

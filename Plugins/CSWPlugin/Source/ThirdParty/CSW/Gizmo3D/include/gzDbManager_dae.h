@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the COLLADA format loader
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -138,6 +138,15 @@ enum DaeState
 	DAE_STATE_TEXTURE,
 	DAE_STATE_DIFFUSE,
 
+	DAE_STATE_EMISSION,
+	DAE_STATE_AMBIENT,
+	DAE_STATE_SPECULAR,
+	DAE_STATE_SHININESS,
+	DAE_STATE_TRANSPARENT,
+	DAE_STATE_TRANSPARENCY,
+	DAE_STATE_COLOR,
+	DAE_STATE_FLOAT,
+
 	DAE_STATE_TRANSLATE,
 	DAE_STATE_SCALE,
 	DAE_STATE_ROTATE,
@@ -227,11 +236,41 @@ public:
 
 	GZ_DECLARE_TYPE_INTERFACE;
 
+	gzDaeTechnique()
+	{
+		hasEmissionColor = FALSE;
+		hasAmbientColor = FALSE;
+		hasDiffuseColor = FALSE;
+		hasSpecularColor = FALSE;
+
+		hasShininess = FALSE;
+		shininess = 0.0f;
+
+		hasTransparency = FALSE;
+		transparency = 1.0f;
+	}
+
 	gzString id;
 
 	gzString profile;
 
 	gzRefDict<gzString, gzDaeTexture> textures;
+
+	gzBool  hasEmissionColor;
+	gzBool  hasAmbientColor;
+	gzBool  hasDiffuseColor;
+	gzBool  hasSpecularColor;
+
+	gzRGBA  emissionColor;
+	gzRGBA  ambientColor;
+	gzRGBA  diffuseColor;
+	gzRGBA  specularColor;
+
+	gzBool  hasShininess;
+	gzFloat shininess;
+
+	gzBool  hasTransparency;
+	gzFloat transparency;
 };
 
 GZ_DECLARE_REFPTR(gzDaeTechnique);

@@ -19,7 +19,7 @@
 // Module		: 
 // Description	: Class definition of the gzGeometryOptimizer class
 // Author		: Anders Modén		
-// Product		: Gizmo3D 2.12.283
+// Product		: Gizmo3D 2.12.306
 //		
 //
 //			
@@ -34,6 +34,10 @@
 //									
 // AMO	981122	Created file 	
 // AMO	230621	Fixed problem in self intersecting geometry		(2.12.88)
+// AMO	260126	Added triangle container API					(2.12.307)
+// AMO	260126	Added triangle container aggregation			(2.12.307)
+// AMO	260127	Switch entries to geometry handles				(2.12.307)
+// AMO	260127	Added triangle optimize test flag		(2.12.308)
 //
 //******************************************************************************
 #ifndef __GZ_GEOMETRY_OPTIMIZER_H__
@@ -46,6 +50,7 @@
 
 #include "gzGeometry.h"
 #include "gzMutex.h"
+#include "gzState.h"
 
 GZ_DECLARE_MEMBASE_EXPORT(gzVertex,GZ_GRAPH_EXPORT);
 GZ_DECLARE_MEMBASE_EXPORT(gzTriangle,GZ_GRAPH_EXPORT);
@@ -222,12 +227,115 @@ public:
 
 	gzTriangle *a_b , *b_c , *c_a;
 
+	gzUInt32	sourceIndex;
+
 	gzUByte		connections;
 
 	gzUByte		isValid;
 };
 
 GZ_DECLARE_REFPTR(gzTriangle);
+
+// Triangle container optimization flags
+enum gzTriangleOptimizeFlags
+{
+	GZ_TRIANGLE_OPTIMIZE_NONE		=	0,
+	GZ_TRIANGLE_OPTIMIZE_TEST_1	=	(1<<0)
+};
+
+GZ_USE_BIT_LOGIC(gzTriangleOptimizeFlags);
+
+//******************************************************************************
+// Class	: gzTriangleContainerEntry
+//										
+// Purpose  : Context entry for triangles built from geometry
+//										
+// Notes	: -	
+//										
+// Revision History...									
+//										
+// Who	Date	Description							
+//										
+// AMO	260126	Created 						
+//										
+//******************************************************************************
+class gzTriangleContainerEntry : public gzReference
+{
+public:
+	GZ_GRAPH_EXPORT gzTriangleContainerEntry();
+	GZ_GRAPH_EXPORT gzTriangleContainerEntry(const gzTriangleContainerEntry &copy);
+	GZ_GRAPH_EXPORT gzTriangleContainerEntry &operator=(const gzTriangleContainerEntry &copy);
+
+	GZ_GRAPH_EXPORT virtual gzBool useDeepCopy() { return FALSE; }
+
+	gzGeometryPtr	geometry;
+	gzStatePtr		state;
+	gzMatrix4		worldTransform;
+	gzMatrix4		worldNormalTransform;
+	gzUInt32		texUnits;
+	gzBool		useNormals;
+	gzBool		useTexCoord;
+	gzBool		useEdges;
+	gzBool		useColors;
+	gzBool		useWeights;
+};
+
+GZ_DECLARE_REFPTR(gzTriangleContainerEntry);
+
+//******************************************************************************
+// Class	: gzTriangleContainer
+//										
+// Purpose  : Container for triangle data built from geometry
+//										
+// Notes	: -	
+//										
+// Revision History...									
+//										
+// Who	Date	Description							
+//										
+// AMO	260126	Created 						
+//										
+//******************************************************************************
+class gzTriangleContainer : public gzReference
+{
+public:
+
+	GZ_GRAPH_EXPORT gzTriangleContainer();
+	GZ_GRAPH_EXPORT virtual ~gzTriangleContainer();
+
+	GZ_GRAPH_EXPORT gzBool buildFromGeometry(gzGeometry *geometry,gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_TO_TRIANGLES|GZ_GEO_OPTIMIZE_USE_INDEXED|GZ_GEO_OPTIMIZE_USE_OVERALL);
+	GZ_GRAPH_EXPORT gzBool buildFromGeometry(gzGeometry *geometry,const gzMatrix4 &transform,gzState *state,gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_TO_TRIANGLES|GZ_GEO_OPTIMIZE_USE_INDEXED|GZ_GEO_OPTIMIZE_USE_OVERALL);
+	GZ_GRAPH_EXPORT gzUInt32 addFromGeometry(gzGeometry *geometry,const gzMatrix4 &transform,gzState *state,gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_TO_TRIANGLES|GZ_GEO_OPTIMIZE_USE_INDEXED|GZ_GEO_OPTIMIZE_USE_OVERALL);
+	GZ_GRAPH_EXPORT gzVoid clear();
+
+	GZ_GRAPH_EXPORT gzRefList<gzTriangle> &getTriangles();
+	GZ_GRAPH_EXPORT const gzRefList<gzTriangle> &getTriangles() const;
+
+	GZ_GRAPH_EXPORT gzUInt32 getTriangleCount() const;
+	GZ_GRAPH_EXPORT gzUInt32 getEntryCount() const;
+	GZ_GRAPH_EXPORT gzBool writeBack(gzString *errorString=nullptr);
+	GZ_GRAPH_EXPORT gzBool optimize(gzTriangleOptimizeFlags flags,gzFloat param1,gzFloat param2,gzFloat param3,gzString *errorString=nullptr);
+	GZ_GRAPH_EXPORT gzTriangleContainerEntry &getEntry(gzUInt32 index);
+	GZ_GRAPH_EXPORT const gzTriangleContainerEntry &getEntry(gzUInt32 index) const;
+
+private:
+
+	gzVoid createTriangleList(gzGeometry *geometry,const gzMatrix4 &transform,const gzMatrix4 &normalTransform,gzUInt32 sourceIndex);
+	gzTriangle *findTriangle(gzVertex &a , gzVertex &b , gzTriangle *exclude,gzUInt32 sourceIndex);
+	gzBool updateGeometryForEntry(gzUInt32 entryIndex,gzString *errorString);
+
+	gzRefList<gzTriangle>			 m_triList;
+	gzRefDict<gzVec3,gzTriangle>	m_hashTriList;
+	gzDynamicArray<gzTriangleContainerEntryPtr>	m_entries;
+
+	gzBool		m_useNormals;
+	gzBool		m_useTexCoord;
+	gzBool		m_useEdges;
+	gzBool		m_useColors;
+	gzBool		m_useWeights;
+};
+
+GZ_DECLARE_REFPTR(gzTriangleContainer);
 
 //******************************************************************************
 // Class	: gzPolygonOptimizer
@@ -444,6 +552,8 @@ public:
 	GZ_GRAPH_EXPORT static gzBool optimize(gzGeometry *geometry , gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_LEAVE_LINES|GZ_GEO_OPTIMIZE_COMBINE_INTERNAL);
 	GZ_GRAPH_EXPORT static gzPolygonWinding polygonWinding(gzGeometry *geometry,const gzVec3 &upVec=GZ_Z_VEC3);
 	GZ_GRAPH_EXPORT static gzVoid stitchGeometry(gzGeometry *geometry,const gzVec3 &upVec=GZ_Z_VEC3,gzStitchSettings setting=GZ_STITCH_SETTING_DEFAULT,gzFloat maxdist=GZ_FLOAT_ONE);
+	GZ_GRAPH_EXPORT static gzTriangleContainer *createTriangleContainer(gzGeometry *geometry,gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_TO_TRIANGLES|GZ_GEO_OPTIMIZE_USE_INDEXED|GZ_GEO_OPTIMIZE_USE_OVERALL);
+	GZ_GRAPH_EXPORT static gzTriangleContainer *createTriangleContainer(gzGeometry *geometry,const gzMatrix4 &transform,gzState *state,gzGeoOptimizeLevel level=GZ_GEO_OPTIMIZE_TO_TRIANGLES|GZ_GEO_OPTIMIZE_USE_INDEXED|GZ_GEO_OPTIMIZE_USE_OVERALL);
 };
 
 
