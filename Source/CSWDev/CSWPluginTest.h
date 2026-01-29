@@ -22,13 +22,13 @@ public:
 	bool bRunGeoTest = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CSW|Test")
-	double TestLatitude = 58.0;
+	double TestLatitude = 59.333354559480298;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CSW|Test")
-	double TestLongitude = 15.0;
+	double TestLongitude = 18.124421520193231;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CSW|Test")
-	double TestAltitude = 0.0;
+	double TestAltitude = 31.0;
 
 	UFUNCTION(BlueprintImplementableEvent, Category="CSW|Test")
 	void OnGeoTestComplete(const FVector& WorldPos, double LatitudeDeg, double LongitudeDeg, double AltitudeMeters);
@@ -36,6 +36,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category="CSW|Test")
 	void OnGeoTestFailed();
 
+
+	UPROPERTY(Transient)
+	bool bGeoTestLogged = false;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

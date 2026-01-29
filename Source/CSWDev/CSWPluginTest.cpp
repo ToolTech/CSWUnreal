@@ -24,7 +24,7 @@ ACSWDevTest::~ACSWDevTest()
 void ACSWDevTest::BeginPlay()
 {
 	Super::BeginPlay();
-
+	bGeoTestLogged = false;
 }
 
 // Called every frame
@@ -32,19 +32,18 @@ void ACSWDevTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	static bool bLogged = false;
-	if (bRunGeoTest && !bLogged && Scene && !Scene->CoordSystem.IsEmpty())
+	if (bRunGeoTest && !bGeoTestLogged && Scene && !Scene->CoordSystem.IsEmpty())
 	{
 		FVector3d WorldPos;
 		if (Scene->GeodeticToWorld(TestLatitude, TestLongitude, TestAltitude, WorldPos))
 		{
-			GZMESSAGE(GZ_MESSAGE_NOTICE, "GeodeticToWorld: lat=%f lon=%f alt=%f -> UE=(%f, %f, %f)", TestLatitude, TestLongitude, TestAltitude, WorldPos.X, WorldPos.Y, WorldPos.Z);
+			cswScreenMessage(gzString::formatString("GeodeticToWorld: lat=%f lon=%f alt=%f -> UE=(%f, %f, %f)", TestLatitude, TestLongitude, TestAltitude, WorldPos.X, WorldPos.Y, WorldPos.Z));
 			double Lat = 0.0;
 			double Lon = 0.0;
 			double Alt = 0.0;
 			if (Scene->WorldToGeodetic(WorldPos, Lat, Lon, Alt))
 			{
-				GZMESSAGE(GZ_MESSAGE_NOTICE, "WorldToGeodetic: UE=(%f, %f, %f) -> lat=%f lon=%f alt=%f", WorldPos.X, WorldPos.Y, WorldPos.Z, Lat, Lon, Alt);
+				cswScreenMessage(gzString::formatString("WorldToGeodetic: UE=(%f, %f, %f) -> lat=%f lon=%f alt=%f", WorldPos.X, WorldPos.Y, WorldPos.Z, Lat, Lon, Alt));
 				FVector WorldPosF = FVector(WorldPos);
 				OnGeoTestComplete(WorldPosF, Lat, Lon, Alt);
 			}
@@ -57,7 +56,7 @@ void ACSWDevTest::Tick(float DeltaTime)
 		{
 			OnGeoTestFailed();
 		}
-		bLogged = true;
+		bGeoTestLogged = true;
 	}
 }
 

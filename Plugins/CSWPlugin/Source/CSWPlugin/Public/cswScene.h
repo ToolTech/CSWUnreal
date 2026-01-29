@@ -189,6 +189,10 @@ protected:
 	gzMatrix4D GZ_2_UE(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 	gzMatrix4D UE_2_GZ(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 
+	// Local coordinate conversion (includes scene origin offset)
+	FVector3d GZ_2_UE_Local(const gzVec3D& position) const;
+	gzVec3D UE_2_GZ_Local(const FVector3d& world) const;
+
 
 public:
 	// Geodetic <-> UE world conversion (current map coordinate system)

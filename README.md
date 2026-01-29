@@ -12,6 +12,24 @@ A project aiming to create a fast stream implementation in Unreal Engine.
 6. The map will load in Editor mode but performance is measured between play and stop
 7. You will get output from the log when you filter on sender **CSW**
 
+
+## DevTest via Blueprint
+
+You can create a lightweight DevTest in Blueprint by inheriting from `ACSWDevTest`:
+
+1. Create a Blueprint class based on **ACSWDevTest**.
+2. Place the Blueprint actor in your level.
+3. Set **bRunGeoTest**, **TestLatitude**, **TestLongitude**, **TestAltitude** in Details.
+4. Implement the Blueprint events:
+   - **OnGeoTestComplete(WorldPos, LatitudeDeg, LongitudeDeg, AltitudeMeters)**
+   - **OnGeoTestFailed()** (optional)
+
+If you need coordinate conversion in Blueprint, call:
+- `GeodeticToWorldBP(...)`
+- `WorldToGeodeticBP(...)`
+
+These wrappers use the current loaded map coordinate system and route through GizmoSDK -> UE transforms.
+
 ## Contacts
 
 If you have questions you can email [Anders Modén](mailto:anders.moden@saabgroup.com) or send support question to [GizmoSDK Support](mailto:gizmosdk@saabgroup.com?subject=CSW&body=Help!)

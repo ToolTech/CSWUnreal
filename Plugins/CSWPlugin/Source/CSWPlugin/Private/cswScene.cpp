@@ -58,17 +58,18 @@
 
 UCSWScene::UCSWScene(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer), m_indexLUT(IN_MEM_RESOURCE_COUNT),m_slots(GZ_QUEUE_LIFO, IN_MEM_RESOURCE_COUNT), m_components(IN_MEM_RESOURCE_COUNT)
 {
+	// Tick flags must be set on the CDO so instances inherit them
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	//PrimaryComponentTick.SetTickFunctionEnable(true);
+
+	bTickInEditor = true;
+	bAutoActivate = true;
+
+	SetMobility(EComponentMobility::Movable);
+
 	if (!IsTemplate())	// Avoid construction of threads and resources for CDO
 	{
-		PrimaryComponentTick.bCanEverTick = true;
-
-		//PrimaryComponentTick.SetTickFunctionEnable(true);
-
-		bTickInEditor = true;
-		bAutoActivate = true;
-		
-		SetMobility(EComponentMobility::Movable);
-				
 		// Register properties
 		registerPropertyCallbacks();
 
@@ -1052,6 +1053,23 @@ gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type, const d
 	return  (gzVec3D) (UE_2_GZ(type,scale,offset) * cswVector3d::GZVector3<double>(global));
 }
 
+
+FVector3d UCSWScene::GZ_2_UE_Local(const gzVec3D& position) const
+{
+	// GZ position -> UE local, then add scene origin to get UE world
+	const FVector3d local = GZ_2_UE(position, CoordType, getWorldScale());
+	const FVector3d origin = FVector3d(GetRelativeLocation());
+	return local + origin;
+}
+
+gzVec3D UCSWScene::UE_2_GZ_Local(const FVector3d& world) const
+{
+	// UE world -> UE local (remove origin), then map to GZ position
+	const FVector3d origin = FVector3d(GetRelativeLocation());
+	const FVector3d local = world - origin;
+	return UE_2_GZ(local, CoordType, getWorldScale());
+}
+
 bool UCSWScene::GeodeticToWorld(double latitudeDeg, double longitudeDeg, double altitudeMeters, FVector3d& outWorld) const
 {
 	if (CoordSystem.IsEmpty())
@@ -1063,6 +1081,11 @@ bool UCSWScene::GeodeticToWorld(double latitudeDeg, double longitudeDeg, double 
 	if (!gzCoordinate::getCoordinateSystem(toString(CoordSystem), system, meta))
 		return false;
 
+	// Steg 1: lat/lon/alt (grader) -> gzLatPos (radianer)
+	// Steg 2: gzLatPos -> GZ position i kartans coord system (Gizmo)
+	// Steg 3: GZ position -> UE local via GZ_2_UE (CoordType + skala)
+	// Steg 4: lagg pa scenens origo (root transform). Offset hanteras dar.
+
 	gzLatPos latpos{ latitudeDeg, longitudeDeg, altitudeMeters };
 	latpos.DEG2RAD();
 
@@ -1071,8 +1094,7 @@ bool UCSWScene::GeodeticToWorld(double latitudeDeg, double longitudeDeg, double 
 	if (!gzCoordinate::get3DCoordinate(latpos, system, meta, position))
 		return false;
 
-	const FVector3d local = GZ_2_UE(position, CoordType, getWorldScale());
-	outWorld = GetComponentTransform().TransformPosition(local);
+	outWorld = GZ_2_UE_Local(position);
 
 	return true;
 }
@@ -1088,8 +1110,12 @@ bool UCSWScene::WorldToGeodetic(const FVector3d& world, double& outLatitudeDeg, 
 	if (!gzCoordinate::getCoordinateSystem(toString(CoordSystem), system, meta))
 		return false;
 
-	const FVector3d local = GetComponentTransform().InverseTransformPosition(world);
-	const gzVec3D position = UE_2_GZ(local, CoordType, getWorldScale());
+	// Steg 1: UE world -> local (ta bort scenens origo)
+	// Steg 2: UE local -> GZ via UE_2_GZ (CoordType + skala)
+	// Steg 3: GZ position -> geodetic (lat/lon/alt)
+	// Offset hanteras av root transform, inte i UE_2_GZ anropet
+
+	const gzVec3D position = UE_2_GZ_Local(world);
 
 	gzLatPos latpos;
 
@@ -1120,6 +1146,7 @@ bool UCSWScene::WorldToGeodeticBP(const FVector& world, double& outLatitudeDeg, 
 	const FVector3d world3d(world);
 	return WorldToGeodetic(world3d, outLatitudeDeg, outLongitudeDeg, outAltitudeMeters);
 }
+
 double UCSWScene::getWorldScale() const
 {
 	if (GetWorld())
