@@ -178,18 +178,29 @@ protected:
 	bool onLodFactorPropertyUpdate();
 
 	// Utilities
-	double getWorldScale();
+	double getWorldScale() const;
 	void updateOriginTransform();
 
 	virtual gzVoid onCommand(cswSceneManager* manager, cswCommandBuffer* buffer) override;
 
-	FVector3d GZ_2_UE(const gzVec3D& local, enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0));
-	gzVec3D UE_2_GZ(const FVector3d& global,enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0));
+	FVector3d GZ_2_UE(const gzVec3D& local, enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
+	gzVec3D UE_2_GZ(const FVector3d& global,enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 
-	gzMatrix4D GZ_2_UE(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0));
-	gzMatrix4D UE_2_GZ(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0));
+	gzMatrix4D GZ_2_UE(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
+	gzMatrix4D UE_2_GZ(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 
 
+public:
+	// Geodetic <-> UE world conversion (current map coordinate system)
+	bool GeodeticToWorld(double latitudeDeg, double longitudeDeg, double altitudeMeters, FVector3d& outWorld) const;
+	bool WorldToGeodetic(const FVector3d& world, double& outLatitudeDeg, double& outLongitudeDeg, double& outAltitudeMeters) const;
+	UFUNCTION(BlueprintCallable, Category="CSW|Geo")
+	bool GeodeticToWorldBP(double latitudeDeg, double longitudeDeg, double altitudeMeters, FVector& outWorld) const;
+	UFUNCTION(BlueprintCallable, Category="CSW|Geo")
+	bool WorldToGeodeticBP(const FVector& world, double& outLatitudeDeg, double& outLongitudeDeg, double& outAltitudeMeters) const;
+
+
+protected:
 	// Register component
 	bool registerComponent(UCSWSceneComponent* component, gzNode* node, gzUInt64 pathID);
 

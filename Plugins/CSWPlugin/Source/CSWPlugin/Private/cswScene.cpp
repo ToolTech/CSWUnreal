@@ -1011,7 +1011,7 @@ void  UCSWScene::updateOriginTransform()
 	}
 }
 
-gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const double& scale, const gzVec3D& offset)
+gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const double& scale, const gzVec3D& offset) const
 {
 	gzMatrix4D mat;
 	
@@ -1023,7 +1023,7 @@ gzMatrix4D UCSWScene::UE_2_GZ(enum CoordType type, const double& scale, const gz
 	return gzMatrix4D::identityMatrix();
 }
 
-gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const double& scale, const gzVec3D& offset)
+gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const double& scale, const gzVec3D& offset) const
 {
 	switch (type)
 	{
@@ -1042,17 +1042,85 @@ gzMatrix4D UCSWScene::GZ_2_UE(enum CoordType type, const double& scale, const gz
 }
 
 
-FVector3d UCSWScene::GZ_2_UE(const gzVec3D& local,enum CoordType type, const double& scale , const gzVec3D& offset)
+FVector3d UCSWScene::GZ_2_UE(const gzVec3D& local,enum CoordType type, const double& scale , const gzVec3D& offset) const
 {
 	return cswVector3d::UEVector3<double>(GZ_2_UE(type,scale,offset) * local);
 }
 
-gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type, const double& scale , const gzVec3D& offset)
+gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type, const double& scale , const gzVec3D& offset) const
 {
 	return  (gzVec3D) (UE_2_GZ(type,scale,offset) * cswVector3d::GZVector3<double>(global));
 }
 
-double UCSWScene::getWorldScale()
+bool UCSWScene::GeodeticToWorld(double latitudeDeg, double longitudeDeg, double altitudeMeters, FVector3d& outWorld) const
+{
+	if (CoordSystem.IsEmpty())
+		return false;
+
+	gzCoordSystem system;
+	gzCoordSystemMetaData meta;
+
+	if (!gzCoordinate::getCoordinateSystem(toString(CoordSystem), system, meta))
+		return false;
+
+	gzLatPos latpos{ latitudeDeg, longitudeDeg, altitudeMeters };
+	latpos.DEG2RAD();
+
+	gzVec3D position;
+
+	if (!gzCoordinate::get3DCoordinate(latpos, system, meta, position))
+		return false;
+
+	const FVector3d local = GZ_2_UE(position, CoordType, getWorldScale());
+	outWorld = GetComponentTransform().TransformPosition(local);
+
+	return true;
+}
+
+bool UCSWScene::WorldToGeodetic(const FVector3d& world, double& outLatitudeDeg, double& outLongitudeDeg, double& outAltitudeMeters) const
+{
+	if (CoordSystem.IsEmpty())
+		return false;
+
+	gzCoordSystem system;
+	gzCoordSystemMetaData meta;
+
+	if (!gzCoordinate::getCoordinateSystem(toString(CoordSystem), system, meta))
+		return false;
+
+	const FVector3d local = GetComponentTransform().InverseTransformPosition(world);
+	const gzVec3D position = UE_2_GZ(local, CoordType, getWorldScale());
+
+	gzLatPos latpos;
+
+	if (!gzCoordinate::getGlobalCoordinate(position, system, meta, latpos))
+		return false;
+
+	latpos.RAD2DEG();
+
+	outLatitudeDeg = latpos.latitude;
+	outLongitudeDeg = latpos.longitude;
+	outAltitudeMeters = latpos.altitude;
+
+	return true;
+}
+
+
+bool UCSWScene::GeodeticToWorldBP(double latitudeDeg, double longitudeDeg, double altitudeMeters, FVector& outWorld) const
+{
+	FVector3d world3d;
+	if (!GeodeticToWorld(latitudeDeg, longitudeDeg, altitudeMeters, world3d))
+		return false;
+	outWorld = FVector(world3d);
+	return true;
+}
+
+bool UCSWScene::WorldToGeodeticBP(const FVector& world, double& outLatitudeDeg, double& outLongitudeDeg, double& outAltitudeMeters) const
+{
+	const FVector3d world3d(world);
+	return WorldToGeodetic(world3d, outLatitudeDeg, outLongitudeDeg, outAltitudeMeters);
+}
+double UCSWScene::getWorldScale() const
 {
 	if (GetWorld())
 		return GetWorld()->GetWorldSettings()->WorldToMeters;	// Centimeters ?
@@ -1109,4 +1177,3 @@ void UCSWScene::PostEditImport()
 }
 
 #endif // ------------------------------ EDITOR Only --------------------------------------
-
