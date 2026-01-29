@@ -83,8 +83,12 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 		m_meshComponent->SetUsingAbsoluteLocation(false);
 		m_meshComponent->SetUsingAbsoluteRotation(false);
 		m_meshComponent->SetUsingAbsoluteScale(false);
-
-		m_meshComponent->ForcedLodModel = 1;	// Tvinga lägsta LOD
+		
+		#if CSW_FORCE_LOD0
+		m_meshComponent->ForcedLodModel = 1; // Force LOD0
+		#else
+		m_meshComponent->ForcedLodModel = 0; // Auto LOD
+		#endif
 
 		m_meshComponent->SetMobility(EComponentMobility::Stationary);
 

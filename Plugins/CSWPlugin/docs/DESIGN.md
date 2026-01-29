@@ -35,8 +35,8 @@ scenes inside a UE level.
 
 ## LOD policy (current)
 - Gizmo decides which nodes are active based on observer distance.
-- UE mesh components currently force LOD0 via `ForcedLodModel = 1` in `UCSWGeometry`.
-  This can be revisited if UE-side LOD should be allowed for additional FPS gains.
+- UE mesh components use `ForcedLodModel` controlled by the `CSW_FORCE_LOD0` define
+  (default `0` = UE auto LOD, `1` = force LOD0).
 
 ## Design principles
 - Keep layer boundaries clear: GizmoSDK -> cswSceneManager -> CSWPlugin -> Unreal.
