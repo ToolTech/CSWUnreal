@@ -1,39 +1,44 @@
 # Design - CSWPlugin
 
-## Kontext
-CSWPlugin ligger ovanfor cswSceneManager och anvander GizmoSDK (framfor allt Gizmo3D)
-indirekt via CSW-lagret. Pluginet exponerar en Unreal-komponent som kan streama och
-visualisera CSW-scener i en UE-level.
+## Context
+CSWPlugin sits above cswSceneManager and uses GizmoSDK (primarily Gizmo3D) indirectly via
+the CSW layer. The plugin exposes an Unreal component that can stream and visualize CSW
+scenes inside a UE level.
 
-## Lager och ansvar
-- GizmoSDK (GizmoBase + Gizmo3D): grundlager med scenegraph, IO, threading och loader-stod.
-- cswSceneManager: buffert och kommando-flode mellan Gizmo3D scenegraph och klienter.
-- CSWPlugin: UE glue, adapters, factories och resurs-hantering.
-- Unreal Engine: slutlig rendering, aktorer/komponenter och editor/runtime-stod.
+## Layers and responsibilities
+- GizmoSDK (GizmoBase + Gizmo3D): scene graph, IO, threading, loaders, math.
+- cswSceneManager: buffer and command flow between Gizmo3D and clients.
+- CSWPlugin: UE glue, adapters, factories, and resource management.
+- Unreal Engine: final rendering, actors/components, editor/runtime integration.
 
-## Flode av data och kommandon
-1. cswSceneManager tar emot kommandon (t.ex. SetMapUrls, RefreshScene) och traverserar
-   Gizmo3D scenegraph.
-2. Under traversal genereras ut-buffers (Generic, Error, Frame, New, Delete).
-3. `UCSWScene` tar emot buffers via `onCommand`, lagrar dem och processar dem per tick.
-4. Noder byggs eller tas bort genom factory-lagret, vilket skapar Unreal-komponenter.
+## Command and data flow
+1. cswSceneManager consumes incoming commands (e.g. SetMapUrls, RefreshScene) and traverses
+   the Gizmo3D scene graph.
+2. Traversal produces outgoing buffers (Generic, Error, Frame, New, Delete).
+3. `UCSWScene` receives buffers via `onCommand`, queues them, and processes them on tick.
+4. New/delete buffers are routed through the factory layer to create/destroy UE components.
 
-## Bygg av scen till Unreal
-- `cswUESceneManager` override: `preBuildReference` och `preDestroyReference`.
-- Dessa routas till `cswFactory`, som valjer factory baserat pa `gzType`.
-- Resultatet ar `UCSWSceneComponent`-instanser som kopplas till UE-hierarkin.
+## Scene build pipeline
+- `cswUESceneManager` overrides `preBuildReference` / `preDestroyReference`.
+- These calls are routed to `cswFactory`, which selects a factory by `gzType`.
+- Factories build `UCSWSceneComponent` instances and attach them into the UE hierarchy.
 
-## Init/shutdown och logg
-- `cswInitializeUnrealGlue()` startar logg-bryggan mellan `gzMessage` och `UE_LOG`,
-  laddar konfiguration och initierar `cswSceneManager::initializeSceneSystem()`.
-- `cswUnInitializeUnrealGlue()` stanger ned och frigor resurser.
+## Texture and material path (current)
+- `cswResourceManager` maps a Gizmo state to a UE material instance.
+- The base material is `/CSWPlugin/Materials/cswBaseMaterial`.
+- A texture is created from the Gizmo image and bound to the `baseTexture` parameter.
 
-## Threading och prestanda
-- `cswSceneManager` ar en `gzThread` och producerar buffers asynkront.
-- Buffers bearbetas i UE-komponenten i korta steg for att undvika langa lockar.
-- Buffer-typer hanteras separat for att styra bygghastighet och frame-latens.
+## Threading and performance
+- cswSceneManager runs as a `gzThread` and produces buffers asynchronously.
+- `UCSWScene` processes a bounded number of frames and primitives per tick.
+- Buffer types are handled separately to control frame latency and build throughput.
 
-## Designprinciper
-- Tydlig lagerindelning: GizmoSDK -> cswSceneManager -> CSWPlugin -> Unreal.
-- Minimera direkt beroende mot Gizmo3D i UE-kod; ga via CSW-lagret.
-- Kort livslangd pa locks och snabb hantering av inkommande buffers.
+## LOD policy (current)
+- Gizmo decides which nodes are active based on observer distance.
+- UE mesh components currently force LOD0 via `ForcedLodModel = 1` in `UCSWGeometry`.
+  This can be revisited if UE-side LOD should be allowed for additional FPS gains.
+
+## Design principles
+- Keep layer boundaries clear: GizmoSDK -> cswSceneManager -> CSWPlugin -> Unreal.
+- Prefer fast, bounded processing on the game thread.
+- Avoid long locks and keep buffer handling short.
