@@ -64,7 +64,7 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	
 	GZ_INSTRUMENT_NAME("UCSWGeometry::build");
 
-	cswGeometryBuild* buildData = gzDynamic_Cast<cswGeometryBuild>(gzDynamic_Cast<gzReference*>(buildItem->getAttribute(CSW_META, BUILD_DATA)));
+	cswGeometryBuild* buildData = gzDynamic_Cast<cswGeometryBuild>(gzDynamic_Cast<gzReference*>(buildItem->getAttribute(CSW_META, CSW_BUILD_DATA)));
 
 	if (!buildData)
 		return false;
