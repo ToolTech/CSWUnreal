@@ -49,6 +49,33 @@
 
 
 #include "CSWScene.generated.h"
+class cswSceneCommandGroundClampPositionResponse;
+
+USTRUCT(BlueprintType)
+struct FCSWGroundClampResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	bool bSuccess = false;
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	FVector WorldPosition = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	FVector WorldNormal = FVector::UpVector;
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	FVector WorldUp = FVector::UpVector;
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	double Altitude = 0.0;
+
+	UPROPERTY(BlueprintReadOnly, Category="CSW|GroundClamp")
+	int32 RequestId = 0;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCSWGroundClampResponse, const FCSWGroundClampResult&, Result);
 
 UCLASS(meta = (BlueprintSpawnableComponent))
 class CSWPLUGIN_API UCSWScene : public UCSWSceneComponent,
@@ -207,6 +234,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category="CSW|Geo")
 	bool WorldToGeodeticBP(const FVector& world, double& outLatitudeDeg, double& outLongitudeDeg, double& outAltitudeMeters) const;
 
+	UFUNCTION(BlueprintCallable, Category="CSW|GroundClamp")
+	int32 RequestGroundClampPosition(double latitudeDeg, double longitudeDeg, double heightAboveGround = 1000.0, bool waitForData = false);
+
+	UFUNCTION(BlueprintCallable, Category="CSW|GroundClamp")
+	bool TryGetGroundClampResponse(int32 requestId, FCSWGroundClampResult& outResult);
+
+	UPROPERTY(BlueprintAssignable, Category="CSW|GroundClamp")
+	FCSWGroundClampResponse OnGroundClampResponse;
+
 
 protected:
 	// Register component
@@ -228,6 +264,9 @@ protected:
 
 private:
 
+	void handleGroundClampResponse(cswSceneCommandGroundClampPositionResponse* response);
+
+
 	gzEvent									m_bufferInLock;		// Lock for callback accessing bufferIn
 	gzRefList<cswCommandBuffer>				m_bufferIn;			// Buffer In
 	gzRefList<cswCommandBuffer>				m_pendingBuffers;		// Buffer Out
@@ -237,6 +276,10 @@ private:
 	gzDynamicArray<UCSWSceneComponent*>		m_components;
 
 	BuildProperties							m_buildProperties;
+
+
+	TMap<gzUInt32, FCSWGroundClampResult>	m_groundClampResponses;
+	gzUInt32							m_groundClampNextRequestId = 0;
 
 	bool									m_firstRun=false;
 };

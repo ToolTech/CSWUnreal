@@ -508,6 +508,14 @@ bool UCSWScene::processGenericBuffer(cswCommandBuffer* buffer)
 	while (buffer->hasCommands())
 	{
 		cswSceneCommandPtr command = buffer->getCommand();
+
+		cswSceneCommandGroundClampPositionResponse* groundClamp = gzDynamic_Cast<cswSceneCommandGroundClampPositionResponse>(command);
+
+		if (groundClamp)
+		{
+			handleGroundClampResponse(groundClamp);
+			continue;
+		}
 	}
 
 	buffer->unLock();				// finished
@@ -1159,6 +1167,60 @@ bool UCSWScene::WorldToGeodeticBP(const FVector& world, double& outLatitudeDeg, 
 {
 	const FVector3d world3d(world);
 	return WorldToGeodetic(world3d, outLatitudeDeg, outLongitudeDeg, outAltitudeMeters);
+}
+
+int32 UCSWScene::RequestGroundClampPosition(double latitudeDeg, double longitudeDeg, double heightAboveGround, bool waitForData)
+{
+	if (!m_manager)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Ground clamp request ignored: scene manager not initialized");
+		return 0;
+	}
+
+	const gzUInt32 requestId = ++m_groundClampNextRequestId;
+	m_manager->requestGroundClampPosition(latitudeDeg, longitudeDeg, heightAboveGround, waitForData ? TRUE : FALSE, requestId);
+	return (int32)requestId;
+}
+
+bool UCSWScene::TryGetGroundClampResponse(int32 requestId, FCSWGroundClampResult& outResult)
+{
+	if (requestId <= 0)
+		return false;
+
+	if (FCSWGroundClampResult* found = m_groundClampResponses.Find((gzUInt32)requestId))
+	{
+		outResult = *found;
+		m_groundClampResponses.Remove((gzUInt32)requestId);
+		return true;
+	}
+
+	return false;
+}
+
+void UCSWScene::handleGroundClampResponse(cswSceneCommandGroundClampPositionResponse* response)
+{
+	if (!response)
+		return;
+
+	FCSWGroundClampResult result;
+	result.RequestId = (int32)response->getCommandRefID();
+	result.bSuccess = (bool)response->getClampResult();
+	result.Altitude = response->getAltitude();
+
+	const gzVec3D positionGZ = response->getPosition();
+	result.WorldPosition = FVector(GZ_2_UE_Local(positionGZ));
+
+	const gzVec3D normalGZ = (gzVec3D)response->getNormal();
+	const gzVec3D upGZ = (gzVec3D)response->getUp();
+
+	const FVector3d worldNormal = GZ_2_UE_Vector(normalGZ, CoordType, getWorldScale());
+	const FVector3d worldUp = GZ_2_UE_Vector(upGZ, CoordType, getWorldScale());
+
+	result.WorldNormal = FVector(worldNormal).GetSafeNormal();
+	result.WorldUp = FVector(worldUp).GetSafeNormal();
+
+	m_groundClampResponses.Add((gzUInt32)result.RequestId, result);
+	OnGroundClampResponse.Broadcast(result);
 }
 
 double UCSWScene::getWorldScale() const
