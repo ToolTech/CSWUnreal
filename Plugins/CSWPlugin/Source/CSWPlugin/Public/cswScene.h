@@ -43,10 +43,10 @@
 #include "cswUESceneManager.h"
 #include "cswCommandReceiver.h"
 #include "cswResourceManager.h"
+#include "gzMutex.h"
 
 #include "UEGlue/cswUETemplates.h"
 #include "UEGlue//cswUETypes.h"
-#include "HAL/CriticalSection.h"
 
 
 #include "CSWScene.generated.h"
@@ -241,8 +241,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="CSW|GroundClamp")
 	bool TryGetGroundClampResponse(int32 requestId, FCSWGroundClampResult& outResult);
 
-	// Blocking wait (do not call on game thread)
-	bool WaitForGroundClampResponse(int32 requestId, FCSWGroundClampResult& outResult, double timeoutSeconds = 2.0, double pollIntervalSeconds = 0.01);
 
 	UPROPERTY(BlueprintAssignable, Category="CSW|GroundClamp")
 	FCSWGroundClampResponse OnGroundClampResponse;
@@ -282,7 +280,7 @@ private:
 	BuildProperties							m_buildProperties;
 
 
-	FCriticalSection					m_groundClampLock;
+	gzMutex						m_groundClampLock;
 
 	TMap<gzUInt32, FCSWGroundClampResult>	m_groundClampResponses;
 	gzUInt32							m_groundClampNextRequestId = 0;

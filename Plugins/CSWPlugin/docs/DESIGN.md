@@ -43,6 +43,24 @@ scenes inside a UE level.
 - `GZ_2_UE_Local` / `UE_2_GZ_Local`: position conversion that includes the scene origin offset.
 - `GZ_2_UE_Vector` / `UE_2_GZ_Vector`: vector conversion without translation (offset = 0). Use scale for unit conversion; normalize when using normals.
 
+## Ground clamp (request/response)
+C++ usage (polling):
+- Call `Scene->RequestGroundClampPosition(LatitudeDeg, LongitudeDeg, HeightAboveGround, WaitForData)`.
+- Poll `Scene->TryGetGroundClampResponse(RequestId, Result)` on tick (or your update loop).
+- Results are delivered in `FCSWGroundClampResult` (world position, normal, up, altitude, request id).
+
+Blueprint usage (event):
+- Bind to `OnGroundClampResponse` on the `UCSWScene` component.
+- Call `RequestGroundClampPosition` and match `Result.RequestId` in the event.
+
+Blueprint usage (async node):
+- Use `GroundClampAsync` (UCSWGroundClampAsyncAction).
+- Bind `OnSuccess` / `OnFail` and read `FCSWGroundClampResult`.
+
+Notes:
+- Requests are asynchronous; do not block the game thread.
+- Normals and Up vectors are converted as directions (no translation) and normalized in the result.
+
 ## Design principles
 - Keep layer boundaries clear: GizmoSDK -> cswSceneManager -> CSWPlugin -> Unreal.
 - Prefer fast, bounded processing on the game thread.

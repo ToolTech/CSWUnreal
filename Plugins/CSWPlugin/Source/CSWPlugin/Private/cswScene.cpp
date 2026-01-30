@@ -38,9 +38,6 @@
 
 #include "cswScene.h"
 #include "cswFactory.h"
-#include "HAL/PlatformProcess.h"
-#include "HAL/PlatformTime.h"
-#include "Misc/ScopeLock.h"
 
 
 #include "UEGlue/cswUEMatrix.h"
@@ -1182,7 +1179,7 @@ int32 UCSWScene::RequestGroundClampPosition(double latitudeDeg, double longitude
 
 	gzUInt32 requestId = 0;
 	{
-		FScopeLock lock(&m_groundClampLock);
+		GZ_BODYGUARD(m_groundClampLock);
 		requestId = ++m_groundClampNextRequestId;
 	}
 	m_manager->requestGroundClampPosition(latitudeDeg, longitudeDeg, heightAboveGround, waitForData ? TRUE : FALSE, requestId);
@@ -1195,37 +1192,13 @@ bool UCSWScene::TryGetGroundClampResponse(int32 requestId, FCSWGroundClampResult
 		return false;
 
 	{
-		FScopeLock lock(&m_groundClampLock);
+		GZ_BODYGUARD(m_groundClampLock);
 		if (FCSWGroundClampResult* found = m_groundClampResponses.Find((gzUInt32)requestId))
 		{
 			outResult = *found;
 			m_groundClampResponses.Remove((gzUInt32)requestId);
 			return true;
 		}
-	}
-
-	return false;
-}
-
-bool UCSWScene::WaitForGroundClampResponse(int32 requestId, FCSWGroundClampResult& outResult, double timeoutSeconds, double pollIntervalSeconds)
-{
-	if (requestId <= 0)
-		return false;
-
-	if (IsInGameThread())
-	{
-		GZMESSAGE(GZ_MESSAGE_WARNING, "WaitForGroundClampResponse called on game thread; aborting");
-		return false;
-	}
-
-	const double startTime = FPlatformTime::Seconds();
-
-	while ((FPlatformTime::Seconds() - startTime) < timeoutSeconds)
-	{
-		if (TryGetGroundClampResponse(requestId, outResult))
-			return true;
-
-		FPlatformProcess::Sleep((float)pollIntervalSeconds);
 	}
 
 	return false;
@@ -1254,7 +1227,7 @@ void UCSWScene::handleGroundClampResponse(cswSceneCommandGroundClampPositionResp
 	result.WorldUp = FVector(worldUp).GetSafeNormal();
 
 	{
-		FScopeLock lock(&m_groundClampLock);
+		GZ_BODYGUARD(m_groundClampLock);
 		m_groundClampResponses.Add((gzUInt32)result.RequestId, result);
 	}
 	OnGroundClampResponse.Broadcast(result);
