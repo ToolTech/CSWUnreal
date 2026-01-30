@@ -62,6 +62,8 @@ public:
 	
 	virtual bool build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources);
 
+	virtual bool update(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources) override;
+
 	virtual bool destroy(gzNode* destroyItem, cswResourceManager* resources) override;
 };
 

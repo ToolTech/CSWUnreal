@@ -135,6 +135,67 @@ bool UCSWGeometry::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState*
 	return true;
 }
 
+bool UCSWGeometry::update(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources)
+{
+	GZ_INSTRUMENT_NAME("UCSWGeometry::update");
+
+	if (!parent || !buildItem)
+		return false;
+
+	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	cswGeometryBuild* buildData = gzDynamic_Cast<cswGeometryBuild>(gzDynamic_Cast<gzReference*>(buildItem->getAttribute(CSW_META, CSW_BUILD_DATA)));
+
+	if (!buildData)
+		return false;
+
+	if (!m_meshComponent)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "UCSWGeometry::update: missing mesh component, rebuilding");
+		return build(parent, buildItem, state, buildProperties, resources);
+	}
+
+	if (shouldSkipUpdate(buildItem))
+		return true;
+
+	// Update component settings and mesh without creating a new component
+	m_meshComponent->SetSimulatePhysics(buildProperties.simulatePhysics);
+	m_meshComponent->SetCollisionEnabled(buildProperties.collision);
+	m_meshComponent->SetUsingAbsoluteLocation(false);
+	m_meshComponent->SetUsingAbsoluteRotation(false);
+	m_meshComponent->SetUsingAbsoluteScale(false);
+
+	#if CSW_FORCE_LOD0
+	m_meshComponent->ForcedLodModel = 1; // Force LOD0
+	#else
+	m_meshComponent->ForcedLodModel = 0; // Auto LOD
+	#endif
+
+	m_meshComponent->SetMobility(EComponentMobility::Stationary);
+	m_meshComponent->SetRenderCustomDepth(false);
+	m_meshComponent->bAffectDistanceFieldLighting = false;
+	m_meshComponent->bAffectDynamicIndirectLighting = false;
+	m_meshComponent->bAlwaysCreatePhysicsState = false;
+	m_meshComponent->bReceivesDecals = false;
+
+	if (buildData->staticMesh)
+		m_meshComponent->SetStaticMesh(buildData->staticMesh);
+
+	markUpdated(buildItem);
+
+	UMaterialInterface* material = resources->getMaterial(this, state, CSW_MATERIAL_TYPE_BASE_MATERIAL);
+	if (material)
+		m_meshComponent->SetMaterial(0, material);
+
+	if (m_meshComponent->GetAttachParent() != this)
+		m_meshComponent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+	if (!m_meshComponent->IsRegistered())
+		m_meshComponent->RegisterComponent();
+
+	return true;
+}
+
 bool  UCSWGeometry::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup

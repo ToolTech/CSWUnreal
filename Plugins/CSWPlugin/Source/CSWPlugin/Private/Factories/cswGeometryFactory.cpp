@@ -68,6 +68,8 @@ public:
 
 	virtual gzReference* preBuildReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state) override;
 
+	virtual gzReference* updateReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata) override;
+
 	virtual gzVoid preDestroyReferenceInstance(gzNode* node, const gzUInt64& pathID, gzReference* userdata) override;
 };
 
@@ -458,6 +460,27 @@ gzReference* cswGeometryFactory::preBuildReferenceInstance(gzNode* node, const g
 
 
 	return build;
+}
+
+
+gzReference* cswGeometryFactory::updateReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata)
+{
+	gzGeometry* geom = gzDynamic_Cast<gzGeometry>(node);
+
+	if (!geom)
+		return userdata;
+
+	cswGeometryBuild* existing = gzDynamic_Cast<cswGeometryBuild>(userdata);
+
+	if (existing && existing->updateID == geom->getUpdateID())
+		return existing;
+
+	gzReference* rebuilt = preBuildReferenceInstance(node, pathID, parent, parentPathID, state);
+
+	if (rebuilt)
+		return rebuilt;
+
+	return userdata;
 }
 
 gzVoid cswGeometryFactory::preDestroyReferenceInstance(gzNode* node, const gzUInt64& pathID, gzReference* userdata)

@@ -484,6 +484,10 @@ gzUInt32 UCSWScene::processPendingBuffers(gzUInt32 maxFrames, gzUInt32 maxBuilds
 				result = processNewBuffer(buffer,maxBuilds);
 				break;
 
+			case CSW_BUFFER_TYPE_UPDATE:
+				result = processUpdateBuffer(buffer, maxBuilds);
+				break;
+
 			case CSW_BUFFER_TYPE_DELETE:
 				result = processDeleteBuffer(buffer);
 				break;
@@ -668,6 +672,52 @@ bool UCSWScene::processNewBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds)
 	return result;
 }
 
+bool UCSWScene::processUpdateBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds)
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::processUpdateBuffer");
+
+	if (!buffer->tryLockEdit(FrameSkipLatency))		// We failed to lock buffer
+		return false;
+
+	bool result(true);
+
+	while (buffer->hasCommands() && maxBuilds)
+	{
+		cswSceneCommandPtr command = buffer->getCommand();
+
+		cswSceneCommandUpdateNode* updateNode = gzDynamic_Cast<cswSceneCommandUpdateNode>(command);
+
+		if (updateNode)
+		{
+			if (!(result = processUpdateNode(updateNode)))
+				break;
+
+			if (maxBuilds)
+				--maxBuilds;
+
+			if (!maxBuilds)
+				result = false;
+
+			continue;
+		}
+
+		cswSceneCommandGeoInfo* geoInfo = gzDynamic_Cast<cswSceneCommandGeoInfo>(command);
+
+		if (geoInfo)
+		{
+			if (!(result = processGeoInfo(geoInfo)))
+				break;
+
+			continue;
+		}
+				
+	}
+
+	buffer->unLock();				// finished
+
+	return result;
+}
+
 bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 {
 	GZ_INSTRUMENT_NAME("UCSWScene::processNewNode");
@@ -724,6 +774,44 @@ bool UCSWScene::processNewNode(cswSceneCommandNewNode* command)
 		return false;
 	}
 	
+	return true;
+}
+
+bool UCSWScene::processUpdateNode(cswSceneCommandUpdateNode* command)
+{
+	GZ_INSTRUMENT_NAME("UCSWScene::processUpdateNode");
+
+	gzGroup* parentGroup = command->getParent();
+	gzUInt64 parentPathID = command->getParentPathID();
+
+	UCSWSceneComponent* parent = getComponent(parentGroup, parentPathID);
+
+	if (!parent)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get registered parent for update. Probably destroyed");
+		return true;
+	}
+
+	gzNode* node = command->getNode();
+	gzUInt64 pathID = command->getPathID();
+
+	UCSWSceneComponent* component = getComponent(node, pathID);
+
+	if (!component)
+	{
+		GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get component for update. Probably removed");
+		return true;
+	}
+
+	{
+		GZ_INSTRUMENT_NAME("UCSW*::update");
+		if (!component->update(parent, node, command->getState(), m_buildProperties, m_resource))
+		{
+			GZMESSAGE(GZ_MESSAGE_FATAL, "Failed to update component");
+			return false;
+		}
+	}
+
 	return true;
 }
 

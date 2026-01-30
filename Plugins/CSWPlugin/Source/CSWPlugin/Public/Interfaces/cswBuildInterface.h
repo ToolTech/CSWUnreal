@@ -64,4 +64,9 @@ public:
 
 	virtual bool build(UCSWSceneComponent *parent,gzNode* buildItem, gzState *state, BuildProperties &buildProperties, cswResourceManager *resources)=0;
 	virtual bool destroy(gzNode* destroyItem,cswResourceManager* resources) = 0;
+
+	virtual bool update(UCSWSceneComponent *parent, gzNode* buildItem, gzState *state, BuildProperties &buildProperties, cswResourceManager *resources)
+	{
+		return build(parent, buildItem, state, buildProperties, resources);
+	}
 };

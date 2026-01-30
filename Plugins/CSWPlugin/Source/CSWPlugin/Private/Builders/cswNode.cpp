@@ -57,8 +57,30 @@ bool UCSWNode::build(UCSWSceneComponent* parent, gzNode* buildItem, gzState* sta
 	// gzGroup -----------------------------
 
 	AttachToComponent(parent, FAttachmentTransformRules::KeepRelativeTransform);
-	
+
+	markUpdated(buildItem);
+
 	return true;
+}
+
+bool UCSWNode::update(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources)
+{
+	if (!buildItem)
+		return false;
+
+	if (shouldSkipUpdate(buildItem))
+		return true;
+
+	const gzUInt32 previousUpdateID = m_lastUpdateID;
+
+	bool result = build(parent, buildItem, state, buildProperties, resources);
+
+	if (!result)
+		m_lastUpdateID = previousUpdateID;
+	else
+		markUpdated(buildItem);
+
+	return result;
 }
 
 bool  UCSWNode::destroy(gzNode* destroyItem, cswResourceManager* resources)
@@ -72,3 +94,18 @@ bool  UCSWNode::destroy(gzNode* destroyItem, cswResourceManager* resources)
 
 
 
+
+
+bool UCSWNode::shouldSkipUpdate(gzNode* node) const
+{
+	if (!node)
+		return false;
+
+	return node->getUpdateID() == m_lastUpdateID;
+}
+
+void UCSWNode::markUpdated(gzNode* node)
+{
+	if (node)
+		m_lastUpdateID = node->getUpdateID();
+}

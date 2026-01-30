@@ -185,12 +185,16 @@ protected:
 	bool processNewBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds);
 
 	// Perform work on specific buffer
+	bool processUpdateBuffer(cswCommandBuffer* buffer, gzUInt32& maxBuilds);
+
+	// Perform work on specific buffer
 	bool processDeleteBuffer(cswCommandBuffer* buffer);
 
 
 	// Perform work on specific commands
 	bool processGeoInfo(cswSceneCommandGeoInfo* command);
 	bool processNewNode(cswSceneCommandNewNode* command);
+	bool processUpdateNode(cswSceneCommandUpdateNode* command);
 	bool processDeleteNode(cswSceneCommandDeleteNode* command);
 
 	bool processActivation(cswSceneCommandActivation* command);

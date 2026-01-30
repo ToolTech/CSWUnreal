@@ -23,6 +23,18 @@ scenes inside a UE level.
 - These calls are routed to `cswFactory`, which selects a factory by `gzType`.
 - Factories build `UCSWSceneComponent` instances and attach them into the UE hierarchy.
 
+
+## Update path (RefreshSubtree)
+- `CSW_BUFFER_TYPE_UPDATE` carries `cswSceneCommandUpdateNode` events from the scene manager.
+- `UCSWScene` routes updates to `component->update(...)` without destroy/new.
+- `UCSWNode` implements updateID gating using `gzNode::getUpdateID()` and helper methods `shouldSkipUpdate` / `markUpdated`.
+- Default `UCSWSceneComponent::update(...)` calls `build(...)`; `UCSWNode::update(...)` only rebuilds when updateID changes.
+- **Pattern for geometry:**
+  - `cswGeometryBuild::updateID` stores `gzGeometry::getUpdateID()`.
+  - `cswGeometryFactory::updateReferenceInstance(...)` rebuilds only when the updateID changes.
+  - `UCSWGeometry::update(...)` updates the existing component in-place and skips if the updateID is unchanged.
+  - Reuse this pattern for node types that expose a stable update counter.
+
 ## Texture and material path (current)
 - `cswResourceManager` maps a Gizmo state to a UE material instance.
 - The base material is `/CSWPlugin/Materials/cswBaseMaterial`.

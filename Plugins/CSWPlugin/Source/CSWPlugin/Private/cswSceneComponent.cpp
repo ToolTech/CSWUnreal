@@ -52,6 +52,11 @@ bool UCSWSceneComponent::build(UCSWSceneComponent* parent, gzNode* buildItem, gz
 	return true;
 }
 
+bool UCSWSceneComponent::update(UCSWSceneComponent* parent, gzNode* buildItem, gzState* state, BuildProperties& buildProperties, cswResourceManager* resources)
+{
+	return build(parent, buildItem, state, buildProperties, resources);
+}
+
 bool  UCSWSceneComponent::destroy(gzNode* destroyItem, cswResourceManager* resources)
 {
 	// Do cleanup
