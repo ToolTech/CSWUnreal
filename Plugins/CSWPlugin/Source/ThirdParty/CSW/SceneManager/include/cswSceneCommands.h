@@ -439,12 +439,13 @@ class cswSceneCommandGroundClampPositionResponse : public cswSceneCommandRespons
 public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
-	CSW_SM_EXPORT cswSceneCommandGroundClampPositionResponse(const gzBool& clampResult, const gzVec3D& position, const gzVec3& normal, const gzVec3& up, const gzUInt32 commandRefID = 0);
+	CSW_SM_EXPORT cswSceneCommandGroundClampPositionResponse(const gzBool& clampResult, const gzVec3D& position, const gzVec3& normal, const gzVec3& up, const gzDouble &altitude = 0, const gzUInt32 commandRefID = 0);
 
-	GZ_PROPERTY_EXPORT(gzBool,	ClampResult, CSW_SM_EXPORT);
-	GZ_PROPERTY_EXPORT(gzVec3D,		Position, CSW_SM_EXPORT);
-	GZ_PROPERTY_EXPORT(gzVec3,	Normal, CSW_SM_EXPORT);
-	GZ_PROPERTY_EXPORT(gzVec3,	Up, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzBool,		ClampResult,	CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3D,		Position,		CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,		Normal,			CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzVec3,		Up,				CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzDouble,	Altitude,		CSW_SM_EXPORT);
 };
 
 // ------------------------ cswSceneCommandKeyPressed -------------------------------
