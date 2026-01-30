@@ -2,6 +2,7 @@
 
 
 #include "CSWPluginTest.h"
+#include "cswGroundClampAsyncAction.h"
 #include "UEGlue/cswUEUtility.h"
 #include "UEGlue/cswUEGlue.h"
 #include "UEGlue/cswUETemplates.h"
@@ -25,6 +26,18 @@ void ACSWDevTest::BeginPlay()
 {
 	Super::BeginPlay();
 	bGeoTestLogged = false;
+	bGroundClampTestInFlight = false;
+	bGroundClampTestLogged = false;
+	GroundClampRequestId = 0;
+}
+
+
+UCSWGroundClampAsyncAction* ACSWDevTest::RunGroundClampAsyncExample(float TimeoutSeconds)
+{
+	if (!Scene)
+		return nullptr;
+
+	return UCSWGroundClampAsyncAction::GroundClampAsync(this, Scene, GroundClampLatitude, GroundClampLongitude, GroundClampHeightAboveGround, bGroundClampWaitForData, TimeoutSeconds);
 }
 
 // Called every frame
@@ -58,6 +71,34 @@ void ACSWDevTest::Tick(float DeltaTime)
 		}
 		bGeoTestLogged = true;
 	}
+
+	if (bRunGroundClampTest && !bGroundClampTestLogged && !bGroundClampTestInFlight && Scene && !Scene->CoordSystem.IsEmpty())
+	{
+		GroundClampRequestId = Scene->RequestGroundClampPosition(GroundClampLatitude, GroundClampLongitude, GroundClampHeightAboveGround, bGroundClampWaitForData);
+		if (GroundClampRequestId > 0)
+		{
+			bGroundClampTestInFlight = true;
+		}
+		else
+		{
+			bGroundClampTestLogged = true;
+			OnGroundClampTestFailed();
+		}
+	}
+
+	if (bGroundClampTestInFlight && Scene)
+	{
+		FCSWGroundClampResult result;
+		if (Scene->TryGetGroundClampResponse(GroundClampRequestId, result))
+		{
+			bGroundClampTestInFlight = false;
+			bGroundClampTestLogged = true;
+			if (result.bSuccess)
+				OnGroundClampTestComplete(result);
+			else
+				OnGroundClampTestFailed();
+		}
+	}
 }
 
 #include "data.h"
@@ -69,4 +110,3 @@ gzImage* getDDS()
 
 	return im;
 }
-
