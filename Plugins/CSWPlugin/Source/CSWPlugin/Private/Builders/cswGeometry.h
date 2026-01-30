@@ -65,5 +65,7 @@ class cswGeometryBuild : public gzReference
 public:
 	GZ_DECLARE_TYPE_INTERFACE;
 
+	gzUInt32				updateID;
+
 	TObjectPtr<UStaticMesh> staticMesh;
 };

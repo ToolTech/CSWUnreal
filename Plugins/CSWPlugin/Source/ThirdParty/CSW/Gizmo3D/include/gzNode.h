@@ -830,7 +830,7 @@ template <> inline gzVoid gzList<gzGroup>::clearAndDestroy()
 class gzNode :	public gzBoundary , public gzNodeActionProvider , 
 				public gzNameInterface , public gzDebugInterface , 
 				public gzIntersectMask , public gzUpdateIDInterface , 
-				public gzCullMask
+				public gzCullMask 
 {
 public:
 

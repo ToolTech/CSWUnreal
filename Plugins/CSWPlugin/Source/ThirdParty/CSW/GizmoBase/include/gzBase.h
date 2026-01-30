@@ -1043,7 +1043,7 @@ public:
 
 	gzVoid	setUpdateID(gzUInt32 id)		{ m_updateID=id; }
 
-	gzVoid	updateID()					{ ++m_updateID;}
+	gzVoid	updateID()						{ ++m_updateID;}
 
 private:
 

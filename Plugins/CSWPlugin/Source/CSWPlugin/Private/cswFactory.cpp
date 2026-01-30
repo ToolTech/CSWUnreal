@@ -104,6 +104,32 @@ gzReference* cswFactory::preBuildReference(gzNode* node, const gzUInt64& pathID,
 	return nullptr;
 }
 
+gzReference* cswFactory::updateReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata)
+{
+	GZ_INSTRUMENT_NAME("cswFactory::updateReference");
+
+	gzType* type = node->getType();
+
+	cswFactory* factory;
+
+	while (type)
+	{
+		factory = getFactory(type->getName());
+
+		if (!factory)
+		{
+			type = type->getParent();
+			continue;
+		}
+
+		return factory->updateReferenceInstance(node, pathID, parent, parentPathID, state, userdata);
+	}
+
+	GZMESSAGE(GZ_MESSAGE_WARNING, "Failed to get CSW factory for type (%s)", node->getTypeName());
+
+	return userdata;
+}
+
 gzVoid cswFactory::preDestroyReference(gzNode* node, const gzUInt64& pathID, gzReference* userdata)
 {
 	GZ_INSTRUMENT_NAME("cswFactory::preDestroyReference");
@@ -175,4 +201,9 @@ gzReference* cswFactory::preBuildReferenceInstance(gzNode* node, const gzUInt64&
 gzVoid cswFactory::preDestroyReferenceInstance(gzNode* node, const gzUInt64& pathID, gzReference* userdata)
 {
 	// Default do nothing
+}
+
+gzReference* cswFactory::updateReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state,gzReference *userData)
+{
+	return userData;
 }

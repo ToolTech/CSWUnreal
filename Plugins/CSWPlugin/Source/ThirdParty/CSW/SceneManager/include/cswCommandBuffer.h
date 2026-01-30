@@ -45,6 +45,7 @@ enum cswCommandBufferType
 	CSW_BUFFER_TYPE_ERROR,		// Buffers with errors and messages
 	CSW_BUFFER_TYPE_FRAME,		// Frame encapsulation buffer
 	CSW_BUFFER_TYPE_NEW,		// New objects and constructions
+	CSW_BUFFER_TYPE_UPDATE,		// Updated objects and constructions
 	CSW_BUFFER_TYPE_DELETE,		// Deletes
 };
 

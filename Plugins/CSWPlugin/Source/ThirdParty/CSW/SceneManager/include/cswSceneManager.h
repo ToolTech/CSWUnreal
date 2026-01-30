@@ -59,6 +59,7 @@ enum cswTraverseReason
 {
 	CSW_TRAVERSE_NEW,
 	CSW_TRAVERSE_DELETE,
+	CSW_TRAVERSE_UPDATE,
 };
 
 //******************************************************************************
@@ -107,6 +108,7 @@ public:
 	CSW_SM_EXPORT	gzVoid requestCameraPosition(const gzUInt32& refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid requestGroundClampPosition(const gzDouble& latitude, const gzDouble& longitude, const gzDouble& heightAboveGround = 1000, const gzBool& waitForData = FALSE, const gzUInt32 &refCommandID = 0);
 	CSW_SM_EXPORT	gzVoid refreshScene(const gzDouble& time, const gzUInt32 &size_x, const gzUInt32 &size_y, const gzUInt32 &screen_width, const gzUInt32 &refCommandID = 0);
+	CSW_SM_EXPORT	gzVoid refreshSubtree(gzNode* node, const gzUInt64& pathID, const gzUInt32 &refCommandID = 0);
 
 	CSW_SM_EXPORT	gzVoid intersect(const gzVec3D& start, const gzVec3& direction, const gzBool waitForData = FALSE, const gzUInt32 &refCommandID = 0, const gzIntersectMaskValue& intersectMask = (gzIntersectMaskValue)(GZ_INTERSECT_MASK_GROUND | GZ_INTERSECT_MASK_WATER));
 	CSW_SM_EXPORT	gzVoid keyPressed(const gzUInt32 key, const gzUInt32 keyState, const gzInt32 mouseX, const gzInt32 mouseY);
@@ -127,6 +129,7 @@ public:
 	CSW_SM_EXPORT	virtual gzVoid			checkCapability(gzNode* node, gzState* state);
 	CSW_SM_EXPORT	virtual gzReference*	preBuildReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state);
 	CSW_SM_EXPORT	virtual gzVoid			preDestroyReference(gzNode* node, const gzUInt64& pathID,gzReference *userdata);
+	CSW_SM_EXPORT	virtual gzReference*	updateReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* existing);
 
 	GZ_PROPERTY_GET_EXPORT(gzString,		CoordinateSystem,	CSW_SM_EXPORT);
 	GZ_PROPERTY_GET_EXPORT(cswCapability,	Capabilities,		CSW_SM_EXPORT);

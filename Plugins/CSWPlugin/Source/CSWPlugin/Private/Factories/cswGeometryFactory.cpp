@@ -157,6 +157,7 @@ gzReference* cswGeometryFactory::preBuildReferenceInstance(gzNode* node, const g
 	}
 
 	cswGeometryBuild* build = new cswGeometryBuild;
+	build->updateID = geom->getUpdateID();
 
 
 	// Registrera så många UV-lager du behöver (standard är 1) // Om du vill ha fler lager:

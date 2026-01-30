@@ -45,6 +45,13 @@ gzReference* cswUESceneManager::preBuildReference(gzNode* node, const gzUInt64& 
 }
 
 // Called in EDIT LOCK
+gzReference* cswUESceneManager::updateReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata)
+{
+	// Route update into factories
+	return cswFactory::updateReference(node, pathID, parent, parentPathID, state , userdata);
+}
+
+// Called in EDIT LOCK
 gzVoid cswUESceneManager::preDestroyReference(gzNode* node, const gzUInt64& pathID, gzReference* userdata)
 {
 	// Route pre destroy into factories

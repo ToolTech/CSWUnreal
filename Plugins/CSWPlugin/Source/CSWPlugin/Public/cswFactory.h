@@ -54,6 +54,8 @@ public:
 
 	CSWPLUGIN_API static gzVoid preDestroyReference(gzNode* node, const gzUInt64& pathID, gzReference* userdata);
 
+	CSWPLUGIN_API static gzReference* updateReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata);
+
 
 	CSWPLUGIN_API static gzBool registerFactory(const gzString &className, cswFactory *factory);
 
@@ -69,6 +71,8 @@ protected:
 	CSWPLUGIN_API virtual UCSWSceneComponent* newObjectInstance(USceneComponent* parent,gzNode *node, EObjectFlags Flags, UObject* Template, bool bCopyTransientsFromClassDefaults , FObjectInstancingGraph* InInstanceGraph ) = 0;
 
 	CSWPLUGIN_API virtual gzReference* preBuildReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state);
+
+	CSWPLUGIN_API virtual gzReference* updateReferenceInstance(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata);
 
 	CSWPLUGIN_API virtual gzVoid preDestroyReferenceInstance(gzNode* node, const gzUInt64& pathID, gzReference* userdata);
 };

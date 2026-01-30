@@ -44,6 +44,7 @@ public:
 
 	virtual gzReference*	preBuildReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state) override;
 	virtual gzVoid			preDestroyReference(gzNode* node, const gzUInt64& pathID, gzReference* userdata) override;
+	virtual gzReference*	updateReference(gzNode* node, const gzUInt64& pathID, gzGroup* parent, const gzUInt64& parentPathID, gzState* state, gzReference* userdata) override;
 };
 
 GZ_DECLARE_REFPTR(cswUESceneManager);

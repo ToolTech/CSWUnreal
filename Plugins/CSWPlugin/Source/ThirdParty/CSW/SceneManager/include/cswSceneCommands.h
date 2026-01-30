@@ -186,6 +186,20 @@ public:
 	GZ_PROPERTY_EXPORT(gzUInt32, ScreenWidth, CSW_SM_EXPORT);
 };
 
+// ------------------------ cswSceneCommandRefreshSubtree -------------------------------
+
+class cswSceneCommandRefreshSubtree : public cswSceneCommand
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandRefreshSubtree(gzNode* node, const gzUInt64& pathID);
+
+	GZ_PROPERTY_EXPORT(gzNodePtr, Node, CSW_SM_EXPORT);
+	GZ_PROPERTY_EXPORT(gzUInt64, PathID, CSW_SM_EXPORT);
+
+};
+
 // ------------------------ cswSceneCommandSetOmniTraverse -------------------------------
 
 class cswSceneCommandSetOmniTraverse : public cswSceneCommand
@@ -329,6 +343,18 @@ public:
 	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
 
 	CSW_SM_EXPORT cswSceneCommandNewNode(gzNode *node, const gzUInt64& pathID, gzGroup *parent, const gzUInt64& parentPathID, gzState *state, const gzUInt32 commandRefID = 0);
+
+	GZ_PROPERTY_EXPORT(gzStatePtr, State, CSW_SM_EXPORT);
+};
+
+// ------------------------ cswSceneCommandUpdateNode -------------------------------
+
+class cswSceneCommandUpdateNode : public cswSceneCommandHierarchyInstance
+{
+public:
+	GZ_DECLARE_TYPE_INTERFACE_EXPORT(CSW_SM_EXPORT);
+
+	CSW_SM_EXPORT cswSceneCommandUpdateNode(gzNode *node, const gzUInt64& pathID, gzGroup *parent, const gzUInt64& parentPathID, gzState *state, const gzUInt32 commandRefID = 0);
 
 	GZ_PROPERTY_EXPORT(gzStatePtr, State, CSW_SM_EXPORT);
 };
