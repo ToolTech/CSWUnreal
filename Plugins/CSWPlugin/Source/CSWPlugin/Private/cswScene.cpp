@@ -1053,6 +1053,20 @@ gzVec3D UCSWScene::UE_2_GZ(const FVector3d& global, enum CoordType type, const d
 	return  (gzVec3D) (UE_2_GZ(type,scale,offset) * cswVector3d::GZVector3<double>(global));
 }
 
+FVector3d UCSWScene::GZ_2_UE_Vector(const gzVec3D& vector, enum CoordType type, const double& scale) const
+{
+	// Vector conversion: no translation (offset = 0). Use scale for unit conversion if needed.
+	const gzMatrix4D mat = GZ_2_UE(type, scale, GZ_ZERO_VEC3D);
+	return cswVector3d::UEVector3<double>(mat * vector);
+}
+
+gzVec3D UCSWScene::UE_2_GZ_Vector(const FVector3d& vector, enum CoordType type, const double& scale) const
+{
+	// Vector conversion: no translation (offset = 0). Use scale for unit conversion if needed.
+	const gzMatrix4D mat = UE_2_GZ(type, scale, GZ_ZERO_VEC3D);
+	return  (gzVec3D) (mat * cswVector3d::GZVector3<double>(vector));
+}
+
 
 FVector3d UCSWScene::GZ_2_UE_Local(const gzVec3D& position) const
 {

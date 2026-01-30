@@ -38,6 +38,11 @@ scenes inside a UE level.
 - UE mesh components use `ForcedLodModel` controlled by the `CSW_FORCE_LOD0` define
   (default `0` = UE auto LOD, `1` = force LOD0).
 
+## Coordinate conversion utilities
+- `GZ_2_UE` / `UE_2_GZ` (matrix) and overloads (position): map Gizmo coords to UE coords for a given `CoordType`. Includes optional scale and offset.
+- `GZ_2_UE_Local` / `UE_2_GZ_Local`: position conversion that includes the scene origin offset.
+- `GZ_2_UE_Vector` / `UE_2_GZ_Vector`: vector conversion without translation (offset = 0). Use scale for unit conversion; normalize when using normals.
+
 ## Design principles
 - Keep layer boundaries clear: GizmoSDK -> cswSceneManager -> CSWPlugin -> Unreal.
 - Prefer fast, bounded processing on the game thread.

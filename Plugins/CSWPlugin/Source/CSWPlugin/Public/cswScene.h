@@ -186,6 +186,10 @@ protected:
 	FVector3d GZ_2_UE(const gzVec3D& local, enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 	gzVec3D UE_2_GZ(const FVector3d& global,enum CoordType type, const double& scale = 1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 
+	// Vector conversion (no translation; use for directions/normals)
+	FVector3d GZ_2_UE_Vector(const gzVec3D& vector, enum CoordType type, const double& scale = 1.0) const;
+	gzVec3D UE_2_GZ_Vector(const FVector3d& vector, enum CoordType type, const double& scale = 1.0) const;
+
 	gzMatrix4D GZ_2_UE(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 	gzMatrix4D UE_2_GZ(enum CoordType type, const double& scale=1.0, const gzVec3D& offset = gzVec3D(0, 0, 0)) const;
 
