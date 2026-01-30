@@ -12,8 +12,27 @@ A project aiming to create a fast stream implementation in Unreal Engine.
 6. The map will load in Editor mode but performance is measured between play and stop
 7. You will get output from the log when you filter on sender **CSW**
 
+## CSWPlugin overview
 
-## DevTest via Blueprint
+CSWPlugin exposes a `UCSWScene` component that connects Unreal to the CSW scene manager (GizmoSDK).
+Key responsibilities:
+- Map streaming via `MapUrls` and the CSW command pipeline.
+- Scene graph creation/destruction on the game thread (buffered from the manager).
+- Coordinate conversion between geodetic, Gizmo, and UE space.
+- Ground clamp request/response helpers (polling, event, and async BP node).
+
+Common entry points:
+- `UCSWScene::RequestGroundClampPosition(...)` + `TryGetGroundClampResponse(...)` (polling).
+- `UCSWScene::OnGroundClampResponse` (event/callback).
+- `GroundClampAsync` (Blueprint async node: `UCSWGroundClampAsyncAction`).
+
+## CSWDev test
+
+`ACSWDevTest` is a lightweight test actor (C++ + Blueprint friendly). It includes:
+- Geodetic conversion test (forward + reverse).
+- Ground clamp test (polling) and an async example helper.
+
+### DevTest via Blueprint
 
 You can create a lightweight DevTest in Blueprint by inheriting from `ACSWDevTest`:
 
@@ -29,6 +48,32 @@ If you need coordinate conversion in Blueprint, call:
 - `WorldToGeodeticBP(...)`
 
 These wrappers use the current loaded map coordinate system and route through GizmoSDK -> UE transforms.
+
+### Ground clamp in DevTest (Blueprint)
+
+Polling example (built in):
+- Set **bRunGroundClampTest = true** and the ground clamp fields.
+- Implement:
+  - **OnGroundClampTestComplete(Result)**
+  - **OnGroundClampTestFailed()**
+
+Async example (recommended for BP):
+- Call **RunGroundClampAsyncExample(TimeoutSeconds)**.
+- Bind **OnSuccess / OnFail** on the returned async action node.
+
+### Ground clamp in C++
+
+Minimal polling pattern:
+```
+const int32 RequestId = Scene->RequestGroundClampPosition(Lat, Lon, Height, WaitForData);
+FCSWGroundClampResult Result;
+if (Scene->TryGetGroundClampResponse(RequestId, Result))
+{
+    // Use Result.WorldPosition / WorldNormal / WorldUp / Altitude
+}
+```
+
+Requests are asynchronous; do not block the game thread.
 
 ## Contacts
 
